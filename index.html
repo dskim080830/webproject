@@ -1,160 +1,427 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>쉬운 글 배움터 - 외부 인증 기반 서비스</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --bg-color: #fdfbf7;
-            --white: #ffffff;
-            --accent-color: #ff8a5c;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
-        body { background-color: var(--bg-color); color: #333; line-height: 1.6; }
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="느린 학습자와 다문화 가정을 위한 쉬운 글(Easy-Read) 배움터" />
+	<title>쉬운 글 배움터 - Easy Read</title>
 
-        .status-bar {
-            background: #2c3e50; color: white; padding: 12px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000;
-        }
-        .iq-badge { background: var(--accent-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 14px; }
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
 
-        .hero { text-align: center; padding: 100px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
-        .hero h1 { font-size: 34px; color: #2c3e50; margin-bottom: 20px; letter-spacing: -1px; }
+	<style>
+		:root {
+			--primary-color: #4a90e2;
+			--secondary-color: #ffd93d;
+			--accent-color: #ff8a5c;
+			--bg-color: #fdfbf7;
+			--text-color: #333333;
+			--white: #ffffff;
+		}
 
-        .container { max-width: 1100px; margin: -50px auto 60px; padding: 0 20px; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
-        
-        .card { 
-            background: var(--white); padding: 40px; border-radius: 35px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center;
-            transition: 0.3s; border-bottom: 6px solid #eee;
-        }
-        .locked { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: "Nanum Gothic", sans-serif;
+		}
 
-        .main-btn {
-            background: var(--primary-color); color: white; border: none;
-            padding: 20px 45px; border-radius: 50px; font-weight: 800; cursor: pointer;
-            font-size: 18px; margin-top: 20px; display: inline-block; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
-        }
+		html { scroll-behavior: smooth; }
 
-        /* 결과 입력 영역 */
-        .score-input-box {
-            margin-top: 40px; padding: 30px; background: white; border-radius: 25px;
-            display: inline-block; border: 2px dashed var(--primary-color);
-        }
-        input { padding: 12px; border: 2px solid #ddd; border-radius: 10px; width: 120px; font-size: 18px; text-align: center; margin: 0 10px; }
+		body {
+			background-color: var(--bg-color);
+			color: var(--text-color);
+			line-height: 1.8;
+			word-break: keep-all;
+		}
 
-        footer { text-align: center; padding: 60px; color: #888; }
-    </style>
+		header {
+			background-color: var(--white);
+			padding: 0 5%;
+			height: 90px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+			position: sticky;
+			top: 0;
+			z-index: 100;
+		}
+
+		.logo {
+			font-size: 28px;
+			font-weight: 800;
+			color: var(--primary-color);
+			text-decoration: none;
+		}
+
+		.main-menu {
+			display: flex;
+			list-style: none;
+			gap: 30px;
+		}
+
+		.main-menu li a {
+			text-decoration: none;
+			color: #444;
+			font-size: 19px;
+			font-weight: 800;
+		}
+
+		.hero {
+			text-align: center;
+			padding: 80px 20px 100px;
+			background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+		}
+
+		.hero h1 {
+			font-size: 42px;
+			margin-bottom: 20px;
+			color: #2c3e50;
+		}
+
+		.intro-box {
+			display: inline-block;
+			margin-top: 25px;
+			padding: 15px 30px;
+			background-color: rgba(255, 255, 255, 0.7);
+			border-radius: 20px;
+			border: 2px dashed var(--primary-color);
+		}
+
+		.container {
+			max-width: 1200px;
+			margin: -50px auto 60px;
+			padding: 0 20px;
+		}
+
+		.feature-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 25px;
+		}
+
+		.card {
+			background: var(--white);
+			padding: 40px 25px;
+			border-radius: 35px;
+			box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+			text-align: center;
+			border-bottom: 6px solid transparent;
+			transition: transform 0.3s ease;
+		}
+
+		.card:hover {
+			transform: translateY(-8px);
+			border-bottom-color: var(--primary-color);
+		}
+
+		.icon-circle {
+			width: 70px;
+			height: 70px;
+			background-color: #f0f7ff;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 20px;
+			font-size: 35px;
+		}
+
+		.main-btn {
+			display: inline-block;
+			padding: 14px 25px;
+			background-color: var(--primary-color);
+			color: white;
+			text-decoration: none;
+			border-radius: 50px;
+			font-weight: bold;
+			margin-top: 20px;
+			border: none;
+			cursor: pointer;
+		}
+
+		footer {
+			text-align: center;
+			padding: 50px;
+			color: #888;
+			border-top: 1px solid #eee;
+		}
+
+		@media (max-width: 1100px) {
+			.main-menu { display: none; }
+		}
+
+		/* TTS highlight */
+		.highlight {
+			background: var(--secondary-color);
+			padding: 0 3px;
+			border-radius: 6px;
+			box-shadow: inset 0 -2px 0 rgba(0,0,0,0.08);
+		}
+		.word { white-space: pre-wrap; }
+	</style>
 </head>
+
 <body>
+	<header>
+		<div class="header-left">
+			<a href="#" class="logo">✨ 쉬운 글 배움터</a>
+			<ul class="main-menu">
+				<li><a href="#top">서비스 소개</a></li>
+				<li><a href="#top">단어 테스트</a></li>
+				<li><a href="#top">쉬운 글 변환기</a></li>
+				<li><a href="#top">행동 사전</a></li>
+				<li><a href="#tts">글 읽어주기</a></li>
+			</ul>
+		</div>
+	</header>
 
-<div class="status-bar">
-    <span>✨ 쉬운 글 배움터 (Official Diagnostic Connect)</span>
-    <div id="statusInfo">상태: <span class="iq-badge" id="iqLabel">인증 필요</span></div>
-</div>
+	<section id="top" class="hero">
+		<h1>누구나 읽기 쉬운 세상을 만듭니다</h1>
+		<p>어려운 말들 때문에 고민하지 마세요. 우리가 쉽게 바꿔드릴게요!</p>
+		<div class="intro-box">
+			<span>
+				✍️ 먼저 <strong>단어 테스트</strong>를 통해 나의 어휘 능력을 확인해보세요. <br><br>
+				이 테스트 결과를 기반으로 나에게 딱 맞는 맞춤형 서비스를 원활하게 이용할 수 있습니다.
+			</span>
+		</div>
+	</section>
 
-<section class="hero">
-    <h1 id="heroTitle">검증된 외부 전문 진단을 시작합니다</h1>
-    <p id="heroDesc">본 사이트는 임의의 문항을 사용하지 않습니다.<br>외부 지능 검사 전문 기관에서 테스트를 마친 후, 결과값을 입력해 주세요.</p>
-    
-    <button onclick="goToExternalTest()" class="main-btn" id="startBtn">외부 테스트 사이트 방문하기 🔗</button>
+	<main class="container">
+		<div class="feature-grid">
+			<div class="card" style="border-bottom-color: var(--accent-color)">
+				<div class="icon-circle">📝</div>
+				<h2>단어 테스트</h2>
+				<p>내 어휘 실력을 확인하면 서비스 이용이 훨씬 더 쉬워져요!</p>
+				<a href="#top" class="main-btn" style="background-color: var(--accent-color)">어휘력 확인하기</a>
+			</div>
 
-    <div id="resultInputSection" style="margin-top: 30px;">
-        <div class="score-input-box">
-            <p style="margin-bottom: 15px; font-weight: bold;">테스트 완료 후 확인된 IQ 점수를 입력하세요</p>
-            <strong>IQ 점수:</strong>
-            <input type="number" id="finalScore" placeholder="예: 110">
-            <button onclick="applyExternalScore()" style="padding: 12px 25px; background: #2ecc71; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">결과 적용</button>
-        </div>
-    </div>
-</section>
+			<div class="card">
+				<div class="icon-circle">✍️</div>
+				<h2>쉬운 글 변환기</h2>
+				<p>복잡하고 긴 글을 넣으면 AI가 알기 쉽게 고쳐줍니다.</p>
+				<a href="#top" class="main-btn">지금 시작하기</a>
+			</div>
 
-<main class="container">
-    <div class="feature-grid">
-        <div class="card locked" id="srv1">
-            <div style="font-size: 50px; margin-bottom: 15px;">📊</div>
-            <h3>인증 기반 개인화 서비스</h3>
-            <p>외부 진단 결과에 따라 모든 기능이 활성화됩니다.</p>
-        </div>
-        <div class="card locked" id="srv2">
-            <div style="font-size: 50px; margin-bottom: 15px;">🧩</div>
-            <h3>인지 맞춤형 글 변환</h3>
-            <p>사용자의 분석된 인지 수준에 최적화된 문장을 생성합니다.</p>
-        </div>
-    </div>
-</main>
+			<div class="card" style="border-bottom-color: var(--secondary-color)">
+				<div class="icon-circle">🤝</div>
+				<h2>행동 사전</h2>
+				<p>사회 생활 중 발생할 수 있는 상황의 대처 방법을 학습합니다.</p>
+				<a href="#top" class="main-btn" style="background-color: #34495e">대처 방법 배우기</a>
+			</div>
 
-<footer>
-    <p>© 2026 Easy Read Learning Hub. 데이터 제공: 외부 공인 지능 검사 기관</p>
-</footer>
+			<div class="card">
+				<div class="icon-circle">🔊</div>
+				<h2>글 읽어주기</h2>
+				<p>글자를 읽기 힘들 땐 목소리를 들으며 따라 읽어봐요.</p>
+				<a href="#tts" class="main-btn">목소리 듣기</a>
+			</div>
+		</div>
+	</main>
 
-<script>
-    // 1. 외부 공신력 있는 테스트 URL (팝업 방식으로 연결)
-    const CERTIFIED_TEST_URL = "https://www.free-iqtest.net/";
+	<section id="tts" class="container" style="margin-top: 30px;">
+		<div class="card" style="text-align: left;">
+			<h2 style="margin-bottom: 10px;">🔊 글 읽어주기 (TTS)</h2>
+			<p style="margin-bottom: 18px;">문단을 붙여넣고 재생하면, 읽는 위치가 노란색으로 따라가요.</p>
 
-    function goToExternalTest() {
-        // 새 탭에서 외부 테스트 사이트 열기 (보안 차단 회피)
-        window.open(CERTIFIED_TEST_URL, '_blank');
-        alert("새 창에서 외부 테스트가 시작됩니다.\n테스트 완료 후 결과 화면의 IQ 점수를 돌아와서 입력해 주세요.");
-    }
+			<textarea id="ttsInput" rows="6"
+				style="width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #e6eef8; font-size: 18px; line-height: 1.7;"
+				placeholder="여기에 읽을 문단을 붙여넣어 주세요."></textarea>
 
-    // 2. 외부 결과를 받아서 서비스 활성화
-    function applyExternalScore() {
-        const iqValue = document.getElementById('finalScore').value;
-        if (!iqValue || iqValue < 1) {
-            alert("정상적인 테스트 결과값을 입력해 주세요.");
-            return;
-        }
+			<div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 14px;">
+				<button id="btnSpeak" class="main-btn" type="button">▶ 읽기</button>
+				<button id="btnPause" class="main-btn" type="button" style="background-color: #34495e;">⏸ 일시정지</button>
+				<button id="btnResume" class="main-btn" type="button" style="background-color: #34495e;">⏯ 재개</button>
+				<button id="btnStop" class="main-btn" type="button" style="background-color: #e74c3c;">⏹ 정지</button>
 
-        // Vercel 재방문 시 유지를 위해 브라우저에 저장
-        localStorage.setItem('certified_iq_result', iqValue);
-        activateService(iqValue);
-    }
+				<label style="font-weight: 800; margin-left: 6px;">속도</label>
+				<input id="ttsRate" type="range" min="0.5" max="1.2" step="0.1" value="1.0" />
+				<span id="rateLabel" style="min-width: 52px; font-weight: 800;">1.0x</span>
 
-    function activateService(iq) {
-        const iqNum = parseInt(iq);
-        const label = document.getElementById('iqLabel');
-        const title = document.getElementById('heroTitle');
-        const desc = document.getElementById('heroDesc');
-        const startBtn = document.getElementById('startBtn');
-        const inputArea = document.getElementById('resultInputSection');
+				<label style="font-weight: 800; margin-left: 6px;">목소리</label>
+				<select id="voicePreset"
+					style="padding: 10px; border-radius: 12px; border: 2px solid #e6eef8; font-size: 16px;">
+					<option value="adult" selected>성인(기본)</option>
+					<option value="child">아동(친근)</option>
+				</select>
+			</div>
 
-        // 상단 바 정보 업데이트
-        label.innerText = `공인 인증: IQ ${iqNum}`;
-        label.style.background = "#2ecc71";
+			<div id="ttsOutput"
+				style="margin-top: 18px; padding: 16px; border-radius: 18px; background: #f7fbff; border: 2px dashed #bcd6f5; font-size: 20px; line-height: 1.8;"></div>
 
-        // 잠긴 서비스 해제
-        document.querySelectorAll('.card').forEach(c => {
-            c.classList.remove('locked');
-            c.style.borderBottomColor = "#2ecc71";
-            c.style.transform = "scale(1.02)";
-        });
+			<p style="margin-top: 10px; color: #666;">※ 일부 브라우저에서는 음성 목록 로딩이 늦을 수 있어요.</p>
+		</div>
+	</section>
 
-        // 결과에 따른 개인화 UI (임의 문항 없이 외부 수치만 활용)
-        startBtn.style.display = "none";
-        inputArea.style.display = "none";
-        title.innerText = `분석 결과(IQ ${iqNum})가 반영되었습니다.`;
-        
-        if (iqNum >= 120) {
-            desc.innerHTML = "<strong>상위권 인지 능력 확인:</strong> 전문적인 정보 요약 및 고지능 맞춤형 고도화 모드를 제공합니다.";
-        } else if (iqNum >= 90) {
-            desc.innerHTML = "<strong>표준 인지 수준 확인:</strong> 일상의 정보를 가장 명확하고 논리적으로 정리해 주는 표준 서비스를 제공합니다.";
-        } else {
-            desc.innerHTML = "<strong>기초 배움터 모드 활성화:</strong> 친절한 단어 설명과 그림 중심의 직관적인 서비스 환경을 구성했습니다.";
-        }
-    }
+	<footer>
+		<p>© 2026 쉬운 글 배움터. 모든 이웃의 따뜻한 배움을 응원합니다.</p>
+	</footer>
 
-    // Vercel 배포 후 재방문 시 자동 복구
-    window.onload = () => {
-        const savedIQ = localStorage.getItem('certified_iq_result');
-        if (savedIQ) activateService(savedIQ);
-    };
-</script>
+	<script>
+		(() => {
+			const inputEl = document.getElementById("ttsInput");
+			const outputEl = document.getElementById("ttsOutput");
 
+			const btnSpeak = document.getElementById("btnSpeak");
+			const btnPause = document.getElementById("btnPause");
+			const btnResume = document.getElementById("btnResume");
+			const btnStop = document.getElementById("btnStop");
+
+			const rateEl = document.getElementById("ttsRate");
+			const rateLabel = document.getElementById("rateLabel");
+			const voicePresetEl = document.getElementById("voicePreset");
+
+			let voices = [];
+			let currentUtterance = null;
+
+			function escapeHtml(str) {
+				return str
+					.replaceAll("&", "&amp;")
+					.replaceAll("<", "&lt;")
+					.replaceAll(">", "&gt;")
+					.replaceAll('"', "&quot;")
+					.replaceAll("'", "&#039;");
+			}
+
+			function renderWords(text) {
+				const tokens = text.split(/(\s+)/);
+				outputEl.innerHTML = tokens.map((t, idx) => {
+					if (/^\s+$/.test(t)) {
+						return t.replace(/ /g, "&nbsp;").replace(/\n/g, "<br>");
+					}
+					return `<span class="word" data-idx="${idx}">${escapeHtml(t)}</span>`;
+				}).join("");
+			}
+
+			function buildTokenCharMap(text) {
+				const tokens = text.split(/(\s+)/);
+				let pos = 0;
+				const map = [];
+				for (let i = 0; i < tokens.length; i++) {
+					const t = tokens[i];
+					const start = pos;
+					pos += t.length;
+					const end = pos;
+					map.push({ start, end, isWord: !/^\s+$/.test(t) });
+				}
+				return map;
+			}
+
+			function clearHighlight() {
+				outputEl.querySelectorAll(".highlight").forEach(el => el.classList.remove("highlight"));
+			}
+
+			function highlightByCharIndex(charIndex, tokenMap) {
+				for (let i = 0; i < tokenMap.length; i++) {
+					const entry = tokenMap[i];
+					if (!entry.isWord) continue;
+					if (charIndex >= entry.start && charIndex < entry.end) {
+						clearHighlight();
+						const span = outputEl.querySelector(`.word[data-idx="${i}"]`);
+						if (span) {
+							span.classList.add("highlight");
+							span.scrollIntoView({ block: "nearest", inline: "nearest" });
+						}
+						break;
+					}
+				}
+			}
+
+			function loadVoices() {
+				voices = speechSynthesis.getVoices() || [];
+			}
+			loadVoices();
+			speechSynthesis.onvoiceschanged = () => loadVoices();
+
+			function pickVoice(preset) {
+				const ko = voices.filter(v => (v.lang || "").toLowerCase().startsWith("ko"));
+				const pool = ko.length ? ko : voices;
+				if (!pool.length) return null;
+
+				const n = (v) => (v.name || "").toLowerCase();
+
+				if (preset === "child") {
+					const childLike = pool.find(v =>
+						n(v).includes("child") ||
+						n(v).includes("kid") ||
+						n(v).includes("junior")
+					);
+					if (childLike) return childLike;
+
+					const friendly = pool.find(v =>
+						n(v).includes("female") ||
+						n(v).includes("woman")
+					);
+					return friendly || pool[0];
+				}
+
+				const adultLike = pool.find(v =>
+					n(v).includes("male") ||
+					n(v).includes("man") ||
+					n(v).includes("standard")
+				);
+				return adultLike || pool[0];
+			}
+
+			function stopTTS() {
+				speechSynthesis.cancel();
+				currentUtterance = null;
+				clearHighlight();
+			}
+
+			function updateRateLabel() {
+				rateLabel.textContent = `${Number(rateEl.value).toFixed(1)}x`;
+			}
+			rateEl.addEventListener("input", updateRateLabel);
+			updateRateLabel();
+
+			function speak() {
+				const text = (inputEl.value || "").trim();
+				if (!text) {
+					alert("읽을 문단을 입력해 주세요.");
+					return;
+				}
+
+				stopTTS();
+
+				renderWords(text);
+				const tokenMap = buildTokenCharMap(text);
+
+				const utter = new SpeechSynthesisUtterance(text);
+				currentUtterance = utter;
+
+				utter.lang = "ko-KR";
+				utter.rate = Number(rateEl.value);
+
+				const voice = pickVoice(voicePresetEl.value);
+				if (voice) utter.voice = voice;
+
+				utter.onboundary = (event) => {
+					if (typeof event.charIndex === "number") {
+						highlightByCharIndex(event.charIndex, tokenMap);
+					}
+				};
+
+				utter.onend = () => {
+					clearHighlight();
+					currentUtterance = null;
+				};
+
+				utter.onerror = () => {
+					clearHighlight();
+					currentUtterance = null;
+				};
+
+				speechSynthesis.speak(utter);
+			}
+
+			btnSpeak.addEventListener("click", speak);
+			btnPause.addEventListener("click", () => speechSynthesis.pause());
+			btnResume.addEventListener("click", () => speechSynthesis.resume());
+			btnStop.addEventListener("click", stopTTS);
+		})();
+	</script>
 </body>
 </html>
