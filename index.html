@@ -3,159 +3,156 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>쉬운 글 배움터 - 외부 진단 연동형</title>
+    <title>쉬운 글 배움터 - 외부 인증 기반 서비스</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
         :root {
             --primary-color: #4a90e2;
             --bg-color: #fdfbf7;
             --white: #ffffff;
+            --accent-color: #ff8a5c;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
-        body { background-color: var(--bg-color); color: #333; }
+        body { background-color: var(--bg-color); color: #333; line-height: 1.6; }
 
-        /* 상단 IQ 상태 표시바 */
-        .iq-status {
-            background: #2c3e50; color: white; padding: 10px 5%;
+        .status-bar {
+            background: #2c3e50; color: white; padding: 12px 5%;
             display: flex; justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 1000;
         }
-        .iq-badge { background: #ffd93d; color: #000; padding: 3px 12px; border-radius: 20px; font-weight: 800; }
+        .iq-badge { background: var(--accent-color); color: white; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 14px; }
 
-        .hero { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
-        .container { max-width: 1100px; margin: -30px auto 60px; padding: 0 20px; }
+        .hero { text-align: center; padding: 100px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
+        .hero h1 { font-size: 34px; color: #2c3e50; margin-bottom: 20px; letter-spacing: -1px; }
+
+        .container { max-width: 1100px; margin: -50px auto 60px; padding: 0 20px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
         
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .card { 
-            background: var(--white); padding: 40px; border-radius: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center;
-            transition: 0.3s; position: relative;
+            background: var(--white); padding: 40px; border-radius: 35px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center;
+            transition: 0.3s; border-bottom: 6px solid #eee;
         }
-        .locked { filter: grayscale(1); opacity: 0.6; cursor: not-allowed; }
-        .lock-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        .locked { opacity: 0.5; filter: grayscale(1); cursor: not-allowed; }
 
         .main-btn {
             background: var(--primary-color); color: white; border: none;
-            padding: 16px 32px; border-radius: 50px; font-weight: 800; cursor: pointer;
-            font-size: 18px; margin-top: 20px; text-decoration: none; display: inline-block;
+            padding: 20px 45px; border-radius: 50px; font-weight: 800; cursor: pointer;
+            font-size: 18px; margin-top: 20px; display: inline-block; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
         }
 
-        /* 외부 테스트 팝업 레이어 */
-        #externalTestLayer {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 2000;
+        /* 결과 입력 영역 */
+        .score-input-box {
+            margin-top: 40px; padding: 30px; background: white; border-radius: 25px;
+            display: inline-block; border: 2px dashed var(--primary-color);
         }
-        .modal-content {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; height: 80%; background: white; border-radius: 20px; overflow: hidden;
-        }
-        iframe { width: 100%; height: calc(100% - 60px); border: none; }
-        .modal-footer { height: 60px; background: #eee; display: flex; align-items: center; justify-content: center; gap: 20px; }
+        input { padding: 12px; border: 2px solid #ddd; border-radius: 10px; width: 120px; font-size: 18px; text-align: center; margin: 0 10px; }
+
+        footer { text-align: center; padding: 60px; color: #888; }
     </style>
 </head>
 <body>
 
-<div class="iq-status">
-    <span>✨ 쉬운 글 배움터 진단 센터</span>
-    <div id="iqInfo">진단 상태: <span class="iq-badge" id="iqValue">미진단</span></div>
+<div class="status-bar">
+    <span>✨ 쉬운 글 배움터 (Official Diagnostic Connect)</span>
+    <div id="statusInfo">상태: <span class="iq-badge" id="iqLabel">인증 필요</span></div>
 </div>
 
 <section class="hero">
-    <h1 id="mainTitle">외부 전문 기관과 연동하여 지능을 측정합니다</h1>
-    <p id="mainDesc">임의의 문항이 아닌, 검증된 외부 테스트 결과를 바탕으로 서비스를 제공합니다.</p>
-    <button onclick="openExternalTest()" class="main-btn" id="triggerBtn">외부 전문 진단 시작하기</button>
+    <h1 id="heroTitle">검증된 외부 전문 진단을 시작합니다</h1>
+    <p id="heroDesc">본 사이트는 임의의 문항을 사용하지 않습니다.<br>외부 지능 검사 전문 기관에서 테스트를 마친 후, 결과값을 입력해 주세요.</p>
+    
+    <button onclick="goToExternalTest()" class="main-btn" id="startBtn">외부 테스트 사이트 방문하기 🔗</button>
+
+    <div id="resultInputSection" style="margin-top: 30px;">
+        <div class="score-input-box">
+            <p style="margin-bottom: 15px; font-weight: bold;">테스트 완료 후 확인된 IQ 점수를 입력하세요</p>
+            <strong>IQ 점수:</strong>
+            <input type="number" id="finalScore" placeholder="예: 110">
+            <button onclick="applyExternalScore()" style="padding: 12px 25px; background: #2ecc71; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">결과 적용</button>
+        </div>
+    </div>
 </section>
 
 <main class="container">
     <div class="feature-grid">
-        <div class="card locked" id="srv-easy">
-            <span class="lock-icon">🔒</span>
-            <h3>맞춤형 쉬운 글 변환</h3>
-            <p>측정된 IQ 수준에 맞춰 문장 구조를 재배치합니다.</p>
+        <div class="card locked" id="srv1">
+            <div style="font-size: 50px; margin-bottom: 15px;">📊</div>
+            <h3>인증 기반 개인화 서비스</h3>
+            <p>외부 진단 결과에 따라 모든 기능이 활성화됩니다.</p>
         </div>
-        <div class="card locked" id="srv-word">
-            <span class="lock-icon">🔒</span>
-            <h3>인지 능력 기반 단어장</h3>
-            <p>사용자의 인지 범위 내 단어들을 추천합니다.</p>
+        <div class="card locked" id="srv2">
+            <div style="font-size: 50px; margin-bottom: 15px;">🧩</div>
+            <h3>인지 맞춤형 글 변환</h3>
+            <p>사용자의 분석된 인지 수준에 최적화된 문장을 생성합니다.</p>
         </div>
     </div>
 </main>
 
-<div id="externalTestLayer">
-    <div class="modal-content">
-        <iframe id="testFrame" src="about:blank"></iframe>
-        <div class="modal-footer">
-            <p>테스트를 완료하신 후, 결과 화면에 표시된 점수를 아래에 입력해주세요.</p>
-            <input type="number" id="scoreInput" placeholder="결과 점수 입력" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
-            <button onclick="applyExternalScore()" style="padding: 8px 20px; background: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer;">결과 적용하기</button>
-            <button onclick="closeModal()" style="padding: 8px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer;">닫기</button>
-        </div>
-    </div>
-</div>
+<footer>
+    <p>© 2026 Easy Read Learning Hub. 데이터 제공: 외부 공인 지능 검사 기관</p>
+</footer>
 
 <script>
-    // 1. 외부 사이트 연동 설정 (공신력 있는 오픈소스 지능 검사 페이지)
-    const EXTERNAL_TEST_URL = "https://openpsychometrics.org/tests/FART/"; // 예시: 도형 추론 기반 공인 테스트
+    // 1. 외부 공신력 있는 테스트 URL (팝업 방식으로 연결)
+    const CERTIFIED_TEST_URL = "https://www.free-iqtest.net/";
 
-    function openExternalTest() {
-        document.getElementById('externalTestLayer').style.display = 'block';
-        document.getElementById('testFrame').src = EXTERNAL_TEST_URL;
+    function goToExternalTest() {
+        // 새 탭에서 외부 테스트 사이트 열기 (보안 차단 회피)
+        window.open(CERTIFIED_TEST_URL, '_blank');
+        alert("새 창에서 외부 테스트가 시작됩니다.\n테스트 완료 후 결과 화면의 IQ 점수를 돌아와서 입력해 주세요.");
     }
 
-    function closeModal() {
-        document.getElementById('externalTestLayer').style.display = 'none';
-        document.getElementById('testFrame').src = 'about:blank';
-    }
-
-    // 2. 외부 결과를 받아서 서비스 활성화 (임의 문항 배제)
+    // 2. 외부 결과를 받아서 서비스 활성화
     function applyExternalScore() {
-        const score = document.getElementById('scoreInput').value;
-        if(!score || score < 1) {
-            alert("정확한 테스트 결과를 입력해주세요.");
+        const iqValue = document.getElementById('finalScore').value;
+        if (!iqValue || iqValue < 1) {
+            alert("정상적인 테스트 결과값을 입력해 주세요.");
             return;
         }
 
-        // 입력된 외부 점수를 IQ로 환산 (테스트 종류에 따라 로직 가변적)
-        const interpretedIQ = parseInt(score); // 테스트 사이트의 결과값 그대로 수용
-        
-        localStorage.setItem('external_iq', interpretedIQ);
-        updateServiceUI(interpretedIQ);
-        closeModal();
+        // Vercel 재방문 시 유지를 위해 브라우저에 저장
+        localStorage.setItem('certified_iq_result', iqValue);
+        activateService(iqValue);
     }
 
-    function updateServiceUI(iq) {
-        document.getElementById('iqValue').innerText = `IQ ${iq}`;
-        document.getElementById('iqValue').style.background = "#2ecc71";
-        document.getElementById('iqValue').style.color = "white";
+    function activateService(iq) {
+        const iqNum = parseInt(iq);
+        const label = document.getElementById('iqLabel');
+        const title = document.getElementById('heroTitle');
+        const desc = document.getElementById('heroDesc');
+        const startBtn = document.getElementById('startBtn');
+        const inputArea = document.getElementById('resultInputSection');
 
-        // 서비스 잠금 해제
+        // 상단 바 정보 업데이트
+        label.innerText = `공인 인증: IQ ${iqNum}`;
+        label.style.background = "#2ecc71";
+
+        // 잠긴 서비스 해제
         document.querySelectorAll('.card').forEach(c => {
             c.classList.remove('locked');
-            const icon = c.querySelector('.lock-icon');
-            if(icon) icon.innerText = "✅";
+            c.style.borderBottomColor = "#2ecc71";
+            c.style.transform = "scale(1.02)";
         });
 
-        // 지능 지수에 따른 개인화 문구 (임의 문항 없이 결과값만 활용)
-        const title = document.getElementById('mainTitle');
-        const desc = document.getElementById('mainDesc');
-        const triggerBtn = document.getElementById('triggerBtn');
-
-        triggerBtn.style.display = "none";
-        title.innerText = `IQ ${iq} 맞춤형 서비스가 활성화되었습니다.`;
+        // 결과에 따른 개인화 UI (임의 문항 없이 외부 수치만 활용)
+        startBtn.style.display = "none";
+        inputArea.style.display = "none";
+        title.innerText = `분석 결과(IQ ${iqNum})가 반영되었습니다.`;
         
-        if(iq >= 120) {
-            desc.innerText = "상위권 인지 능력에 맞춰 정보의 밀도를 높인 전문 요약 모드를 제공합니다.";
-        } else if(iq >= 90) {
-            desc.innerText = "표준 인지 수준에 최적화된 명확하고 논리적인 쉬운 글 모드를 제공합니다.";
+        if (iqNum >= 120) {
+            desc.innerHTML = "<strong>상위권 인지 능력 확인:</strong> 전문적인 정보 요약 및 고지능 맞춤형 고도화 모드를 제공합니다.";
+        } else if (iqNum >= 90) {
+            desc.innerHTML = "<strong>표준 인지 수준 확인:</strong> 일상의 정보를 가장 명확하고 논리적으로 정리해 주는 표준 서비스를 제공합니다.";
         } else {
-            desc.innerText = "기초 어휘와 시각적 자료가 강조된 직관적인 배움터 모드를 제공합니다.";
+            desc.innerHTML = "<strong>기초 배움터 모드 활성화:</strong> 친절한 단어 설명과 그림 중심의 직관적인 서비스 환경을 구성했습니다.";
         }
     }
 
-    // Vercel 배포 후 재방문 시 데이터 유지
+    // Vercel 배포 후 재방문 시 자동 복구
     window.onload = () => {
-        const savedIQ = localStorage.getItem('external_iq');
-        if(savedIQ) updateServiceUI(parseInt(savedIQ));
+        const savedIQ = localStorage.getItem('certified_iq_result');
+        if (savedIQ) activateService(savedIQ);
     };
 </script>
 
