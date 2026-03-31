@@ -8,40 +8,59 @@
     <style>
         :root { --primary: #4a90e2; --secondary: #ffd93d; --bg: #fdfbf7; --text: #333; --white: #fff; --error: #e74c3c; --success: #2ecc71; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
+        html { scroll-behavior: smooth; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; word-break: keep-all; }
         
+        /* 헤더 & 메뉴 */
         header { background: var(--white); padding: 0 5%; height: 90px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .header-left { display: flex; align-items: center; gap: 40px; }
+        .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .nav-menu { display: flex; list-style: none; gap: 25px; }
+        .nav-menu a { text-decoration: none; color: #555; font-weight: 700; font-size: 17px; transition: 0.2s; }
+        .nav-menu a:hover { color: var(--primary); }
+        
         .header-right { display: flex; gap: 15px; align-items: center; }
         #user-menu { display: none; gap: 15px; font-weight: 700; align-items: center; }
         
+        /* 버튼 */
         .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; text-decoration: none; display: inline-block; font-size: 16px; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
         .btn-outline { background: none; padding: 10px 15px; color: var(--text); }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
 
+        /* 모달 */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; overflow-y: auto; }
         .modal-content { background: #fff; padding: 35px; border-radius: 30px; width: 95%; max-width: 480px; position: relative; margin: 20px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: 700; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; outline: none; font-size: 16px; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
         .v-msg { font-size: 13px; margin-top: 5px; font-weight: 700; min-height: 18px; }
 
-        .hero { text-align: center; padding: 70px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
-        .container { max-width: 1000px; margin: -40px auto 60px; padding: 0 20px; }
-        .card { background: #fff; padding: 35px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); margin-bottom: 25px; }
+        /* 섹션 스타일 */
+        .hero { text-align: center; padding: 100px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
+        .container { max-width: 1100px; margin: -50px auto 60px; padding: 0 20px; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 50px; }
+        .card { background: #fff; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); text-align: center; }
+        .card h2 { margin-bottom: 15px; color: var(--primary); }
         
+        /* TTS 하이라이트 */
         .highlight { background: var(--secondary); border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .word { display: inline-block; white-space: pre-wrap; font-size: 22px; transition: 0.1s; cursor: default; }
+        .word { display: inline-block; white-space: pre-wrap; font-size: 24px; transition: 0.1s; }
         
         textarea { width: 100%; border: 2px solid #eee; border-radius: 20px; padding: 20px; font-size: 18px; resize: none; margin-top: 15px; background: #fafafa; }
-        footer { text-align: center; padding: 40px; color: #999; font-size: 14px; }
+        footer { text-align: center; padding: 60px; color: #999; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
     <header>
-        <a href="/" class="logo">✨ 쉬운 글 배움터</a>
+        <div class="header-left">
+            <a href="/" class="logo">✨ 쉬운 글 배움터</a>
+            <ul class="nav-menu">
+                <li><a href="#intro">서비스 소개</a></li>
+                <li><a href="#tts">글 읽어주기</a></li>
+                <li><a href="#easy-convert">쉬운 글 변환</a></li>
+            </ul>
+        </div>
         <div class="header-right">
             <div id="guest-menu">
                 <button class="btn btn-outline" onclick="openM('loginModal')">로그인</button>
@@ -55,11 +74,11 @@
     </header>
 
     <div id="signupModal" class="modal"><div class="modal-content">
-        <h2 style="margin-bottom:20px; color: var(--primary);">새 가족 찾기 (회원가입)</h2>
+        <h2 style="margin-bottom:20px; color: var(--primary);">반가워요! 가입하기</h2>
         <form id="signupF">
-            <div class="form-group"><label>성함</label><input type="text" id="rName" placeholder="실명을 적어주세요" required></div>
+            <div class="form-group"><label>이름</label><input type="text" id="rName" placeholder="실명을 적어주세요" required></div>
             <div class="form-group"><label>생년월일</label><input type="date" id="rBirth" required></div>
-            <div class="form-group"><label>아이디</label><input type="text" id="rId" placeholder="사용할 영문/숫자 이름" required></div>
+            <div class="form-group"><label>아이디</label><input type="text" id="rId" placeholder="사용할 아이디" required></div>
             <div class="form-group">
                 <label>비밀번호</label>
                 <input type="password" id="rPw" placeholder="8자 이상, 영문+숫자+특수문자" required>
@@ -67,62 +86,83 @@
             </div>
             <div class="form-group"><label>휴대폰 번호</label><input type="tel" id="rPhone" placeholder="010-0000-0000" required></div>
             <div class="form-group">
-                <label>배움의 수준 (나에게 맞는 설정을 위해)</label>
+                <label>지능 수준 선택</label>
                 <select id="rLevel" required>
-                    <option value="" disabled selected>수준을 선택해주세요</option>
+                    <option value="" disabled selected>나의 배움 수준을 알려주세요</option>
                     <option value="boundary">느린 학습자 (경계선 지능)</option>
                     <option value="mild">도움이 필요한 학습자 (경도 지적장애)</option>
                     <option value="general">일반 학습자</option>
                 </select>
             </div>
-            <button type="submit" id="sBtn" class="btn btn-primary" style="width:100%" disabled>가입하고 시작하기</button>
+            <button type="submit" id="sBtn" class="btn btn-primary" style="width:100%" disabled>가입 완료!</button>
         </form>
         <button onclick="closeM('signupModal')" style="margin-top:10px; background:none; border:none; color:#bbb; cursor:pointer; width:100%">닫기</button>
     </div></div>
 
     <div id="loginModal" class="modal"><div class="modal-content">
-        <h2 style="margin-bottom:25px; text-align: center;">다시 만나서 반가워요!</h2>
+        <h2 style="margin-bottom:25px; text-align: center;">로그인</h2>
         <form id="loginF">
             <div class="form-group"><label>아이디</label><input type="text" id="lId" required></div>
             <div class="form-group"><label>비밀번호</label><input type="password" id="lPw" required></div>
             <button type="submit" class="btn btn-primary" style="width:100%">로그인</button>
             <div id="lMsg" class="v-msg" style="color:var(--error); text-align:center"></div>
         </form>
-        <button onclick="closeM('loginModal')" style="margin-top:10px; background:none; border:none; color:#bbb; cursor:pointer; width:100%">나중에 할게요</button>
+        <button onclick="closeM('loginModal')" style="margin-top:10px; background:none; border:none; color:#bbb; cursor:pointer; width:100%">취소</button>
     </div></div>
 
     <section class="hero">
-        <h1 id="wTitle" style="font-size: 32px; margin-bottom: 10px;">누구나 읽기 쉬운 세상을 만듭니다</h1>
-        <p style="font-size: 18px; color: #555;">복잡하고 어려운 글을 아주 천천히, 알기 쉽게 읽어드려요.</p>
+        <h1 id="wTitle" style="font-size: 40px; margin-bottom: 20px;">누구나 읽기 쉬운 세상을 만듭니다</h1>
+        <p style="font-size: 20px; color: #555;">어려운 정보를 나에게 딱 맞는 쉬운 글로 만나보세요.</p>
     </section>
 
     <main class="container">
-        <div class="card">
-            <h2 style="font-size: 22px;">🔊 글 읽어주기 (소리 내어 읽기)</h2>
-            <textarea id="tIn" rows="5" placeholder="읽고 싶은 문장을 여기에 적어주세요."></textarea>
+        <div id="intro" class="feature-grid">
+            <div class="card">
+                <h2>✍️ 쉬운 글 변환</h2>
+                <p>복잡한 뉴스나 공공 문서를<br>이해하기 쉬운 단어로 바꿔드려요.</p>
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="location.href='#easy-convert'">변환하기</button>
+            </div>
+            <div class="card">
+                <h2>🔊 소리 내어 읽기</h2>
+                <p>글자를 눈으로 보며 귀로 들으면<br>내용을 더 정확히 이해할 수 있어요.</p>
+                <button class="btn btn-primary" style="margin-top:15px;" onclick="location.href='#tts'">읽기 시작</button>
+            </div>
+        </div>
+
+        <div id="tts" class="card" style="text-align: left;">
+            <h2 style="display: flex; align-items: center; gap: 10px;">🔊 실시간 글 읽어주기</h2>
+            <textarea id="tIn" rows="5" placeholder="읽고 싶은 글을 여기에 입력하세요."></textarea>
             
-            <div style="margin-top:15px; display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
-                <button onclick="speak()" class="btn btn-primary" style="padding: 14px 35px;">▶ 소리내어 읽기</button>
-                <button onclick="speechSynthesis.cancel()" class="btn btn-sub" style="padding: 14px 20px;">⏹ 멈추기</button>
+            <div style="margin-top:20px; display:flex; gap:12px; align-items:center; flex-wrap: wrap;">
+                <button onclick="speak()" class="btn btn-primary" style="padding: 15px 40px; font-size: 18px;">▶ 읽기</button>
+                <button onclick="speechSynthesis.cancel()" class="btn btn-sub" style="padding: 15px 25px;">⏹ 정지</button>
                 <div style="display:flex; align-items:center; gap:8px; background:#eee; padding:8px 15px; border-radius:50px;">
-                    <label style="font-size:14px; font-weight:700;">읽기 속도</label>
-                    <input type="range" id="tRate" min="0.5" max="1.3" step="0.1" value="0.9" style="width:70px;">
+                    <label style="font-size:14px; font-weight:700;">천천히 읽기</label>
+                    <input type="range" id="tRate" min="0.5" max="1.2" step="0.1" value="0.9" style="width:70px;">
                 </div>
             </div>
 
-            <div id="tOut" style="margin-top:25px; min-height:100px; padding:25px; background:#f0f7ff; border:2px dashed #adcfff; border-radius:20px;">
-                <span style="color:#888;">입력한 글이 여기에 한 단어씩 나타납니다.</span>
+            <div id="tOut" style="margin-top:30px; min-height:120px; padding:25px; background:#f0f7ff; border:2px dashed #adcfff; border-radius:20px;">
+                <span style="color:#888;">글을 입력하고 '읽기'를 누르면 단어가 강조됩니다.</span>
             </div>
+        </div>
+
+        <div id="easy-convert" class="card" style="margin-top:50px;">
+            <h2>✍️ 쉬운 글 변환기</h2>
+            <p>서비스 준비 중입니다. 곧 만나보실 수 있습니다!</p>
         </div>
     </main>
 
-    <footer><p>© 2026 쉬운 글 배움터. 배움은 언제나 즐겁습니다.</p></footer>
+    <footer>
+        <p>✨ 쉬운 글 배움터 - 2026. 모든 권리 보유.</p>
+        <p style="font-size: 12px; margin-top: 10px;">본 서비스는 경계선 지능 및 지적장애 학습자의 정보 접근성을 돕습니다.</p>
+    </footer>
 
     <script>
         function openM(id) { document.getElementById(id).style.display='flex'; }
         function closeM(id) { document.getElementById(id).style.display='none'; }
 
-        // [비밀번호 보안 검사 로직]
+        // [비밀번호 보안 체크]
         const rPw = document.getElementById('rPw'), sBtn = document.getElementById('sBtn'), pVal = document.getElementById('pVal');
         const rName = document.getElementById('rName'), rPhone = document.getElementById('rPhone'), rBirth = document.getElementById('rBirth');
 
@@ -136,10 +176,10 @@
             let bad = false;
             if (name && pw.includes(name)) bad = true;
             if (phone.length > 4 && pw.includes(phone.slice(-4))) bad = true;
-            if (birth && pw.includes(birth.substring(2))) bad = true;
+            if (birth && pw.includes(birth.substring(2).replace(/-/g, ''))) bad = true;
 
             if (bad) {
-                pVal.textContent = "⚠️ 내 이름이나 전화번호는 비밀번호에 쓸 수 없어요.";
+                pVal.textContent = "⚠️ 비밀번호에 이름이나 개인정보를 넣지 마세요.";
                 pVal.style.color = "var(--error)";
                 sBtn.disabled = true;
             } else if (regex.test(pw)) {
@@ -147,11 +187,10 @@
                 pVal.style.color = "var(--success)";
                 sBtn.disabled = false;
             } else {
-                pVal.textContent = "❌ 영문, 숫자, 특수문자를 섞어서 8자 이상 써주세요.";
+                pVal.textContent = "❌ 8자 이상, 영문+숫자+특수문자를 써주세요.";
                 pVal.style.color = "var(--error)";
                 sBtn.disabled = true;
             }
-            if(pw === "") pVal.textContent = "";
         }
         [rPw, rName, rPhone, rBirth].forEach(el => el.addEventListener('input', validatePassword));
 
@@ -166,15 +205,13 @@
                 birth: rBirth.value,
                 level: document.getElementById('rLevel').value
             };
-            try {
-                const res = await fetch('/api/signup', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify(userData)
-                });
-                if(res.ok) { alert("가입을 축하합니다! 이제 로그인해주세요."); closeM('signupModal'); }
-                else { alert("아이디가 겹치거나 잘못된 정보가 있습니다."); }
-            } catch(e) { alert("연결이 불안정합니다."); }
+            const res = await fetch('/api/signup', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(userData)
+            });
+            if(res.ok) { alert("가입 성공! 축하해요."); closeM('signupModal'); }
+            else { alert("가입 실패!"); }
         };
 
         // [서버 통신: 로그인]
@@ -190,16 +227,15 @@
                 document.getElementById('guest-menu').style.display='none';
                 document.getElementById('user-menu').style.display='flex';
                 document.getElementById('u-info').textContent = `✨ ${data.user.name}님 환영해요!`;
-                document.getElementById('wTitle').textContent = `${data.user.name}님, 오늘 무엇을 배워볼까요?`;
+                document.getElementById('wTitle').textContent = `${data.user.name}님, 무엇을 읽어드릴까요?`;
                 closeM('loginModal');
             } else { document.getElementById('lMsg').textContent = data.message; }
         };
 
-        // [TTS 단어별 하이라이트 기능]
+        // [TTS 하이라이트 기능]
         function speak() {
             const txt = document.getElementById('tIn').value.trim();
             if(!txt) return;
-            
             speechSynthesis.cancel();
             const tokens = txt.split(/(\s+)/); 
             const out = document.getElementById('tOut');
