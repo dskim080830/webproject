@@ -1,0 +1,8 @@
+{
+  "name": "easy-read-vercel",
+  "version": "1.0.0",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "mysql2": "^3.9.2"
+  }
+}
