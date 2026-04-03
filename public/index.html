@@ -14,18 +14,16 @@
         html { scroll-behavior: smooth; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; word-break: keep-all; }
         
-        /* 헤더 및 메뉴 복구 */
         header { background: var(--white); padding: 0 5%; height: 90px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
         .header-left { display: flex; align-items: center; gap: 30px; }
         .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
         .nav-menu { display: flex; list-style: none; gap: 20px; }
-        .nav-menu a { text-decoration: none; color: #555; font-weight: 700; font-size: 16px; transition: 0.2s; }
-        .nav-menu a:hover { color: var(--primary); }
+        .nav-menu a { text-decoration: none; color: #555; font-weight: 700; font-size: 16px; }
         
         .header-right { display: flex; gap: 15px; align-items: center; }
         #user-menu { display: none; gap: 15px; font-weight: 700; align-items: center; }
 
-        .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; text-decoration: none; display: inline-block; font-size: 16px; text-align: center; }
+        .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; display: inline-block; font-size: 16px; text-align: center; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
         .btn-outline { background: none; padding: 10px 15px; color: var(--text); }
@@ -35,14 +33,17 @@
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; outline: none; font-size: 16px; }
-        .pw-hint { font-size: 12px; color: #888; margin-top: 4px; }
+        
+        /* 실시간 검사 메시지 스타일 */
+        .status-msg { font-size: 12px; margin-top: 5px; font-weight: bold; }
+        .valid { color: var(--success); }
+        .invalid { color: var(--error); }
 
         .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
         .card { background: #fff; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); margin-bottom: 30px; }
-        
-        .word { display: inline-block; padding: 2px 5px; border-radius: 6px; font-size: 24px; font-weight: 800; transition: 0.2s; }
-        .highlight { background: var(--secondary); transform: scale(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        textarea { width: 100%; border: 2px solid #eee; border-radius: 20px; padding: 20px; font-size: 18px; resize: none; margin-top: 15px; background: #fafafa; outline: none; }
+        .word { display: inline-block; padding: 2px 5px; border-radius: 6px; font-size: 24px; font-weight: 800; }
+        .highlight { background: var(--secondary); transform: scale(1.1); }
+        textarea { width: 100%; border: 2px solid #eee; border-radius: 20px; padding: 20px; font-size: 18px; resize: none; background: #fafafa; outline: none; }
     </style>
 </head>
 <body>
@@ -73,30 +74,28 @@
         <div id="tts" class="card">
             <h2>🔊 실시간 글 읽어주기</h2>
             <textarea id="tIn" rows="5" placeholder="읽고 싶은 내용을 입력하세요."></textarea>
-            <div style="margin-top:20px; display:flex; gap:15px; align-items:center; flex-wrap: wrap;">
+            <div style="margin-top:20px; display:flex; gap:15px; align-items:center;">
                 <button onclick="handleSpeak()" class="btn btn-primary">▶ 읽기 시작</button>
                 <button onclick="stopSpeak()" class="btn btn-sub">⏹ 정지</button>
                 <input type="range" id="tRate" min="0.5" max="1.5" step="0.1" value="0.9"> <span>속도</span>
             </div>
-            <div id="tOut" style="margin-top:30px; min-height:150px; padding:30px; background:#f0f7ff; border:2px dashed #adcfff; border-radius:25px;">
-                <span style="color:#999;">여기에 읽어주는 글자가 표시됩니다.</span>
-            </div>
+            <div id="tOut" style="margin-top:30px; min-height:100px; padding:30px; background:#f0f7ff; border-radius:25px;"></div>
         </div>
     </main>
 
     <div id="signupModal" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom:20px; color:var(--primary);">새로운 회원가입</h2>
+            <h2 style="margin-bottom:20px; color:var(--primary);">회원가입</h2>
             <form id="signupF">
                 <div class="form-group"><label>성함</label><input type="text" id="rName" required></div>
                 <div class="form-group"><label>아이디</label><input type="text" id="rId" required></div>
                 
                 <div class="form-group">
                     <label>비밀번호</label>
-                    <input type="password" id="rPw" required>
-                    <p class="pw-hint">⚠️ 8자 이상, 특수문자 포함 필수 (생년월일 포함 금지)</p>
+                    <input type="password" id="rPw" placeholder="8자 이상, 특수문자 포함" required oninput="checkPw()">
+                    <div id="pwMsg" class="status-msg"></div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>이메일 인증</label>
                     <div style="display:flex; gap:10px;">
@@ -106,14 +105,18 @@
                 </div>
                 <div id="emailAuthField" class="form-group" style="display:none;">
                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="rEmailCode" placeholder="6자리 번호">
+                        <input type="text" id="rEmailCode" placeholder="인증코드">
                         <button type="button" class="btn btn-primary" onclick="verifyEmail()">확인</button>
                     </div>
-                    <div id="emailMsg" style="font-size:12px; margin-top:5px;"></div>
+                    <div id="emailMsg" class="status-msg"></div>
                 </div>
 
-                <div class="form-group"><label>휴대폰 번호</label><input type="tel" id="rPhone" placeholder="010-0000-0000" required></div>
-                <div class="form-group"><label>생년월일</label><input type="date" id="rBirth" required></div>
+                <div class="form-group">
+                    <label>휴대폰 번호</label>
+                    <input type="tel" id="rPhone" placeholder="010-0000-0000" maxlength="13" required oninput="autoHyphen(this)">
+                </div>
+
+                <div class="form-group"><label>생년월일</label><input type="date" id="rBirth" required onchange="checkPw()"></div>
                 
                 <div class="form-group">
                     <label>학습 단계</label>
@@ -146,8 +149,39 @@
         function openM(id) { document.getElementById(id).style.display = 'flex'; }
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
-        let serverCode = ""; let isEmailVerified = false;
+        // 1. 휴대폰 하이픈 자동 삽입
+        function autoHyphen(target) {
+            target.value = target.value
+                .replace(/[^0-9]/g, '')
+                .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+        }
 
+        // 2. 비밀번호 실시간 검사
+        function checkPw() {
+            const pw = document.getElementById('rPw').value;
+            const birth = document.getElementById('rBirth').value.replace(/-/g, "");
+            const msg = document.getElementById('pwMsg');
+            const specialChar = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+
+            if (!pw) { msg.innerText = ""; return; }
+
+            if (pw.length < 8) {
+                msg.innerText = "❌ 8자 이상 입력하세요.";
+                msg.className = "status-msg invalid";
+            } else if (!specialChar.test(pw)) {
+                msg.innerText = "❌ 특수문자를 포함하세요.";
+                msg.className = "status-msg invalid";
+            } else if (birth && pw.includes(birth)) {
+                msg.innerText = "❌ 비밀번호에 생년월일을 포함할 수 없습니다.";
+                msg.className = "status-msg invalid";
+            } else {
+                msg.innerText = "✅ 사용 가능한 비밀번호입니다.";
+                msg.className = "status-msg valid";
+            }
+        }
+
+        // 3. 이메일 인증
+        let serverCode = ""; let isEmailVerified = false;
         async function sendAuthEmail() {
             const email = document.getElementById('rEmail').value;
             if(!email.includes('@')) return alert("이메일을 확인해주세요.");
@@ -160,30 +194,21 @@
             if(document.getElementById('rEmailCode').value === serverCode) {
                 isEmailVerified = true;
                 document.getElementById('emailMsg').innerText = "✅ 인증 완료";
+                document.getElementById('emailMsg').className = "status-msg valid";
                 document.getElementById('rEmail').readOnly = true;
             } else { alert("번호가 틀립니다."); }
         }
 
-        // --- 비밀번호 보안 검증 로직 복구 ---
+        // 회원가입 전송
         document.getElementById('signupF').onsubmit = async (e) => {
             e.preventDefault();
-            
-            const pw = document.getElementById('rPw').value;
-            const birth = document.getElementById('rBirth').value.replace(/-/g, ""); // "19950101" 형식
-            const specialChar = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
-
-            // 1. 8자 이상 체크
-            if(pw.length < 8) return alert("비밀번호는 8자 이상이어야 합니다.");
-            // 2. 특수문자 포함 체크
-            if(!specialChar.test(pw)) return alert("비밀번호에 특수문자가 포함되어야 합니다.");
-            // 3. 생년월일 포함 체크
-            if(birth && pw.includes(birth)) return alert("비밀번호에 생년월일을 포함할 수 없습니다.");
-            // 4. 이메일 인증 체크
+            const msg = document.getElementById('pwMsg').innerText;
+            if(!msg.includes("✅")) return alert("비밀번호 규칙을 확인해주세요.");
             if(!isEmailVerified) return alert("이메일 인증을 완료해주세요.");
 
             const payload = {
                 userId: document.getElementById('rId').value,
-                pw: pw,
+                pw: document.getElementById('rPw').value,
                 email: document.getElementById('rEmail').value,
                 name: document.getElementById('rName').value,
                 phone: document.getElementById('rPhone').value,
@@ -196,7 +221,7 @@
             else { alert("가입 실패!"); }
         };
 
-        // 로그인 및 TTS (기존 기능 유지)
+        // 로그인 및 TTS 로직 (기존과 동일)
         document.getElementById('loginF').onsubmit = async (e) => {
             e.preventDefault();
             const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: document.getElementById('lId').value, pw: document.getElementById('lPw').value }) });
@@ -211,23 +236,19 @@
 
         function handleSpeak() {
             const txt = document.getElementById('tIn').value;
-            const output = document.getElementById('tOut');
             if (!txt) return;
             window.speechSynthesis.cancel();
             const words = txt.split(/(\s+)/);
-            output.innerHTML = words.map((w, i) => `<span id="word-${i}" class="word">${w}</span>`).join('');
+            document.getElementById('tOut').innerHTML = words.map((w, i) => `<span id="word-${i}" class="word">${w}</span>`).join('');
             const utter = new SpeechSynthesisUtterance(txt);
             utter.lang = 'ko-KR';
             utter.rate = document.getElementById('tRate').value;
             utter.onboundary = (e) => {
                 if (e.name === 'word') {
-                    const charIdx = e.charIndex;
-                    let count = 0;
                     words.forEach((w, i) => {
                         const el = document.getElementById(`word-${i}`);
-                        if (count <= charIdx && charIdx < count + w.length) el.classList.add('highlight');
+                        if (i === Math.floor(e.charIndex / 2)) el.classList.add('highlight');
                         else el.classList.remove('highlight');
-                        count += w.length;
                     });
                 }
             };
