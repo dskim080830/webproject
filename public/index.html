@@ -7,135 +7,65 @@
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
         :root { 
-            --primary: #4a90e2; 
-            --secondary: #ffd93d; 
-            --bg: #fdfbf7; 
-            --text: #333; 
-            --white: #fff; 
-            --error: #e74c3c; 
-            --success: #2ecc71; 
+            --primary: #4a90e2; --secondary: #ffd93d; --bg: #fdfbf7; 
+            --text: #333; --white: #fff; --error: #e74c3c; --success: #2ecc71; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         html { scroll-behavior: smooth; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; word-break: keep-all; }
         
-        /* 헤더 스타일 */
         header { background: var(--white); padding: 0 5%; height: 90px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .header-left { display: flex; align-items: center; gap: 30px; }
         .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .nav-menu { display: flex; list-style: none; gap: 20px; }
-        .nav-menu a { text-decoration: none; color: #555; font-weight: 700; font-size: 16px; transition: 0.2s; }
-        .nav-menu a:hover { color: var(--primary); }
-        
         .header-right { display: flex; gap: 15px; align-items: center; }
-        #user-menu { display: none; gap: 15px; font-weight: 700; align-items: center; }
-
-        /* 버튼 스타일 */
+        
         .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; text-decoration: none; display: inline-block; font-size: 16px; text-align: center; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
-        .btn-outline { background: none; padding: 10px 15px; color: var(--text); }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
+        .btn-outline { background: none; padding: 10px 15px; color: var(--text); }
 
-        /* 모달 스타일 */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
         .modal-content { background: #fff; padding: 35px; border-radius: 30px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; outline: none; font-size: 16px; }
-        .checkbox-group { background: #f9f9f9; padding: 15px; border-radius: 12px; display: flex; gap: 10px; margin-top: 10px; }
-        .checkbox-group label { font-size: 13px; color: #666; cursor: pointer; }
 
-        /* 메인 디자인 */
-        .hero { text-align: center; padding: 80px 20px; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); }
-        .container { max-width: 1100px; margin: -50px auto 60px; padding: 0 20px; }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 50px; }
-        .card { background: #fff; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); transition: 0.3s; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .card { background: #fff; padding: 40px; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); margin-bottom: 30px; }
         
         /* TTS 강조 효과 */
         .word { display: inline-block; padding: 2px 5px; border-radius: 6px; font-size: 24px; font-weight: 800; transition: 0.2s; }
         .highlight { background: var(--secondary); transform: scale(1.1); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        
         textarea { width: 100%; border: 2px solid #eee; border-radius: 20px; padding: 20px; font-size: 18px; resize: none; margin-top: 15px; background: #fafafa; outline: none; }
-        footer { text-align: center; padding: 60px; color: #999; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="header-left">
-            <a href="/" class="logo">✨ 쉬운 글 배움터</a>
-            <ul class="nav-menu">
-                <li><a href="#intro">서비스 소개</a></li>
-                <li><a href="#tts">글 읽어주기</a></li>
-                <li><a href="#easy-convert">쉬운 글 변환</a></li>
-                <li><a href="#behavior-dict">행동 사전</a></li>
-            </ul>
-        </div>
+        <a href="/" class="logo">✨ 쉬운 글 배움터</a>
         <div class="header-right">
             <div id="guest-menu">
                 <button class="btn btn-outline" onclick="openM('loginModal')">로그인</button>
                 <button class="btn btn-primary" onclick="openM('signupModal')">회원가입</button>
             </div>
-            <div id="user-menu">
+            <div id="user-menu" style="display:none; gap:15px; font-weight:700;">
                 <span id="u-info"></span>
                 <button class="btn btn-sub" onclick="location.reload()">로그아웃</button>
             </div>
         </div>
     </header>
 
-    <section class="hero">
-        <h1 id="mainTitle" style="font-size: 38px; margin-bottom: 20px;">누구나 읽기 쉬운 세상을 만듭니다</h1>
-        <p style="font-size: 19px; color: #555;">복잡한 글은 쉽게 바꾸고, 모르는 행동은 사전에서 찾아보세요.</p>
-    </section>
-
     <main class="container">
-        <div id="intro" class="feature-grid">
-            <div class="card" style="text-align: center;">
-                <h2 style="font-size: 24px;">✍️ 쉬운 글 변환</h2>
-                <p>어려운 문장을<br>이해하기 쉽게 바꿔요.</p>
-                <button class="btn btn-primary" style="margin-top:20px;" onclick="location.href='#easy-convert'">바꾸러 가기</button>
-            </div>
-            <div class="card" style="text-align: center;">
-                <h2 style="font-size: 24px;">🔊 소리 내어 읽기</h2>
-                <p>글자를 보며 귀로 들으면<br>공부가 더 잘 돼요.</p>
-                <button class="btn btn-primary" style="margin-top:20px;" onclick="location.href='#tts'">읽으러 가기</button>
-            </div>
-            <div class="card" style="background: #fff9e6; text-align: center;">
-                <h2 style="font-size: 24px;">📖 행동 사전</h2>
-                <p>이럴 땐 어떻게 할까요?<br>상황별 대처법을 배워요.</p>
-                <button class="btn btn-primary" style="margin-top:20px;" onclick="location.href='#behavior-dict'">사전 보기</button>
-            </div>
-        </div>
-
         <div id="tts" class="card">
-            <h2 style="margin-bottom: 10px;">🔊 실시간 글 읽어주기</h2>
-            <p style="color: #666; margin-bottom: 15px;">읽고 싶은 내용을 넣으면 노란색으로 강조하며 읽어드려요.</p>
-            <textarea id="tIn" rows="5" placeholder="여기에 읽고 싶은 글을 넣어주세요."></textarea>
+            <h2>🔊 실시간 글 읽어주기</h2>
+            <p style="color: #666;">내용을 입력하면 노란색으로 강조하며 읽어드려요.</p>
+            <textarea id="tIn" rows="5" placeholder="읽고 싶은 내용을 입력하세요."></textarea>
             <div style="margin-top:20px; display:flex; gap:15px; align-items:center; flex-wrap: wrap;">
                 <button onclick="handleSpeak()" class="btn btn-primary" style="padding: 15px 40px;">▶ 읽기 시작</button>
                 <button onclick="stopSpeak()" class="btn btn-sub" style="padding: 15px 25px;">⏹ 정지</button>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:14px; font-weight:700;">느리게</span>
-                    <input type="range" id="tRate" min="0.5" max="1.5" step="0.1" value="0.9">
-                    <span style="font-size:14px; font-weight:700;">빠르게</span>
-                </div>
+                <input type="range" id="tRate" min="0.5" max="1.5" step="0.1" value="0.9"> <span>속도 조절</span>
             </div>
             <div id="tOut" style="margin-top:30px; min-height:150px; padding:30px; background:#f0f7ff; border:2px dashed #adcfff; border-radius:25px; line-height: 2.5;">
-                <span style="color: #999;">여기에 읽어주는 글자가 표시됩니다.</span>
-            </div>
-        </div>
-
-        <div id="behavior-dict" class="card" style="margin-top:50px;">
-            <h2 style="color: #f39c12; margin-bottom: 20px;">📖 행동 사전</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                <div style="padding: 20px; background: #fef9ef; border-radius: 15px; border-left: 5px solid #f39c12;">
-                    <h3 style="font-size: 18px; margin-bottom: 5px;">🚌 버스를 잘못 탔을 때</h3>
-                    <p style="font-size: 15px; color: #777;">당황하지 말고 다음 정류장에서 내려서 지도를 보거나 주변에 물어봐요.</p>
-                </div>
-                <div style="padding: 20px; background: #fef9ef; border-radius: 15px; border-left: 5px solid #f39c12;">
-                    <h3 style="font-size: 18px; margin-bottom: 5px;">🤝 처음 인사할 때</h3>
-                    <p style="font-size: 15px; color: #777;">상대방의 눈을 살짝 보고 "안녕하세요"라고 웃으며 인사해요.</p>
-                </div>
+                <span style="color:#999;">여기에 읽어주는 글자가 표시됩니다.</span>
             </div>
         </div>
     </main>
@@ -146,23 +76,35 @@
             <form id="signupF">
                 <div class="form-group"><label>성함</label><input type="text" id="rName" required></div>
                 <div class="form-group"><label>아이디</label><input type="text" id="rId" required></div>
-                <div class="form-group"><label>비밀번호</label><input type="password" id="rPw" placeholder="영문, 숫자 포함 8자 이상" required></div>
+                <div class="form-group"><label>비밀번호</label><input type="password" id="rPw" required></div>
+                
+                <div class="form-group">
+                    <label>이메일 인증</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="email" id="rEmail" placeholder="example@gmail.com" required>
+                        <button type="button" class="btn btn-sub" id="emailBtn" onclick="sendAuthEmail()" style="white-space:nowrap;">코드받기</button>
+                    </div>
+                </div>
+                <div id="emailAuthField" class="form-group" style="display:none;">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="rEmailCode" placeholder="인증코드 6자리">
+                        <button type="button" class="btn btn-primary" onclick="verifyEmail()">확인</button>
+                    </div>
+                    <div id="emailMsg" style="font-size:12px; margin-top:5px; font-weight:bold;"></div>
+                </div>
+
                 <div class="form-group"><label>휴대폰 번호</label><input type="tel" id="rPhone" placeholder="010-0000-0000" required></div>
                 <div class="form-group"><label>생년월일</label><input type="date" id="rBirth" required></div>
                 <div class="form-group">
-                    <label>학습 단계 (본인의 수준을 선택하세요)</label>
+                    <label>학습 단계</label>
                     <select id="rLevel" required>
                         <option value="" disabled selected>선택해주세요</option>
                         <option value="1">1단계: 천천히 배워요 (경계선 지능)</option>
                         <option value="2">2단계: 도움이 필요해요 (경도 지적장애)</option>
-                        <option value="3">3단계: 함께 배워요 (중등도 지적장애)</option>
+                        <option value="3">3단계: 함께 배워요 (중증/중도 지적장애)</option>
                     </select>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="rAgree" required>
-                    <label for="rAgree">(필수) 개인정보 수집 및 맞춤형 서비스 제공에 동의합니다.</label>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding: 15px;">가입 완료</button>
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px;">가입 완료</button>
             </form>
             <button onclick="closeM('signupModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">취소</button>
         </div>
@@ -174,121 +116,108 @@
             <form id="loginF">
                 <div class="form-group"><label>아이디</label><input type="text" id="lId" required></div>
                 <div class="form-group"><label>비밀번호</label><input type="password" id="lPw" required></div>
-                <button type="submit" class="btn btn-primary" style="width:100%; padding: 15px;">로그인하기</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;">로그인하기</button>
             </form>
             <button onclick="closeM('loginModal')" style="margin-top:10px; border:none; background:none; color:#999; cursor:pointer; width:100%;">닫기</button>
         </div>
     </div>
 
-    <footer>
-        <p>© 2026 쉬운 글 배움터 - 모두를 위한 따뜻한 배움</p>
-    </footer>
-
     <script>
-        // 모달 제어
         function openM(id) { document.getElementById(id).style.display = 'flex'; }
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
-        // --- 회원가입 API 연동 ---
+        // --- 이메일 인증 로직 ---
+        let serverCode = ""; let isEmailVerified = false;
+        async function sendAuthEmail() {
+            const email = document.getElementById('rEmail').value;
+            if(!email.includes('@')) return alert("이메일을 확인해주세요.");
+            document.getElementById('emailBtn').innerText = "발송중...";
+            const res = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if(res.ok) { serverCode = data.code; alert("인증번호가 발송되었습니다."); document.getElementById('emailAuthField').style.display = 'block'; }
+            document.getElementById('emailBtn').innerText = "재발송";
+        }
+
+        function verifyEmail() {
+            const userCode = document.getElementById('rEmailCode').value;
+            const msg = document.getElementById('emailMsg');
+            if(userCode === serverCode && serverCode !== "") {
+                isEmailVerified = true;
+                msg.innerText = "✅ 인증되었습니다.";
+                msg.style.color = "green";
+                document.getElementById('rEmail').readOnly = true;
+            } else { alert("코드가 틀립니다."); }
+        }
+
+        // --- 회원가입 전송 ---
         document.getElementById('signupF').onsubmit = async (e) => {
             e.preventDefault();
+            if(!isEmailVerified) return alert("이메일 인증을 해주세요.");
             const payload = {
                 userId: document.getElementById('rId').value,
                 pw: document.getElementById('rPw').value,
+                email: document.getElementById('rEmail').value,
                 name: document.getElementById('rName').value,
                 phone: document.getElementById('rPhone').value,
                 birth: document.getElementById('rBirth').value,
                 level: document.getElementById('rLevel').value
             };
-
             const res = await fetch('/api/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-
-            if (res.ok) {
-                alert("축하합니다! 회원가입이 완료되었습니다.");
-                closeM('signupModal');
-                openM('loginModal');
-            } else {
-                const err = await res.json();
-                alert("실패: " + (err.message || "오류 발생"));
-            }
+            if (res.ok) { alert("가입 완료!"); location.reload(); }
+            else { alert("가입 실패!"); }
         };
 
-        // --- 로그인 API 연동 ---
+        // --- 로그인 ---
         document.getElementById('loginF').onsubmit = async (e) => {
             e.preventDefault();
             const res = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: document.getElementById('lId').value,
-                    pw: document.getElementById('lPw').value
-                })
+                body: JSON.stringify({ userId: document.getElementById('lId').value, pw: document.getElementById('lPw').value })
             });
-
             const data = await res.json();
             if (res.ok) {
                 document.getElementById('guest-menu').style.display = 'none';
                 document.getElementById('user-menu').style.display = 'flex';
-                document.getElementById('u-info').innerHTML = `✨ <strong>${data.user.name}</strong>님 환영해요!`;
-                document.getElementById('mainTitle').innerText = `${data.user.name}님을 위한 쉬운 공부방`;
+                document.getElementById('u-info').innerHTML = `✨ <strong>${data.user.name}</strong>님!`;
                 closeM('loginModal');
-            } else {
-                alert(data.message);
-            }
+            } else { alert(data.message); }
         };
 
-        // --- TTS 실시간 강조 기능 ---
-        let currentUtterance = null;
-
+        // --- TTS ---
         function handleSpeak() {
             const txt = document.getElementById('tIn').value;
             const output = document.getElementById('tOut');
-            const rate = document.getElementById('tRate').value;
-
-            if (!txt) return alert("읽을 내용을 입력해 주세요.");
-
-            window.speechSynthesis.cancel(); // 이전 소리 끄기
-
-            // 글자 쪼개기
+            if (!txt) return;
+            window.speechSynthesis.cancel();
             const words = txt.split(/(\s+)/);
             output.innerHTML = words.map((w, i) => `<span id="word-${i}" class="word">${w}</span>`).join('');
-
-            currentUtterance = new SpeechSynthesisUtterance(txt);
-            currentUtterance.lang = 'ko-KR';
-            currentUtterance.rate = rate;
-
-            currentUtterance.onboundary = (event) => {
-                if (event.name === 'word') {
-                    const charIndex = event.charIndex;
+            const utter = new SpeechSynthesisUtterance(txt);
+            utter.lang = 'ko-KR';
+            utter.rate = document.getElementById('tRate').value;
+            utter.onboundary = (e) => {
+                if (e.name === 'word') {
+                    const charIdx = e.charIndex;
                     let count = 0;
                     words.forEach((w, i) => {
                         const el = document.getElementById(`word-${i}`);
-                        if (count <= charIndex && charIndex < count + w.length) {
-                            el.classList.add('highlight');
-                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        } else {
-                            el.classList.remove('highlight');
-                        }
+                        if (count <= charIdx && charIdx < count + w.length) el.classList.add('highlight');
+                        else el.classList.remove('highlight');
                         count += w.length;
                     });
                 }
             };
-
-            currentUtterance.onend = () => {
-                document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
-            };
-
-            window.speechSynthesis.speak(currentUtterance);
+            window.speechSynthesis.speak(utter);
         }
-
-        function stopSpeak() {
-            window.speechSynthesis.cancel();
-            document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight'));
-        }
+        function stopSpeak() { window.speechSynthesis.cancel(); }
     </script>
 </body>
 </html>
