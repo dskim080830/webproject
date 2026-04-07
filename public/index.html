@@ -14,7 +14,7 @@
         html { scroll-behavior: smooth; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; word-break: keep-all; }
         
-        /* 헤더 스타일 */
+        /* 헤더 및 메뉴 */
         header { background: var(--white); padding: 0 5%; height: 90px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
         .header-left { display: flex; align-items: center; gap: 30px; }
         .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
@@ -25,7 +25,7 @@
         .header-right { display: flex; gap: 15px; align-items: center; }
         #user-menu { display: none; gap: 15px; font-weight: 700; align-items: center; }
 
-        /* 버튼 및 입력창 */
+        /* 버튼 스타일 */
         .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; display: inline-block; font-size: 16px; text-align: center; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
@@ -38,6 +38,7 @@
         .form-group label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; outline: none; font-size: 16px; }
         
+        /* 실시간 검사 메시지 */
         .status-msg { font-size: 12px; margin-top: 5px; font-weight: bold; }
         .valid { color: var(--success); }
         .invalid { color: var(--error); }
@@ -48,7 +49,7 @@
         .word { display: inline-block; padding: 0 4px; border-radius: 8px; font-size: 24px; font-weight: 800; transition: all 0.1s ease; color: #444; }
         .highlight { background-color: var(--secondary); transform: scale(1.15); box-shadow: 0 4px 8px rgba(0,0,0,0.1); color: #000; z-index: 10; }
         textarea { width: 100%; border: 2px solid #eee; border-radius: 20px; padding: 20px; font-size: 18px; resize: none; background: #fafafa; outline: none; }
-        .voice-select { padding: 8px; border-radius: 10px; border: 2px solid #eee; }
+        .voice-select { padding: 8px; border-radius: 10px; border: 2px solid #eee; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -57,8 +58,9 @@
         <div class="header-left">
             <a href="/" class="logo">✨ 쉬운 글 배움터</a>
             <ul class="nav-menu">
+                <li><a href="#intro">서비스 소개</a></li>
                 <li><a href="#tts">글 읽어주기</a></li>
-                <li><a href="#behavior-dict">행동 사전</a></li>
+                <li><a href="#easy-convert">쉬운 글 변환</a></li>
             </ul>
         </div>
         <div class="header-right">
@@ -76,15 +78,15 @@
     <main class="container">
         <div id="tts" class="card">
             <h2>🔊 문단 읽어주기</h2>
-            <p style="color: #666; margin-bottom: 10px;">글자가 노란색으로 강조되는 곳을 눈으로 따라 읽어보세요.</p>
-            <textarea id="tIn" rows="5" placeholder="여기에 읽고 싶은 글을 넣어주세요."></textarea>
+            <p style="color: #666; margin-bottom: 10px;">소리가 나는 곳에 <strong>노란색 형광펜</strong>이 따라갑니다.</p>
+            <textarea id="tIn" rows="5" placeholder="읽고 싶은 내용을 입력해 보세요."></textarea>
             
             <div style="margin-top:20px; display:flex; gap:15px; align-items:center; flex-wrap: wrap; background: #f9f9f9; padding: 20px; border-radius: 20px;">
                 <button onclick="handleSpeak()" class="btn btn-primary">▶ 읽기 시작</button>
                 <button onclick="stopSpeak()" class="btn btn-sub">⏹ 정지</button>
                 
                 <div>
-                    <label style="font-size:14px;">목소리: </label>
+                    <label style="font-size:14px; font-weight: 700;">목소리: </label>
                     <select id="voiceType" class="voice-select">
                         <option value="adult">친근한 성인</option>
                         <option value="child">귀여운 아이</option>
@@ -92,14 +94,14 @@
                 </div>
 
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <label style="font-size:14px;">속도: </label>
+                    <label style="font-size:14px; font-weight: 700;">속도: </label>
                     <input type="range" id="tRate" min="0.5" max="1.5" step="0.1" value="0.8">
                     <span id="rateVal" style="font-weight:800; color:var(--primary);">0.8배속</span>
                 </div>
             </div>
 
             <div id="tOut" style="margin-top:30px; min-height:150px; padding:35px; background:#fff; border:2px dashed #adcfff; border-radius:30px; line-height: 2.8;">
-                <span style="color:#bbb;">내용을 입력하면 여기에 읽기 가이드가 표시됩니다.</span>
+                <span style="color:#bbb;">내용을 입력하면 여기에 실시간 읽기 가이드가 표시됩니다.</span>
             </div>
         </div>
     </main>
@@ -113,7 +115,7 @@
                 
                 <div class="form-group">
                     <label>비밀번호</label>
-                    <input type="password" id="rPw" placeholder="8자 이상, 특수문자 포함" required oninput="checkPw()">
+                    <input type="password" id="rPw" placeholder="8자 이상, 특수문자 필수" required oninput="checkPw()">
                     <div id="pwMsg" class="status-msg"></div>
                 </div>
 
@@ -126,7 +128,7 @@
                 </div>
                 <div id="emailAuthField" class="form-group" style="display:none;">
                     <div style="display:flex; gap:10px;">
-                        <input type="text" id="rEmailCode" placeholder="6자리 인증코드">
+                        <input type="text" id="rEmailCode" placeholder="6자리 번호">
                         <button type="button" class="btn btn-primary" onclick="verifyEmail()">확인</button>
                     </div>
                     <div id="emailMsg" class="status-msg"></div>
@@ -142,10 +144,9 @@
                 <div class="form-group">
                     <label>학습 단계</label>
                     <select id="rLevel" required>
-                        <option value="" disabled selected>선택해주세요</option>
-                        <option value="1">1단계: 천천히 배워요 (경계선 지능)</option>
-                        <option value="2">2단계: 도움이 필요해요 (경도 지적장애)</option>
-                        <option value="3">3단계: 함께 배워요 (중증/중도 지적장애)</option>
+                        <option value="1">1단계: 천천히 배워요</option>
+                        <option value="2">2단계: 도움이 필요해요</option>
+                        <option value="3">3단계: 함께 배워요</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding: 15px;">가입 완료</button>
@@ -170,14 +171,14 @@
         function openM(id) { document.getElementById(id).style.display = 'flex'; }
         function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
-        // 1. 휴대폰 하이픈 자동 삽입
+        // 1. 휴대폰 자동 하이픈 (-)
         function autoHyphen(target) {
             target.value = target.value
                 .replace(/[^0-9]/g, '')
                 .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
         }
 
-        // 2. 비밀번호 실시간 검사
+        // 2. 비밀번호 실시간 보안 검증
         function checkPw() {
             const pw = document.getElementById('rPw').value;
             const birth = document.getElementById('rBirth').value.replace(/-/g, "");
@@ -187,29 +188,29 @@
             if (!pw) { msg.innerText = ""; return; }
 
             if (pw.length < 8) {
-                msg.innerText = "❌ 8자 이상 입력해 주세요.";
+                msg.innerText = "❌ 8자 이상 입력해야 합니다.";
                 msg.className = "status-msg invalid";
             } else if (!specialChar.test(pw)) {
-                msg.innerText = "❌ 특수문자를 하나 이상 포함해 주세요.";
+                msg.innerText = "❌ 특수문자가 포함되어야 합니다.";
                 msg.className = "status-msg invalid";
             } else if (birth && pw.includes(birth)) {
-                msg.innerText = "❌ 비밀번호에 생년월일을 넣을 수 없습니다.";
+                msg.innerText = "❌ 비밀번호에 생년월일을 포함할 수 없습니다.";
                 msg.className = "status-msg invalid";
             } else {
-                msg.innerText = "✅ 아주 좋은 비밀번호입니다!";
+                msg.innerText = "✅ 안전한 비밀번호입니다!";
                 msg.className = "status-msg valid";
             }
         }
 
-        // 3. 이메일 인증
+        // 3. 이메일 인증 발송 및 검증
         let serverCode = ""; let isEmailVerified = false;
         async function sendAuthEmail() {
             const email = document.getElementById('rEmail').value;
-            if(!email.includes('@')) return alert("이메일 주소를 확인해 주세요.");
-            document.getElementById('emailBtn').innerText = "발송 중...";
+            if(!email.includes('@')) return alert("이메일을 정확히 입력하세요.");
+            document.getElementById('emailBtn').innerText = "발송중...";
             const res = await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
             const data = await res.json();
-            if(res.ok) { serverCode = data.code; alert("인증번호를 보냈습니다!"); document.getElementById('emailAuthField').style.display = 'block'; }
+            if(res.ok) { serverCode = data.code; alert("인증번호가 발송되었습니다!"); document.getElementById('emailAuthField').style.display = 'block'; }
             document.getElementById('emailBtn').innerText = "재발송";
         }
 
@@ -219,16 +220,16 @@
                 document.getElementById('emailMsg').innerText = "✅ 인증되었습니다.";
                 document.getElementById('emailMsg').className = "status-msg valid";
                 document.getElementById('rEmail').readOnly = true;
-            } else { alert("인증번호가 틀립니다."); }
+            } else { alert("인증번호가 다릅니다."); }
         }
 
-        // 4. TTS 문단 읽기 및 하이라이팅
+        // 4. TTS 문단 하이라이팅 로직
         document.getElementById('tRate').oninput = function() { document.getElementById('rateVal').innerText = this.value + "배속"; };
 
         function handleSpeak() {
             const txt = document.getElementById('tIn').value.trim();
             const output = document.getElementById('tOut');
-            if (!txt) return alert("읽을 내용을 입력해 주세요.");
+            if (!txt) return alert("읽을 글을 입력하세요.");
 
             window.speechSynthesis.cancel();
             const words = txt.split(/(\s+)/);
@@ -237,7 +238,7 @@
             const utter = new SpeechSynthesisUtterance(txt);
             utter.lang = 'ko-KR';
             utter.rate = document.getElementById('tRate').value;
-            utter.pitch = document.getElementById('voiceType').value === 'child' ? 1.4 : 1.0;
+            utter.pitch = document.getElementById('voiceType').value === 'child' ? 1.5 : 1.0;
 
             utter.onboundary = (e) => {
                 if (e.name === 'word') {
@@ -260,24 +261,27 @@
         }
         function stopSpeak() { window.speechSynthesis.cancel(); document.querySelectorAll('.word').forEach(el => el.classList.remove('highlight')); }
 
-        // 회원가입 전송
+        // 5. 회원가입 제출
         document.getElementById('signupF').onsubmit = async (e) => {
             e.preventDefault();
-            if(!document.getElementById('pwMsg').innerText.includes("✅")) return alert("비밀번호를 규칙에 맞게 써주세요.");
-            if(!isEmailVerified) return alert("이메일 인증을 먼저 해주세요.");
+            if(!document.getElementById('pwMsg').innerText.includes("✅")) return alert("비밀번호 규칙을 확인하세요.");
+            if(!isEmailVerified) return alert("이메일 인증이 필요합니다.");
 
             const payload = {
-                userId: document.getElementById('rId').value, pw: document.getElementById('rPw').value,
-                email: document.getElementById('rEmail').value, name: document.getElementById('rName').value,
-                phone: document.getElementById('rPhone').value, birth: document.getElementById('rBirth').value,
+                userId: document.getElementById('rId').value, 
+                pw: document.getElementById('rPw').value,
+                email: document.getElementById('rEmail').value, 
+                name: document.getElementById('rName').value,
+                phone: document.getElementById('rPhone').value, 
+                birth: document.getElementById('rBirth').value,
                 level: document.getElementById('rLevel').value
             };
             const res = await fetch('/api/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             if (res.ok) { alert("가입을 축하합니다!"); location.reload(); }
-            else { alert("가입에 실패했습니다. 다시 확인해 주세요."); }
+            else { alert("이미 있는 아이디거나 가입 오류가 발생했습니다."); }
         };
 
-        // 로그인
+        // 6. 로그인 제출 (이름 표시 기능 포함)
         document.getElementById('loginF').onsubmit = async (e) => {
             e.preventDefault();
             const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: document.getElementById('lId').value, pw: document.getElementById('lPw').value }) });
@@ -287,7 +291,7 @@
                 document.getElementById('user-menu').style.display = 'flex';
                 document.getElementById('u-info').innerHTML = `✨ <strong>${data.user.name}</strong>님 환영해요!`;
                 closeM('loginModal');
-            } else { alert("아이디나 비밀번호를 다시 확인해 주세요."); }
+            } else { alert("아이디 혹은 비밀번호가 틀렸습니다."); }
         };
     </script>
 </body>
