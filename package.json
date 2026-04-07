@@ -1,9 +1,9 @@
 {
-  "name": "easy-read-vercel",
+  "name": "easy-read-project",
   "version": "1.0.0",
   "dependencies": {
+    "mysql2": "^3.9.0",
     "bcrypt": "^5.1.1",
-    "mysql2": "^3.9.2",
-    "nodemailer": "^6.x.x"
+    "nodemailer": "^6.9.9"
   }
 }
