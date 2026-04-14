@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 
 // DB 풀 생성 (매번 연결하지 않고 재사용)
