@@ -1,5 +1,5 @@
 import mysql from 'mysql2/promise';
-import bcrypt from 'bcrypt'; // 1. bcrypt 임포트 추가
+import bcrypt from 'bcryptjs'; // 1. bcrypt 임포트 추가
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method Not Allowed' });
