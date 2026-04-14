@@ -2,77 +2,74 @@ import mysql from 'mysql2/promise';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 
+// DB 풀 생성 (매번 연결하지 않고 재사용)
+const pool = mysql.createPool({
+    uri: process.env.MYSQL_URL,
+    ssl: { rejectUnauthorized: false },
+    waitForConnections: true,
+    connectionLimit: 10
+});
+
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
+    if (req.method !== 'POST') return res.status(405).json({ message: "Method Not Allowed" });
     
-    // 프론트엔드에서 넘어온 아이디, 이름, 이메일 정보
     const { userId, name, email } = req.body;
-    let db;
+
+    // 입력값 검증
+    if (!userId || !name || !email) {
+        return res.status(400).json({ message: "모든 정보를 입력해주세요." });
+    }
 
     try {
-        db = await mysql.createConnection({
-            uri: process.env.MYSQL_URL,
-            ssl: { rejectUnauthorized: false }
-        });
-
-        // 1. 입력한 정보와 일치하는 유저가 있는지 DB에서 확인
-        const [rows] = await db.execute(
-            'SELECT * FROM users WHERE user_id = ? AND name = ? AND email = ?',
+        // 1. 유저 확인
+        const [rows] = await pool.execute(
+            'SELECT user_id FROM users WHERE user_id = ? AND name = ? AND email = ?',
             [userId, name, email]
         );
 
         if (rows.length === 0) {
-            return res.status(404).json({ message: "입력하신 정보와 일치하는 회원이 없습니다." });
+            return res.status(404).json({ message: "일치하는 회원 정보가 없습니다." });
         }
 
-        // 2. 임시 비밀번호 생성 (8자리 영문+숫자 랜덤 조합)
-        const tempPw = Math.random().toString(36).slice(-8);
+        // 2. 임시 비밀번호 생성 (보안상 조금 더 복잡하게 가능)
+        const tempPw = Math.random().toString(36).slice(-10); // 10자리
 
-        // 3. 생성된 임시 비밀번호를 암호화하여 DB 업데이트 (기존 비밀번호 덮어쓰기)
+        // 3. 암호화 및 업데이트
         const hashedPw = await bcrypt.hash(tempPw, 10);
-        await db.execute(
+        await pool.execute(
             'UPDATE users SET password = ? WHERE user_id = ?',
             [hashedPw, userId]
         );
 
-        // 4. 이메일 발송 설정
+        // 4. 메일 발송 (transporter 설정은 가급적 핸들러 밖으로 빼는 것이 성능에 좋음)
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+                pass: process.env.EMAIL_PASS // 앱 비밀번호 사용 필수
             }
         });
 
-        const mailOptions = {
+        await transporter.sendMail({
             from: `"쉬운 글 배움터" <${process.env.EMAIL_USER}>`,
             to: email,
-            subject: '[쉬운 글 배움터] 임시 비밀번호가 발급되었습니다.',
+            subject: '[쉬운 글 배움터] 임시 비밀번호 발급 안내',
             html: `
-                <div style="font-family: 'Nanum Gothic', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #4a90e2;">임시 비밀번호 안내</h2>
-                    <p style="font-size: 16px; color: #333; line-height: 1.5;">
-                        안녕하세요, <strong>${name}</strong>님.<br>
-                        요청하신 임시 비밀번호가 발급되었습니다. 아래 비밀번호로 로그인하신 후 반드시 비밀번호를 변경해 주세요.
-                    </p>
-                    <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-radius: 10px; margin-top: 20px;">
-                        <span style="font-size: 28px; font-weight: 800; letter-spacing: 2px; color: #e74c3c;">
-                            ${tempPw}
-                        </span>
+                <div style="max-width: 500px; border: 1px solid #ddd; padding: 20px;">
+                    <h2 style="color: #4a90e2;">임시 비밀번호 발급</h2>
+                    <p>안녕하세요 ${name}님, 요청하신 임시 비밀번호입니다.</p>
+                    <div style="background: #f4f4f4; padding: 15px; font-size: 24px; font-weight: bold; text-align: center;">
+                        ${tempPw}
                     </div>
+                    <p style="color: red;">* 로그인 후 반드시 비밀번호를 변경해주세요.</p>
                 </div>
             `
-        };
-
-        // 5. 이메일 전송 실행
-        await transporter.sendMail(mailOptions);
+        });
         
-        return res.status(200).json({ message: "이메일로 임시 비밀번호를 발송했습니다." });
+        return res.status(200).json({ message: "임시 비밀번호가 메일로 전송되었습니다." });
 
     } catch (e) {
-        console.error("비밀번호 찾기 에러:", e);
-        return res.status(500).json({ message: "서버 통신 중 오류가 발생했습니다." });
-    } finally {
-        if (db) await db.end();
+        console.error("Error:", e);
+        return res.status(500).json({ message: "서버 내부 오류가 발생했습니다." });
     }
 }
