@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>행동 사전</title>
+
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #ffd93d;
+        --accent-color: #ff8a5c;
+        --bg-color: #fdfbf7;
+        --text-color: #333333;
+        --white: #ffffff;
+        --error-color: #e74c3c;
+        --success-color: #2ecc71;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Nanum Gothic", sans-serif;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.8;
+        word-break: keep-all;
+      }
+
+      header {
+        background-color: var(--white);
+        padding: 0 5%;
+        height: 90px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary-color);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .main-menu {
+        display: flex;
+        list-style: none;
+        gap: 30px;
+      }
+      .main-menu li a {
+        text-decoration: none;
+        color: #444;
+        font-size: 18px;
+        font-weight: 700;
+        transition: color 0.2s;
+      }
+      .main-menu li a:hover {
+        color: var(--primary-color);
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      #guest-menu {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #user-menu {
+        display: none;
+        align-items: center;
+        gap: 15px;
+        font-weight: 700;
+      }
+
+      .login-btn,
+      .signup-btn,
+      .logout-btn {
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 700;
+        border: none;
+        font-size: 16px;
+      }
+      .login-btn {
+        background: none;
+        color: var(--text-color);
+        padding: 10px 15px;
+      }
+      .signup-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 22px;
+        border-radius: 50px;
+        box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+        transition: all 0.2s;
+      }
+      .logout-btn {
+        background-color: #eee;
+        color: #666;
+        padding: 8px 15px;
+        border-radius: 50px;
+        font-size: 14px;
+      }
+
+      .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - 80px);
+      }
+
+      .card {
+        width: 100%;
+        max-width: 800px;
+        height: 700px;
+        background: var(--white);
+        border-radius: 30px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .quiz-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-bottom: 120px;
+      }
+
+      #question {
+        font-size: 22px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      #options {
+        flex-grow: 1;
+        overflow-y: auto;
+        max-height: 300px;
+      }
+
+      .result-area {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        text-align: center;
+      }
+
+      #result {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      h2 {
+        text-align: center;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+      }
+
+      .option-btn {
+        width: 100%;
+        padding: 20px;
+        margin: 10px 0;
+        font-size: 20px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        background: #f0f7ff;
+        transition: 0.2s;
+      }
+
+      .option-btn:hover {
+        background: #dbe9ff;
+      }
+
+      .correct {
+        background: var(--success-color) !important;
+        color: white;
+      }
+      .wrong {
+        background: var(--error-color) !important;
+        color: white;
+      }
+
+      .next-btn-bottom {
+        width: 100%;
+        padding: 10px;
+        font-size: 20px;
+        font-weight: 800;
+        border: none;
+        border-radius: 20px;
+        background: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      #loading {
+        text-align: center;
+        color: #888;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="header-left">
+        <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
+        <ul class="main-menu">
+          <li><a href="./about.html">서비스 소개</a></li>
+          <li><a href="./index.html#top">쉬운 글 변환기</a></li>
+          <li><a href="./behavior.html">행동 사전</a></li>
+          <li><a href="./read.html">글 읽어주기</a></li>
+        </ul>
+      </div>
+      <div class="header-right">
+        <div id="guest-menu">
+          <a href="login.html" class="login-btn">로그인</a>
+          <a href="signup.html" class="signup-btn">회원가입</a>
+        </div>
+        <div id="user-menu">
+          <span id="user-info">사용자님, 환영합니다!</span>
+          <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrapper">
+      <div class="card">
+        <h2>🤝 행동 사전</h2>
+        <div id="loading"></div>
+        <div class="quiz-area">
+          <p id="question"></p>
+          <div id="options"></div>
+        </div>
+        <div class="result-area">
+          <p id="result"></p>
+          <div class="next-area">
+            <button id="nextBtn" class="next-btn-bottom" onclick="generateProblem()">
+              다음 문제 ➡
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ⭐ 보안을 위해 API_KEY 변수를 제거했습니다.
+      // 이제 브라우저는 직접 OpenAI를 호출하지 않고 /api/generate 서버리스 함수를 호출합니다.
+
+      let usedQuestions = [];
+
+      function getUserLevel() {
+        const userId = localStorage.getItem("currentUser");
+        const user = JSON.parse(localStorage.getItem(userId));
+        return user ? user.level : "경계선";
+      }
+
+      function getPrompt(level) {
+        if (level === "경계선") return "중학생 수준, 약간 복잡한 상황 포함";
+        if (level === "경도") return "초등학생 수준, 매우 쉬운 상황";
+        return "아주 쉬운 문장, 한 문장 상황만 사용";
+      }
+
+      function safeParse(text) {
+        try {
+          return JSON.parse(text);
+        } catch {
+          const match = text.match(/\{[\s\S]*\}/);
+          return match ? JSON.parse(match[0]) : null;
+        }
+      }
+
+      async function generateProblem() {
+        document.getElementById("question").innerText = "";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("result").innerText = "";
+        document.getElementById("loading").innerText = "문제 생성 중...";
+        document.getElementById("nextBtn").style.display = "none";
+
+        const level = getUserLevel();
+        const promptText = getPrompt(level);
+
+        try {
+          let quiz;
+          while (true) {
+            // ⭐ Vercel 서버리스 함수 경로로 fetch 요청을 보냅니다.
+            const res = await fetch("/api/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [
+                  { role: "system", content: "발달장애인을 위한 생활 교육 문제 생성기" },
+                  {
+                    role: "user",
+                    content: `다음 조건을 반드시 지켜서 문제를 생성하라.\n\nJSON 형식으로만 출력:\n{\n"question":"",\n"options":["",""],\n"answer":0,\n"explanation":""\n}\n\n[절대 규칙]\n1. 정답은 대한민국 일반 성인이 100% 동일하게 선택하는 행동만 가능하다.\n2. 정답은 법적으로 안전하거나 사회적으로 명확히 올바른 행동이어야 한다.\n3. 오답은 명백히 위험하거나 잘못된 행동이어야 한다.\n4. 논란이 생길 수 있는 문제는 절대 금지\n\n[중요 - 다양성 규칙 ⭐]\n매번 완전히 다른 상황을 만들어라. 같은 유형의 문제를 반복하지 마라.\n\n[문제 생성 규칙]\n- 선택지는 2개만\n- 하나는 무조건 올바른 행동\n- 하나는 무조건 잘못된 행동\n- 서로 완전히 반대 행동\n\n[난이도]\n${promptText}\n\n[문장 규칙]\n- 짧고 명확하게\n- 한 번에 이해 가능하게`,
+                  },
+                ],
+              }),
+            });
+
+            const data = await res.json();
+            quiz = safeParse(data.choices[0].message.content);
+
+            if (!quiz || usedQuestions.includes(quiz.question)) continue;
+
+            usedQuestions.push(quiz.question);
+            break;
+          }
+
+          document.getElementById("loading").innerText = "";
+          showQuiz(quiz);
+          document.getElementById("nextBtn").style.display = "block";
+        } catch (e) {
+          console.error(e);
+          document.getElementById("loading").innerText = "오류 발생. 다시 시도해 주세요.";
+        }
+      }
+
+      function showQuiz(q) {
+        document.getElementById("question").innerText = q.question;
+        const div = document.getElementById("options");
+        div.innerHTML = "";
+
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.innerText = opt;
+          btn.onclick = () => check(i, q, btn);
+          div.appendChild(btn);
+        });
+      }
+
+      function check(i, q, btn) {
+        document.querySelectorAll(".option-btn").forEach((b) => (b.disabled = true));
+        if (i === q.answer) {
+          btn.classList.add("correct");
+          document.getElementById("result").innerText = "✅ 잘했어요! " + q.explanation;
+        } else {
+          btn.classList.add("wrong");
+          document.getElementById("result").innerText = "❌ " + q.explanation;
+        }
+      }
+
+      window.onload = generateProblem;
+    </script>
+  </body>
+</html>
