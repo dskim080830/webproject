@@ -459,7 +459,7 @@
                     const currentUser = localStorage.getItem('currentUser');
                     if (currentUser) {
                         console.log("통과 성공!");
-                        if (target & targetUrl.startsWith('#')) {
+                        if (targetUrl & targetUrl.startsWith('#')) {
                             location.hash = targetUrl;
                         } else {
                             location.href = targetUrl;
