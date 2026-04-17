@@ -398,7 +398,7 @@
                 <li><a href="about.html">서비스 소개</a></li>
                 <li><a href="#convert">쉬운 글 변환기</a></li>
                 <li><a href="javascript:void(0)" onclick="protectedRoute('./behavior.html')">행동 사전</a></li>
-                <li><a href="#tts">글 읽어주기</a></li>
+                <li><a href="javascript:void(0)" onclick="protectedRoute('./read.html')">글 읽어주기</a></li>
             </ul>
         </div>
         
@@ -449,32 +449,7 @@
                         <span class="card-icon">🔊</span>
                         <h3>글 읽어주기</h3>
                         <p>글자를 읽기 힘들 땐 목소리를 들으며 따라 읽어봐요.</p>
-                        
-                        <div class="tts-controls-mini" style="text-align: left; background: #f5f5f5; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-                            <textarea id="ttsInput" rows="3" placeholder="읽고 싶은 내용을 입력하세요." style="font-size: 14px; padding: 10px;"></textarea>
-                            
-                            <div style="display:flex; gap:10px; align-items:center; flex-wrap: wrap; margin-bottom: 10px;">
-                                <div style="font-size: 13px;">
-                                    <label style="font-weight: 700;">목소리: </label>
-                                    <select id="voiceType" class="voice-select">
-                                        <option value="adult">성인</option>
-                                        <option value="child">아이</option>
-                                    </select>
-                                </div>
-                                <div style="display:flex; align-items:center; gap:5px; font-size: 13px;">
-                                    <label style="font-weight: 700;">속도: </label>
-                                    <input type="range" id="ttsRate" min="0.5" max="1.5" step="0.1" value="0.8" style="width: 60px;">
-                                    <span id="rateValue" style="font-weight:700; color:var(--primary);">0.8배</span>
-                                </div>
-                            </div>
-                            <button onclick="stopTTS()" class="btn btn-sub" style="width: 100%; padding: 5px;">⏹ 정지</button>
-                        </div>
-
-                        <button onclick="startTTS()" class="btn btn-primary">목소리 듣기</button>
-
-                        <div id="ttsOutput">
-                            <span style="color:#bbb; font-size: 14px;">위 창에 내용을 입력하고 버튼을 눌러주세요.</span>
-                        </div>
+                        <a href="javascript:void(0)" onclick="protectedRoute('./read.html')" class="btn btn-green">지금 경험하기</a>
                     </div>
 
                 </div>
