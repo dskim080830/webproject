@@ -461,7 +461,11 @@
                         alert("로그인 후에 이용할 수 있는 기능입니다.");
                         openModal('loginModal');
                     }else {
-                        location.href = targetUrl;
+                        if (targetUrl.startsWith('#')) {
+                            location.hash = targetUrl;
+                        } else {
+                            location.href = targetUrl;
+                        }
                     }
                 }
             </script>
@@ -626,10 +630,18 @@
                 const response = await fetch('/api/check-auth');
                 if (response.ok) {
                     const userData = await response.json();
+            
+                    // [통일 핵심] 서버에서 확인된 사용자 정보를 localStorage에 저장
+                    localStorage.setItem('currentUser', userData.name);
+            
+                    // 로그인 UI 적용
                     applyLoggedInUI(userData.name);
+                } else {
+                    // 서버 세션이 만료되었다면 로컬 정보도 삭제
+                    localStorage.removeItem('currentUser');
                 }
             } catch (error) { 
-                console.error("사용자가 비로그인 상태이거나 검증에 실패했습니다."); 
+                console.error("인증 검증 실패:", error); 
             }
         };
 
@@ -666,6 +678,7 @@
         async function handleLogout() {
             if (confirm("정말 로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('currentUser');
                 location.reload();
             }
         }
