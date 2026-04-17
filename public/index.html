@@ -456,16 +456,16 @@
             </div>
             <script>
                 function protectedRoute(targetUrl) {
-                    const currentUser = localStorage.getItem('currentUser');
-                    if (!currentUser) {
-                        alert("로그인 후에 이용할 수 있는 기능입니다.");
-                        openModal('loginModal');
-                    }else {
+                    if (localStorage.getItem('currentUser') {
+                        console.log("통과 성공!");
                         if (targetUrl.startsWith('#')) {
                             location.hash = targetUrl;
                         } else {
                             location.href = targetUrl;
                         }
+                    }else {
+                        alert("로그인 후에 이용할 수 있는 기능입니다.");
+                        openModal('loginModal');
                     }
                 }
             </script>
