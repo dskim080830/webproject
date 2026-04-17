@@ -395,7 +395,7 @@
         <div class="header-left">
             <a href="/" class="logo">✨ 쉬운 글 배움터</a>
             <ul class="nav-menu">
-                <li><a href="javascript:void(0)" onclick="protectedRoute('./about.html')">서비스 소개</a></li>
+                <li><a href="#about">서비스 소개</a></li>
                 <li><a href="#convert">쉬운 글 변환기</a></li>
                 <li><a href="javascript:void(0)" onclick="protectedRoute('./behavior.html')">행동 사전</a></li>
                 <li><a href="#tts">글 읽어주기</a></li>
@@ -481,7 +481,7 @@
             </div>
             <script>
                 function protectedRoute(targetUrl) {
-                    const currentuser = localStorage.getItem('currentUser');
+                    const currentUser = localStorage.getItem('currentUser');
                     if (!currentUser) {
                         alert("로그인 후에 이용할 수 있는 기능입니다.");
                         openModal('loginModal');
