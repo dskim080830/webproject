@@ -395,9 +395,9 @@
         <div class="header-left">
             <a href="/" class="logo">✨ 쉬운 글 배움터</a>
             <ul class="nav-menu">
-                <li><a href="#welcome">서비스 소개</a></li>
+                <li><a href="javascript:void(0)" onclick="protectedRoute('./about.html')">서비스 소개</a></li>
                 <li><a href="#convert">쉬운 글 변환기</a></li>
-                <li><a href="behavior.html">행동 사전</a></li>
+                <li><a href="javascript:void(0)" onclick="protectedRoute('./behavior.html')">행동 사전</a></li>
                 <li><a href="#tts">글 읽어주기</a></li>
             </ul>
         </div>
@@ -442,7 +442,7 @@
                         <span class="card-icon">🤝</span>
                         <h3>행동 사전</h3>
                         <p>사회 생활 중 발생할 수 있는 상황의 대처 방법을 배웁니다.</p>
-                        <a href="#" class="btn btn-dark">대처 방법 배우기</a>
+                        <a href="javascript:void(0)" onclick="protectedRoute('./behavior.html')" class="btn btn-dark">대처 방법 배우기</a>
                     </div>
 
                     <div id="tts" class="service-card">
@@ -479,6 +479,16 @@
 
                 </div>
             </div>
+            <script>
+                function protectedRoute(targetUrl) {
+                    const currentuser = localStorage.getItem('currentUser');
+                    if (!currentUser) {
+                        alert("로그인 후에 이용할 수 있는 기능입니다.");
+                        openModal('loginModal');
+                    }else {
+                        location.href = targetUrl;
+                    }
+                }
         </section>
     </main>
     <div id="signupModal" class="modal">
