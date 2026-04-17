@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>쉬운 글 배움터 - Easy Read</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* === 기본 스타일 === */
+      :root {
+        --primary: #4a90e2;
+        --secondary: #ffd93d;
+        --bg: #fdfbf7;
+        --text: #333;
+        --white: #fff;
+        --error: #e74c3c;
+        --success: #2ecc71;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Nanum Gothic", sans-serif;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.8;
+        word-break: keep-all;
+      }
+
+      /* === 헤더 및 메뉴 === */
+      header {
+        background: var(--white);
+        padding: 0 5%;
+        height: 90px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+      }
+      .logo {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 20px;
+      }
+      .nav-menu a {
+        text-decoration: none;
+        color: #555;
+        font-weight: 700;
+        font-size: 16px;
+        transition: 0.2s;
+      }
+      .nav-menu a:hover {
+        color: var(--primary);
+      }
+
+      /* 로그인 전/후 메뉴 영역 */
+      .header-right {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      #user-menu {
+        display: none;
+        gap: 15px;
+        align-items: center;
+      }
+      #u-info {
+        font-weight: 700;
+        color: #333;
+        font-size: 16px;
+      }
+
+      /* === 버튼 스타일 === */
+      .btn {
+        cursor: pointer;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: 0.2s;
+        display: inline-block;
+        font-size: 16px;
+        text-align: center;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        padding: 12px 25px;
+      }
+      .btn-primary:hover {
+        background: #357abd;
+      }
+      .btn-sub {
+        background: #eee;
+        color: #666;
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+      .btn-outline {
+        background: none;
+        padding: 10px 15px;
+        color: var(--text);
+      }
+
+      /* === 모달 및 폼 === */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: #fff;
+        padding: 35px;
+        border-radius: 30px;
+        width: 95%;
+        max-width: 500px;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+      }
+      .form-group {
+        margin-bottom: 15px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        outline: none;
+        font-size: 16px;
+      }
+
+      /* 실시간 검사 메시지 */
+      .status-msg {
+        font-size: 12px;
+        margin-top: 5px;
+        font-weight: bold;
+      }
+      .valid {
+        color: var(--success);
+      }
+      .invalid {
+        color: var(--error);
+      }
+
+      /* === TTS 영역 스타일 === */
+      .container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .card {
+        background: #fff;
+        padding: 40px;
+        border-radius: 35px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        margin-bottom: 30px;
+      }
+      .word {
+        display: inline-block;
+        padding: 0 4px;
+        border-radius: 8px;
+        font-size: 24px;
+        font-weight: 800;
+        transition: all 0.1s ease;
+        color: #444;
+      }
+      .highlight {
+        background-color: var(--secondary);
+        transform: scale(1.15);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        color: #000;
+        z-index: 10;
+      }
+      textarea {
+        width: 100%;
+        border: 2px solid #eee;
+        border-radius: 20px;
+        padding: 20px;
+        font-size: 18px;
+        resize: none;
+        background: #fafafa;
+        outline: none;
+      }
+      .voice-select {
+        padding: 8px;
+        border-radius: 10px;
+        border: 2px solid #eee;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-left">
+        <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
+        <ul class="nav-menu">
+          <li><a href="./about.html">서비스 소개</a></li>
+          <li><a href="#top">쉬운 글 변환기</a></li>
+          <li><a href="./behavior.html">행동 사전</a></li>
+          <li><a href="./read.html">글 읽어주기</a></li>
+        </ul>
+      </div>
+      <div class="header-right">
+        <div id="guest-menu">
+          <button class="btn btn-outline" onclick="openM('loginModal')">
+            로그인
+          </button>
+          <button class="btn btn-primary" onclick="openM('signupModal')">
+            회원가입
+          </button>
+        </div>
+        <div id="user-menu">
+          <span id="u-info"></span>
+          <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="tts" class="card">
+        <h2>🔊 문단 읽어주기</h2>
+        <p style="color: #666; margin-bottom: 10px">
+          소리가 나는 곳에 <strong>노란색 형광펜</strong>이 따라갑니다.
+        </p>
+        <textarea
+          id="tIn"
+          rows="5"
+          placeholder="읽고 싶은 내용을 입력해 보세요."
+        ></textarea>
+
+        <div
+          style="
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 20px;
+          "
+        >
+          <button onclick="handleSpeak()" class="btn btn-primary">
+            ▶ 읽기 시작
+          </button>
+          <button onclick="stopSpeak()" class="btn btn-sub">⏹ 정지</button>
+
+          <div>
+            <label style="font-size: 14px; font-weight: 700">목소리: </label>
+            <select id="voiceType" class="voice-select">
+              <option value="adult">친근한 성인</option>
+              <option value="child">귀여운 아이</option>
+            </select>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px">
+            <label style="font-size: 14px; font-weight: 700">속도: </label>
+            <input
+              type="range"
+              id="tRate"
+              min="0.5"
+              max="1.5"
+              step="0.1"
+              value="0.8"
+            />
+            <span id="rateVal" style="font-weight: 800; color: var(--primary)"
+              >0.8배속</span
+            >
+          </div>
+        </div>
+
+        <div
+          id="tOut"
+          style="
+            margin-top: 30px;
+            min-height: 150px;
+            padding: 35px;
+            background: #fff;
+            border: 2px dashed #adcfff;
+            border-radius: 30px;
+            line-height: 2.8;
+          "
+        >
+          <span style="color: #bbb"
+            >내용을 입력하면 여기에 실시간 읽기 가이드가 표시됩니다.</span
+          >
+        </div>
+      </div>
+    </main>
+
+    <div id="signupModal" class="modal">
+      <div class="modal-content">
+        <h2 style="margin-bottom: 20px; color: var(--primary)">회원가입</h2>
+        <form id="signupF">
+          <div class="form-group">
+            <label>성함</label>
+            <input type="text" id="rName" required />
+          </div>
+          <div class="form-group">
+            <label>아이디</label>
+            <input type="text" id="rId" required />
+          </div>
+
+          <div class="form-group">
+            <label>비밀번호</label>
+            <input
+              type="password"
+              id="rPw"
+              placeholder="8자 이상, 특수문자 필수"
+              required
+              oninput="checkPw()"
+            />
+            <div id="pwMsg" class="status-msg"></div>
+          </div>
+
+          <div class="form-group">
+            <label>이메일 인증</label>
+            <div style="display: flex; gap: 10px">
+              <input
+                type="email"
+                id="rEmail"
+                placeholder="example@gmail.com"
+                required
+              />
+              <button
+                type="button"
+                class="btn btn-sub"
+                id="emailBtn"
+                onclick="sendAuthEmail()"
+              >
+                코드받기
+              </button>
+            </div>
+          </div>
+
+          <div id="emailAuthField" class="form-group" style="display: none">
+            <div style="display: flex; gap: 10px">
+              <input type="text" id="rEmailCode" placeholder="6자리 번호" />
+              <button
+                type="button"
+                class="btn btn-primary"
+                onclick="verifyEmail()"
+              >
+                확인
+              </button>
+            </div>
+            <div id="emailMsg" class="status-msg"></div>
+          </div>
+
+          <div class="form-group">
+            <label>휴대폰 번호</label>
+            <input
+              type="tel"
+              id="rPhone"
+              placeholder="010-0000-0000"
+              maxlength="13"
+              required
+              oninput="autoHyphen(this)"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>생년월일</label>
+            <input type="date" id="rBirth" required onchange="checkPw()" />
+          </div>
+
+          <div class="form-group">
+            <label>학습 단계</label>
+            <select id="rLevel" required>
+              <option value="1">1단계: 기초 학습</option>
+              <option value="2">2단계: 심화 학습</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 20px; padding: 15px"
+          >
+            가입 완료
+          </button>
+        </form>
+        <button
+          onclick="closeM('signupModal')"
+          style="
+            margin-top: 15px;
+            border: none;
+            background: none;
+            color: #999;
+            cursor: pointer;
+            width: 100%;
+          "
+        >
+          취소
+        </button>
+      </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <h2 style="margin-bottom: 20px">로그인</h2>
+        <form id="loginF">
+          <div class="form-group">
+            <label>아이디</label>
+            <input type="text" id="lId" required />
+          </div>
+          <div class="form-group">
+            <label>비밀번호</label>
+            <input type="password" id="lPw" required />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; padding: 15px"
+          >
+            로그인하기
+          </button>
+        </form>
+        <button
+          onclick="closeM('loginModal')"
+          style="
+            margin-top: 10px;
+            border: none;
+            background: none;
+            color: #999;
+            cursor: pointer;
+            width: 100%;
+          "
+        >
+          닫기
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // 1. 모달 열기/닫기 유틸리티 함수
+      function openM(id) {
+        document.getElementById(id).style.display = "flex";
+      }
+      function closeM(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      // 2. [핵심] 로그인 유지: 페이지 로드 시 서버에 인증 정보 확인
+      window.onload = async function () {
+        try {
+          const res = await fetch("/api/check-auth");
+          if (res.ok) {
+            const user = await res.json();
+            applyLoginUI(user.name);
+          }
+        } catch (e) {
+          console.error("인증 확인 실패 (비로그인 상태)");
+        }
+      };
+
+      // 3. UI 변경 함수 (우측 상단에 "ㅇㅇㅇ님, 환영합니다!" 출력)
+      function applyLoginUI(userName) {
+        document.getElementById("guest-menu").style.display = "none";
+        document.getElementById("user-menu").style.display = "flex";
+        document.getElementById(
+          "u-info"
+        ).innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+      }
+
+      // 4. 로그인 로직 (폼 제출)
+      document.getElementById("loginF").onsubmit = async (e) => {
+        e.preventDefault();
+
+        const userId = document.getElementById("lId").value;
+        const pw = document.getElementById("lPw").value;
+
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, pw }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // 로그인 창 닫기
+            closeM("loginModal");
+            // UI 변경 적용
+            applyLoginUI(data.name);
+            // 폼 초기화
+            document.getElementById("loginF").reset();
+          } else {
+            alert(data.message || "아이디 혹은 비밀번호가 틀렸습니다.");
+          }
+        } catch (error) {
+          alert("서버 통신 중 오류가 발생했습니다.");
+        }
+      };
+
+      // 5. 로그아웃 로직 (서버 쿠키 삭제 요청)
+      async function handleLogout() {
+        if (confirm("로그아웃 하시겠습니까?")) {
+          await fetch("/api/logout", { method: "POST" });
+          location.reload();
+        }
+      }
+
+      // 6. 휴대폰 하이픈 자동 삽입
+      function autoHyphen(target) {
+        target.value = target.value
+          .replace(/[^0-9]/g, "")
+          .replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3")
+          .replace(/(\-{1,2})$/g, "");
+      }
+
+      // 7. 비밀번호 실시간 검증 (8자 이상, 특수문자 필수, 생년월일 배제)
+      function checkPw() {
+        const pw = document.getElementById("rPw").value;
+        const birth = document.getElementById("rBirth").value.replace(/-/g, "");
+        const msg = document.getElementById("pwMsg");
+        const specialChar = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+
+        if (!pw) {
+          msg.innerText = "";
+          return;
+        }
+
+        if (pw.length < 8) {
+          msg.innerText = "❌ 8자 이상 입력해야 합니다.";
+          msg.className = "status-msg invalid";
+        } else if (!specialChar.test(pw)) {
+          msg.innerText = "❌ 특수문자가 포함되어야 합니다.";
+          msg.className = "status-msg invalid";
+        } else if (birth && pw.includes(birth)) {
+          msg.innerText = "❌ 비밀번호에 생년월일을 포함할 수 없습니다.";
+          msg.className = "status-msg invalid";
+        } else {
+          msg.innerText = "✅ 안전한 비밀번호입니다!";
+          msg.className = "status-msg valid";
+        }
+      }
+
+      // 8. 이메일 인증 발송
+      let serverCode = "";
+      let isEmailVerified = false;
+
+      async function sendAuthEmail() {
+        const email = document.getElementById("rEmail").value;
+
+        if (!email.includes("@")) {
+          return alert("이메일을 정확히 입력하세요.");
+        }
+
+        document.getElementById("emailBtn").innerText = "발송 중...";
+
+        const res = await fetch("/api/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          serverCode = data.code;
+          document.getElementById("emailAuthField").style.display = "block";
+          alert("인증번호가 발송되었습니다!");
+        }
+        document.getElementById("emailBtn").innerText = "재발송";
+      }
+
+      // 9. 이메일 인증번호 확인
+      function verifyEmail() {
+        if (document.getElementById("rEmailCode").value === serverCode) {
+          isEmailVerified = true;
+          document.getElementById("emailMsg").innerText = "✅ 인증 성공";
+          document.getElementById("emailMsg").className = "status-msg valid";
+          document.getElementById("rEmail").readOnly = true;
+        } else {
+          alert("인증번호가 일치하지 않습니다.");
+        }
+      }
+
+      // 10. 회원가입 제출 로직
+      document.getElementById("signupF").onsubmit = async (e) => {
+        e.preventDefault();
+
+        if (!document.getElementById("pwMsg").innerText.includes("✅")) {
+          return alert("비밀번호 규칙을 지켜주세요.");
+        }
+        if (!isEmailVerified) {
+          return alert("이메일 인증을 완료해주세요.");
+        }
+
+        const payload = {
+          userId: document.getElementById("rId").value,
+          pw: document.getElementById("rPw").value,
+          email: document.getElementById("rEmail").value,
+          name: document.getElementById("rName").value,
+          phone: document.getElementById("rPhone").value,
+          birth: document.getElementById("rBirth").value,
+          level: document.getElementById("rLevel").value,
+        };
+
+        const res = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          alert("가입을 축하합니다!");
+          location.reload();
+        } else {
+          alert("가입에 실패했습니다. 아이디 중복을 확인하세요.");
+        }
+      };
+
+      // 11. TTS 속도 조절 텍스트 반영
+      document.getElementById("tRate").oninput = function () {
+        document.getElementById("rateVal").innerText = this.value + "배속";
+      };
+
+      // 12. TTS 읽기 및 하이라이팅 시작
+      function handleSpeak() {
+        const txt = document.getElementById("tIn").value.trim();
+        const output = document.getElementById("tOut");
+
+        if (!txt) return alert("내용을 입력해주세요.");
+
+        // 이전 음성 재생 취소
+        window.speechSynthesis.cancel();
+
+        // 입력된 텍스트를 공백 기준으로 나누어 화면에 span 태그로 감싸서 뿌림
+        const words = txt.split(/(\s+)/);
+        output.innerHTML = words
+          .map((w, i) =>
+            w.trim() ? `<span id="word-${i}" class="word">${w}</span>` : w
+          )
+          .join("");
+
+        const utter = new SpeechSynthesisUtterance(txt);
+        utter.lang = "ko-KR";
+        utter.rate = document.getElementById("tRate").value;
+        // 아동 목소리 선택 시 피치(음높이)를 높게 설정
+        utter.pitch =
+          document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
+
+        // 읽고 있는 단어의 위치를 추적하여 하이라이팅 클래스 적용
+        utter.onboundary = (e) => {
+          if (e.name === "word") {
+            const charIdx = e.charIndex;
+            let count = 0;
+
+            words.forEach((w, i) => {
+              const el = document.getElementById(`word-${i}`);
+              if (el) {
+                if (count <= charIdx && charIdx < count + w.length) {
+                  el.classList.add("highlight");
+                  // 스크롤이 자동으로 따라가도록 설정
+                  el.scrollIntoView({ behavior: "smooth", block: "center" });
+                } else {
+                  el.classList.remove("highlight");
+                }
+              }
+              count += w.length;
+            });
+          }
+        };
+
+        // 음성 재생이 끝나면 모든 하이라이팅 제거
+        utter.onend = () => {
+          document
+            .querySelectorAll(".word")
+            .forEach((el) => el.classList.remove("highlight"));
+        };
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      // 13. TTS 정지
+      function stopSpeak() {
+        window.speechSynthesis.cancel();
+        document
+          .querySelectorAll(".word")
+          .forEach((el) => el.classList.remove("highlight"));
+      }
+    </script>
+  </body>
+</html>
