@@ -459,7 +459,7 @@
                     const currentUser = localStorage.getItem('currentUser');
                     if (!currentUser) {
                         alert("로그인 후에 이용할 수 있는 기능입니다.");
-                        openModal('loginModal');
+                        if (typeof openModal === 'function') openModal('loginModal');
                     } else {
                         if (targetUrl.startsWith('#')) {
                             location.hash = targetUrl;
@@ -641,7 +641,16 @@
                     localStorage.removeItem('currentUser');
                 }
             } catch (error) { 
-                console.error("인증 검증 실패:", error); 
+                console.error("인증 검증 실패:", error);
+                localStorage.removeItem('currentUser');
+            }
+
+            const rateEl = document.getElementById('ttsRate');
+            if (rateEl) {
+                rateEl.addEventListener('input', function() {
+                    const valEl = document.getElementById('rateValue');
+                    if (valEl) valEl.innerText = this.value + "배속";
+                });
             }
         };
 
