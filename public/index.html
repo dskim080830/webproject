@@ -457,16 +457,15 @@
             <script>
                 function protectedRoute(targetUrl) {
                     const currentUser = localStorage.getItem('currentUser');
-                    if (currentUser) {
-                        console.log("통과 성공!");
-                        if (targetUrl & targetUrl.startsWith('#')) {
+                    if (!currentUser) {
+                        alert("로그인 후에 이용할 수 있는 기능입니다.");
+                        openModal('loginModal')l
+                    } else {
+                        if (targetUrl.startsWith('#')) {
                             location.hash = targetUrl;
                         } else {
                             location.href = targetUrl;
                         }
-                    }else {
-                        alert("로그인 후에 이용할 수 있는 기능입니다.");
-                        openModal('loginModal');
                     }
                 }
             </script>
