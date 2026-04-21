@@ -288,5 +288,30 @@
     </div>
 
     <footer>© 2026 쉬운 글 배움터</footer>
+    <script>
+    window.onload = async function() {
+    try {
+        // 서버의 check-auth API를 호출하여 로그인 상태 확인
+        const response = await fetch('/api/check-auth');
+        
+        if (response.ok) {
+            const userData = await response.json();
+            // 서버가 맞다고 하면 브라우저에 이름을 저장 (다른 페이지에서도 꺼내 쓸 수 있음)
+            localStorage.setItem('currentUser', userData.name);
+            
+            // 로그인 상태 UI 적용 (이름 표시 등)
+            if (typeof applyLoggedInUI === 'function') {
+                applyLoggedInUI(userData.name);
+            }
+        } else {
+            // 서버에서 로그인이 아니라고 하면 로컬 데이터도 삭제
+            localStorage.removeItem('currentUser');
+        }
+    } catch (error) {
+        console.error("인증 확인 실패:", error);
+        localStorage.removeItem('currentUser');
+    }
+};
+    </script>
   </body>
 </html>
