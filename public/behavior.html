@@ -312,6 +312,21 @@
         localStorage.removeItem('currentUser');
     }
 };
+      function protectedRoute(targetUrl) {
+    // 로컬 저장소에서 현재 유저 정보 확인
+    const currentUser = localStorage.getItem('currentUser');
+    
+    if (!currentUser) {
+        alert("로그인 후에 이용할 수 있는 기능입니다.");
+        // 로그인 모달이 있는 페이지라면 모달을 열어줌
+        if (typeof openModal === 'function') {
+            openModal('loginModal');
+        }
+    } else {
+        // 로그인 상태면 해당 주소로 이동
+        location.href = targetUrl;
+    }
+}
 
       function safeParse(text) {
         try {
