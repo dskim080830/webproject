@@ -459,7 +459,7 @@
                     const currentUser = localStorage.getItem('currentUser');
                     if (!currentUser) {
                         alert("로그인 후에 이용할 수 있는 기능입니다.");
-                        openModal('loginModal')l
+                        openModal('loginModal');
                     } else {
                         if (targetUrl.startsWith('#')) {
                             location.hash = targetUrl;
