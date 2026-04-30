@@ -289,29 +289,61 @@
 
     <footer>© 2026 쉬운 글 배움터</footer>
     <script>
+    // 페이지 로드 시 실행
     window.onload = async function() {
-    try {
-        // 서버의 check-auth API를 호출하여 로그인 상태 확인
-        const response = await fetch('/api/check-auth');
-        
-        if (response.ok) {
-            const userData = await response.json();
-            // 서버가 맞다고 하면 브라우저에 이름을 저장 (다른 페이지에서도 꺼내 쓸 수 있음)
-            localStorage.setItem('currentUser', userData.name);
+        try {
+            // 1. 서버에 로그인 세션 확인 요청
+            const response = await fetch('/api/check-auth');
             
-            // 로그인 상태 UI 적용 (이름 표시 등)
-            if (typeof applyLoggedInUI === 'function') {
+            if (response.ok) {
+                const userData = await response.json();
+                // 2. 서버 응답이 성공이면 로컬스토리지 갱신
+                localStorage.setItem('currentUser', userData.name);
+                
+                // 3. 로그인 상태 UI 적용
                 applyLoggedInUI(userData.name);
+            } else {
+                // 로그인 상태가 아니면 로컬 데이터 삭제 및 게스트 UI 유지
+                localStorage.removeItem('currentUser');
+                applyLoggedOutUI();
             }
-        } else {
-            // 서버에서 로그인이 아니라고 하면 로컬 데이터도 삭제
+        } catch (error) {
+            console.error("인증 확인 실패:", error);
             localStorage.removeItem('currentUser');
         }
-    } catch (error) {
-        console.error("인증 확인 실패:", error);
-        localStorage.removeItem('currentUser');
+    };
+
+    // [추가] 로그인 성공 시 UI 전환 함수
+    function applyLoggedInUI(userName) {
+        document.getElementById('guest-menu').style.display = 'none';
+        document.getElementById('user-menu').style.display = 'flex';
+        document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
     }
-};
-    </script>
+
+    // [추가] 로그아웃 상태일 때 UI 보정 (기본값)
+    function applyLoggedOutUI() {
+        document.getElementById('guest-menu').style.display = 'flex';
+        document.getElementById('user-menu').style.display = 'none';
+    }
+
+    // [추가] 로그아웃 처리 함수
+    async function handleLogout() {
+        if (confirm("정말 로그아웃 하시겠습니까?")) {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                if (response.ok) {
+                    localStorage.removeItem('currentUser');
+                    alert("로그아웃 되었습니다.");
+                    location.reload(); // 페이지 새로고침하여 UI 갱신
+                }
+            } catch (error) {
+                alert("로그아웃 처리 중 오류가 발생했습니다.");
+            }
+        }
+    }
+
+    // 로그아웃 버튼에 이벤트 연결 (HTML 구조상 버튼 클릭 시 실행되도록 추가)
+    document.querySelector('.logout-btn').onclick = handleLogout;
+</script>
   </body>
 </html>
