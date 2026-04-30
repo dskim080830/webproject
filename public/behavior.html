@@ -272,35 +272,43 @@
     </div>
 
     <script>
-  let usedQuestions = [];
+ let usedQuestions = [];
+  let currentUserLevel = "경계선"; // 기본값 설정
 
   // 페이지 로드 시 실행되는 통합 함수
   window.onload = async function() {
-    // 1. 로그인 상태 확인 및 UI 업데이트
+    // 1. 로그인 상태 확인 및 수준(level) 가져오기
     try {
       const response = await fetch('/api/check-auth');
       if (response.ok) {
         const userData = await response.json();
         localStorage.setItem('currentUser', userData.name);
+        
+        // 중요: 서버에서 받아온 사용자의 학습 수준 저장
+        if (userData.level) {
+          currentUserLevel = userData.level;
+          console.log("사용자 맞춤 수준 로드됨:", currentUserLevel);
+        }
+        
         applyLoggedInUI(userData.name);
       } else {
         localStorage.removeItem('currentUser');
-        applyLoggedOutUI(); // 로그아웃 UI 함수 (아래 추가)
+        applyLoggedOutUI();
+        // 로그인 안 한 경우 기본값으로 진행하거나 로그인 페이지로 유도
       }
     } catch (error) {
       console.error("인증 확인 실패:", error);
-      localStorage.removeItem('currentUser');
     }
 
-    // 2. 문제 생성 시작
+    // 2. 수준이 로드된 후 문제 생성 시작
     generateProblem();
   };
 
-  // UI 업데이트 함수들
+  // UI 업데이트 함수
   function applyLoggedInUI(userName) {
     document.getElementById('guest-menu').style.display = 'none';
     document.getElementById('user-menu').style.display = 'flex';
-    document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+    document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님`;
   }
 
   function applyLoggedOutUI() {
@@ -317,79 +325,49 @@
     }
   }
 
-  // 메뉴 클릭 시 권한 체크
-  function protectedRoute(targetUrl) {
-    const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) {
-      alert("로그인이 필요한 서비스입니다.");
-      location.href = 'login.html'; // 또는 로그인 모달 열기
+  // 수준별 GPT 프롬프트 지침 생성
+  function getLevelPrompt(level) {
+    if (level === "매우 쉬움" || level === "중도") {
+      return "아주 단순한 상황(예: 길을 잃었을 때, 화장실 가고 싶을 때). 문장은 5단어 이내로 짧게 작성. 선택지는 아주 명확하게.";
+    } else if (level === "쉬움" || level === "경도") {
+      return "초등학교 저학년 수준의 사회적 상황. 일상적인 대화나 예절 관련 문제. 이해하기 쉬운 단어 사용.";
     } else {
-      location.href = targetUrl;
-    }
-  }
-
-  // --- 기존의 문제 생성 관련 함수들 ---
-  function getUserLevel() {
-    const userName = localStorage.getItem("currentUser");
-    // 로컬스토리지에 저장된 유저 세부 정보가 있다면 가져오고, 없으면 기본값
-    const userJson = localStorage.getItem(userName);
-    const user = userJson ? JSON.parse(userJson) : null;
-    return user ? user.level : "경계선";
-  }
-
-  function getPrompt(level) {
-    if (level === "경계선") return "중학생 수준, 약간 복잡한 상황 포함";
-    if (level === "경도") return "초등학생 수준, 매우 쉬운 상황";
-    return "아주 쉬운 문장, 한 문장 상황만 사용";
-  }
-
-  function safeParse(text) {
-    try {
-      return JSON.parse(text);
-    } catch {
-      const match = text.match(/\{[\s\S]*\}/);
-      return match ? JSON.parse(match[0]) : null;
+      // 보통 또는 경계선 지능
+      return "중학생 수준의 사회적 상황. 친구와의 갈등, 온라인 예절, 경제 활동 등 약간의 판단력이 필요한 상황 포함.";
     }
   }
 
   async function generateProblem() {
-    // 기존 generateProblem 로직 유지...
     document.getElementById("question").innerText = "";
     document.getElementById("options").innerHTML = "";
     document.getElementById("result").innerText = "";
-    document.getElementById("loading").innerText = "문제 생성 중...";
+    document.getElementById("loading").innerText = "맞춤 문제를 만들고 있어요...";
     document.getElementById("nextBtn").style.display = "none";
 
-    const level = getUserLevel();
-    const promptText = getPrompt(level);
+    const levelInstruction = getLevelPrompt(currentUserLevel);
 
     try {
-      let quiz;
-      while (true) {
-        const res = await fetch("/api/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages: [
-              { role: "system", content: "발달장애인을 위한 생활 교육 문제 생성기" },
-              { role: "user", content: `...생략... ${promptText}` } // 기존 프롬프트 내용 사용
-            ],
-          }),
-        });
+      const res = await fetch("/api/generate", { // Vercel의 gpt 호출 엔드포인트
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: "발달장애인 및 경계선 지능인을 위한 사회성 교육 퀴즈 생성기입니다. 반드시 JSON 형식으로 답변하세요: { \"question\": \"\", \"options\": [\"\", \"\", \"\"], \"answer\": 0, \"explanation\": \"\" }" },
+            { role: "user", content: `다음 난이도 지침에 맞춰 문제를 생성해줘: ${levelInstruction}` }
+          ],
+        }),
+      });
 
-        const data = await res.json();
-        quiz = safeParse(data.choices[0].message.content);
-        if (!quiz || usedQuestions.includes(quiz.question)) continue;
-        usedQuestions.push(quiz.question);
-        break;
-      }
+      const data = await res.json();
+      // data.choices[0].message.content 를 파싱하여 사용 (서버 환경에 따라 data.result 등 조절)
+      const quiz = JSON.parse(data.choices[0].message.content);
+
       document.getElementById("loading").innerText = "";
       showQuiz(quiz);
       document.getElementById("nextBtn").style.display = "block";
     } catch (e) {
       console.error(e);
-      document.getElementById("loading").innerText = "오류 발생. 다시 시도해 주세요.";
+      document.getElementById("loading").innerText = "문제를 불러오지 못했습니다. 다시 시도해 주세요.";
     }
   }
 
@@ -410,11 +388,16 @@
     document.querySelectorAll(".option-btn").forEach((b) => (b.disabled = true));
     if (i === q.answer) {
       btn.classList.add("correct");
-      document.getElementById("result").innerText = "✅ 잘했어요! " + q.explanation;
+      document.getElementById("result").innerHTML = "✅ <strong>정답이에요!</strong><br>" + q.explanation;
     } else {
       btn.classList.add("wrong");
-      document.getElementById("result").innerText = "❌ " + q.explanation;
+      document.getElementById("result").innerHTML = "❌ <strong>아쉬워요.</strong><br>" + q.explanation;
     }
+  }
+
+  function safeParse(text) {
+    try { return JSON.parse(text); } 
+    catch { const match = text.match(/\{[\s\S]*\}/); return match ? JSON.parse(match[0]) : null; }
   }
 </script>
   </body>
