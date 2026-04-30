@@ -39,12 +39,15 @@
       }
 
       .logo {
-        font-size: 28px;
-        font-weight: 800;
-        color: var(--primary); /* --primary-color에서 --primary로 수정 */
-        text-decoration: none;
-        white-space: nowrap;
-      }
+  font-size: 28px; /* 크기 28px로 통일 */
+  font-weight: 800;
+  color: var(--primary); /* 색상 변수명 수정 */
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  height: 100%; /* 헤더 높이에 맞게 정렬 */
+}
 
       .header-left {
         display: flex;
