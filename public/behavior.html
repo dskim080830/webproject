@@ -272,132 +272,65 @@
     </div>
 
     <script>
- let usedQuestions = [];
-  let currentUserLevel = "경계선"; // 기본값 설정
+ async function generateProblem() {
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const resultEl = document.getElementById("result");
+    const loadingEl = document.getElementById("loading");
+    const nextBtn = document.getElementById("nextBtn");
 
-  // 페이지 로드 시 실행되는 통합 함수
-  window.onload = async function() {
-    // 1. 로그인 상태 확인 및 수준(level) 가져오기
-    try {
-      const response = await fetch('/api/check-auth');
-      if (response.ok) {
-        const userData = await response.json();
-        localStorage.setItem('currentUser', userData.name);
-        
-        // 중요: 서버에서 받아온 사용자의 학습 수준 저장
-        if (userData.level) {
-          currentUserLevel = userData.level;
-          console.log("사용자 맞춤 수준 로드됨:", currentUserLevel);
-        }
-        
-        applyLoggedInUI(userData.name);
-      } else {
-        localStorage.removeItem('currentUser');
-        applyLoggedOutUI();
-        // 로그인 안 한 경우 기본값으로 진행하거나 로그인 페이지로 유도
-      }
-    } catch (error) {
-      console.error("인증 확인 실패:", error);
-    }
-
-    // 2. 수준이 로드된 후 문제 생성 시작
-    generateProblem();
-  };
-
-  // UI 업데이트 함수
-  function applyLoggedInUI(userName) {
-    document.getElementById('guest-menu').style.display = 'none';
-    document.getElementById('user-menu').style.display = 'flex';
-    document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님`;
-  }
-
-  function applyLoggedOutUI() {
-    document.getElementById('guest-menu').style.display = 'flex';
-    document.getElementById('user-menu').style.display = 'none';
-  }
-
-  // 로그아웃 처리
-  async function handleLogout() {
-    if (confirm("정말 로그아웃 하시겠습니까?")) {
-      await fetch('/api/logout', { method: 'POST' });
-      localStorage.removeItem('currentUser');
-      location.reload();
-    }
-  }
-
-  // 수준별 GPT 프롬프트 지침 생성
-  function getLevelPrompt(level) {
-    if (level === "매우 쉬움" || level === "중도") {
-      return "아주 단순한 상황(예: 길을 잃었을 때, 화장실 가고 싶을 때). 문장은 5단어 이내로 짧게 작성. 선택지는 아주 명확하게.";
-    } else if (level === "쉬움" || level === "경도") {
-      return "초등학교 저학년 수준의 사회적 상황. 일상적인 대화나 예절 관련 문제. 이해하기 쉬운 단어 사용.";
-    } else {
-      // 보통 또는 경계선 지능
-      return "중학생 수준의 사회적 상황. 친구와의 갈등, 온라인 예절, 경제 활동 등 약간의 판단력이 필요한 상황 포함.";
-    }
-  }
-
-  async function generateProblem() {
-    document.getElementById("question").innerText = "";
-    document.getElementById("options").innerHTML = "";
-    document.getElementById("result").innerText = "";
-    document.getElementById("loading").innerText = "맞춤 문제를 만들고 있어요...";
-    document.getElementById("nextBtn").style.display = "none";
+    questionEl.innerText = "";
+    optionsEl.innerHTML = "";
+    resultEl.innerText = "";
+    loadingEl.innerText = "맞춤 문제를 만들고 있어요...";
+    nextBtn.style.display = "none";
 
     const levelInstruction = getLevelPrompt(currentUserLevel);
 
     try {
-      const res = await fetch("/api/generate", { // Vercel의 gpt 호출 엔드포인트
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [
-            { role: "system", content: "발달장애인 및 경계선 지능인을 위한 사회성 교육 퀴즈 생성기입니다. 반드시 JSON 형식으로 답변하세요: { \"question\": \"\", \"options\": [\"\", \"\", \"\"], \"answer\": 0, \"explanation\": \"\" }" },
-            { role: "user", content: `다음 난이도 지침에 맞춰 문제를 생성해줘: ${levelInstruction}` }
-          ],
+          level: currentUserLevel, // 서버로 수준 정보 전달
+          instruction: levelInstruction
         }),
       });
 
+      if (!res.ok) throw new Error("서버 응답 오류");
+
       const data = await res.json();
-      // data.choices[0].message.content 를 파싱하여 사용 (서버 환경에 따라 data.result 등 조절)
-      const quiz = JSON.parse(data.choices[0].message.content);
+      
+      // GPT 응답이 문자열로 올 경우를 대비해 파싱 로직 적용
+      let quiz;
+      if (typeof data.result === 'string') {
+          quiz = safeParse(data.result);
+      } else {
+          quiz = data.result || data;
+      }
 
-      document.getElementById("loading").innerText = "";
+      if (!quiz || !quiz.question) throw new Error("데이터 형식 오류");
+
+      loadingEl.innerText = "";
       showQuiz(quiz);
-      document.getElementById("nextBtn").style.display = "block";
+      nextBtn.style.display = "block";
     } catch (e) {
-      console.error(e);
-      document.getElementById("loading").innerText = "문제를 불러오지 못했습니다. 다시 시도해 주세요.";
+      console.error("문제 생성 에러:", e);
+      loadingEl.innerText = "❌ 문제를 불러오지 못했습니다. (API 연결 확인 필요)";
+      // 3초 뒤 자동 재시도 버튼 활성화
+      nextBtn.style.display = "block";
+      nextBtn.innerText = "다시 시도하기";
     }
   }
 
-  function showQuiz(q) {
-    document.getElementById("question").innerText = q.question;
-    const div = document.getElementById("options");
-    div.innerHTML = "";
-    q.options.forEach((opt, i) => {
-      const btn = document.createElement("button");
-      btn.className = "option-btn";
-      btn.innerText = opt;
-      btn.onclick = () => check(i, q, btn);
-      div.appendChild(btn);
-    });
-  }
-
-  function check(i, q, btn) {
-    document.querySelectorAll(".option-btn").forEach((b) => (b.disabled = true));
-    if (i === q.answer) {
-      btn.classList.add("correct");
-      document.getElementById("result").innerHTML = "✅ <strong>정답이에요!</strong><br>" + q.explanation;
-    } else {
-      btn.classList.add("wrong");
-      document.getElementById("result").innerHTML = "❌ <strong>아쉬워요.</strong><br>" + q.explanation;
-    }
-  }
-
+  // JSON 파싱 안전 함수 (GPT가 앞뒤에 설명을 붙여도 JSON만 찾아냄)
   function safeParse(text) {
-    try { return JSON.parse(text); } 
-    catch { const match = text.match(/\{[\s\S]*\}/); return match ? JSON.parse(match[0]) : null; }
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+    }
   }
 </script>
   </body>
