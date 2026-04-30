@@ -1,352 +1,255 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>서비스 소개 - 쉬운 글 배움터</title>
-
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap"
-      rel="stylesheet"
-    />
-
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
-      :root {
-        --primary: #4a90e2;
-        --bg: #fdfbf7;
-        --white: #ffffff;
-      }
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #ffd93d;
+            --accent-color: #ff8a5c;
+            --bg-color: #fdfbf7;
+            --text-color: #333333;
+            --white: #ffffff;
+        }
 
-      body {
-        margin: 0;
-        font-family: "Nanum Gothic", sans-serif;
-        background: var(--bg);
-        line-height: 1.8;
-      }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.8; }
 
-      /* 헤더 */
-      header {
-        background-color: var(--white);
-        padding: 0 5%;
-        height: 90px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
+        /* 헤더 스타일 */
+        header {
+            background-color: var(--white);
+            padding: 0 5%;
+            height: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 40px; }
+        .logo { font-size: 28px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .main-menu { display: flex; list-style: none; gap: 30px; }
+        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; transition: color 0.2s; }
+        .main-menu li a:hover { color: var(--primary-color); }
 
-      .logo {
-  font-size: 28px; /* 크기 28px로 통일 */
-  font-weight: 800;
-  color: var(--primary); /* 색상 변수명 수정 */
-  text-decoration: none;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  height: 100%; /* 헤더 높이에 맞게 정렬 */
-}
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        #guest-menu { display: flex; align-items: center; gap: 10px; }
+        #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
+        
+        .login-btn { cursor: pointer; background: none; border: none; font-size: 16px; font-weight: 700; color: var(--text-color); padding: 10px 15px; }
+        .signup-btn { 
+            cursor: pointer; background-color: var(--primary-color); color: white; 
+            padding: 10px 22px; border-radius: 50px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2); transition: all 0.2s;
+        }
+        .signup-btn:hover { background-color: #357abd; transform: translateY(-2px); }
+        .logout-btn { background-color: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-size: 14px; font-weight: 700; }
 
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 40px;
-      }
+        /* 컨텐츠 스타일 */
+        .container { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
+        .intro-card { background: var(--white); padding: 50px; border-radius: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
+        .intro-card h2 { color: var(--primary-color); font-size: 32px; margin-bottom: 20px; text-align: center; }
+        .intro-text { font-size: 18px; color: #555; text-align: center; margin-bottom: 40px; }
+        
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px; }
+        .feature-item { padding: 30px; border-radius: 20px; background: #f8fbff; border: 1px solid #eef4ff; }
+        .feature-item h3 { color: var(--primary-color); margin-bottom: 10px; }
 
-      .main-menu {
-        display: flex;
-        list-style: none;
-        gap: 30px;
-      }
-
-      .main-menu li a {
-        text-decoration: none;
-        color: #444;
-        font-size: 18px;
-        font-weight: 700;
-        transition: color 0.2s;
-      }
-
-      .main-menu li a:hover {
-        color: var(--primary);
-      }
-
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-
-      #guest-menu {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      #user-menu {
-        display: none;
-        align-items: center;
-        gap: 15px;
-        font-weight: 700;
-      }
-
-      .login-btn {
-        background: none;
-        color: #333;
-        padding: 10px 15px;
-        text-decoration: none;
-        font-weight: 700;
-      }
-
-      .signup-btn {
-        background-color: var(--primary);
-        color: white;
-        padding: 10px 22px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 700;
-      }
-
-      .logout-btn {
-        background-color: #eee;
-        color: #666;
-        padding: 8px 15px;
-        border-radius: 50px;
-        border: none;
-      }
-
-      /* 섹션 */
-      .section {
-        max-width: 1000px;
-        margin: 60px auto;
-        padding: 0 20px;
-      }
-
-      .title {
-        font-size: 36px;
-        font-weight: 800;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      /* 카드 */
-      .card {
-        background: white;
-        padding: 30px;
-        border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        margin-bottom: 30px;
-      }
-
-      /* 강조 */
-      .highlight {
-        color: var(--primary);
-        font-weight: 800;
-      }
-
-      /* 기능 박스 */
-      .feature {
-        margin-bottom: 20px;
-      }
-
-      .feature h3 {
-        margin-bottom: 10px;
-        color: var(--primary);
-      }
-
-      footer {
-        text-align: center;
-        padding: 40px;
-        color: #888;
-      }
+        /* 모달 스타일 */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center; backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background-color: var(--white); padding: 40px; border-radius: 30px;
+            width: 90%; max-width: 450px; position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-modal { position: absolute; right: 25px; top: 20px; font-size: 28px; cursor: pointer; color: #aaa; }
+        .modal-content h2 { margin-bottom: 20px; color: var(--primary-color); text-align: center; font-weight: 800; }
+        .modal-content input, .modal-content select {
+            width: 100%; padding: 15px; margin: 10px 0; border: 2px solid #eee; border-radius: 15px; font-size: 16px; outline: none;
+        }
+        .modal-content input:focus { border-color: var(--primary-color); }
+        .modal-btn {
+            width: 100%; padding: 15px; margin-top: 15px; background: var(--primary-color);
+            color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 800; cursor: pointer; transition: transform 0.2s;
+        }
+        .modal-btn:hover { transform: scale(1.02); }
     </style>
-  </head>
+</head>
+<body>
 
-  <body>
-    <header>
-      <div class="header-left">
-        <a href="index.html" class="logo">✨ 쉬운 글 배움터</a>
+<header>
+    <div class="header-left">
+        <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
         <ul class="main-menu">
-          <li><a href="./about.html">서비스 소개</a></li>
-          <li><a href="./text.html">쉬운 글 변환기</a></li>
-          <li><a href="./behavior.html">행동 사전</a></li>
-          <li><a href="./read.html">글 읽어주기</a></li>
+            <li><a href="./about.html">서비스 소개</a></li>
+            <li><a href="./text.html">쉬운 글 변환기</a></li>
+            <li><a href="./behavior.html">행동 사전</a></li>
+            <li><a href="./read.html">글 읽어주기</a></li>
         </ul>
-      </div>
-
-      <div class="header-right">
+    </div>
+    <div class="header-right">
         <div id="guest-menu">
-          <a href="login.html" class="login-btn">로그인</a>
-          <a href="signup.html" class="signup-btn">회원가입</a>
+            <button onclick="openModal('loginModal')" class="login-btn">로그인</button>
+            <button onclick="openModal('signupModal')" class="signup-btn">회원가입</button>
         </div>
-
         <div id="user-menu">
-          <span id="user-info">사용자님, 환영합니다!</span>
-          <button class="logout-btn">로그아웃</button>
+            <span id="user-info">사용자님</span>
+            <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
         </div>
-      </div>
-    </header>
-
-    <!-- 1. 소개 -->
-    <div class="section">
-      <div class="title">서비스 소개</div>
-
-      <div class="card">
-        <p>
-          <span class="highlight">쉬운 글 배움터</span>는 발달장애인과 경계선
-          지능인을 위한 <strong>정보 이해 지원 학습 서비스</strong>입니다.
-        </p>
-
-        <p>
-          현대 사회에서는 많은 정보가 어렵고 복잡하게 제공됩니다. 하지만 모든
-          사람이 같은 방식으로 이해할 수 있는 것은 아닙니다.
-        </p>
-
-        <p>
-          우리는 <strong>누구나 쉽게 이해할 수 있는 세상</strong>을 만들기 위해
-          이 서비스를 개발했습니다.
-        </p>
-      </div>
     </div>
+</header>
 
-    <!-- 2. 문제 상황 -->
-    <div class="section">
-      <div class="card">
-        <h2>📌 왜 필요한가?</h2>
-
-        <p>경계선 지능인과 발달장애인은 다음과 같은 어려움을 겪습니다.</p>
-
-        <ul>
-          <li>어려운 단어와 긴 문장 이해 어려움</li>
-          <li>사회적 상황에서 올바른 행동 판단 어려움</li>
-          <li>정보를 잘못 이해하여 피해 발생</li>
-        </ul>
-
-        <p>
-          이러한 문제는 단순한 학습 문제가 아니라
-          <strong>실제 생활의 위험으로 이어질 수 있습니다.</strong>
+<div class="container">
+    <div class="intro-card">
+        <h2>🤝 서비스 소개</h2>
+        <p class="intro-text">
+            쉬운 글 배움터는 발달장애인, 경계선 지능인, 그리고 쉬운 정보를 원하는 모든 분들을 위해 만들어졌습니다.<br>
+            어려운 단어와 복잡한 상황을 AI 기술을 통해 누구나 이해하기 쉽게 바꿔드립니다.
         </p>
-      </div>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <h3>✍️ 쉬운 글 변환기</h3>
+                <p>뉴스와 공문서 같은 어려운 글을 사용자의 눈높이에 맞춰 아주 쉽게 요약하고 단어 뜻을 풀이해 줍니다.</p>
+            </div>
+            <div class="feature-item">
+                <h3>📚 행동 사전</h3>
+                <p>사회 생활에서 겪을 수 있는 다양한 상황들을 퀴즈로 풀며 올바른 대처 방법을 학습합니다.</p>
+            </div>
+            <div class="feature-item">
+                <h3>🔊 글 읽어주기</h3>
+                <p>모든 텍스트를 친절한 목소리로 들려주어 읽기 어려운 분들의 정보 접근을 돕습니다.</p>
+            </div>
+            <div class="feature-item">
+                <h3>✨ 맞춤형 수준 조정</h3>
+                <p>로그인 시 선택한 학습 수준에 맞춰 모든 콘텐츠의 난이도가 자동으로 조절됩니다.</p>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- 3. 해결 방법 -->
-    <div class="section">
-      <div class="card">
-        <h2>💡 어떻게 해결하는가?</h2>
-
-        <p>
-          쉬운 글 배움터는 AI 기술을 활용하여 사용자가 정보를 쉽게 이해하고
-          올바른 행동을 배울 수 있도록 돕습니다.
-        </p>
-      </div>
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
+        <h2>로그인</h2>
+        <input type="text" id="loginId" placeholder="아이디">
+        <input type="password" id="loginPw" placeholder="비밀번호">
+        <button class="modal-btn" onclick="handleLogin()">로그인하기</button>
     </div>
+</div>
 
-    <!-- 4. 주요 기능 -->
-    <div class="section">
-      <div class="title">주요 기능</div>
-
-      <div class="card feature">
-        <h3>✍️ 쉬운 글 변환기</h3>
-        <p>
-          어려운 문장을 짧고 쉬운 문장으로 변환하여 누구나 쉽게 이해할 수 있도록
-          합니다.
-        </p>
-      </div>
-
-      <div class="card feature">
-        <h3>🤝 행동 사전</h3>
-        <p>
-          실제 생활 상황을 문제로 제공하고 올바른 행동을 학습할 수 있도록
-          합니다.
-        </p>
-      </div>
-
-      <div class="card feature">
-        <h3>🔊 글 읽어주기</h3>
-        <p>
-          텍스트를 음성으로 읽어주어 시각 정보 이해가 어려운 사용자도 학습할 수
-          있습니다.
-        </p>
-      </div>
+<div id="signupModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal('signupModal')">&times;</span>
+        <h2>회원가입</h2>
+        <input type="text" id="regId" placeholder="아이디">
+        <input type="password" id="regPw" placeholder="비밀번호">
+        <input type="text" id="regName" placeholder="이름">
+        <p style="margin: 10px 0 5px; font-weight: bold; font-size: 14px;">나의 학습 수준 선택</p>
+        <select id="regLevel">
+            <option value="1">1단계 (경계선 지능)</option>
+            <option value="2">2단계 (경도 지적 장애)</option>
+            <option value="3">3단계 (중도 지적 장애)</option>
+        </select>
+        <button class="modal-btn" onclick="handleSignup()">가입 완료</button>
     </div>
+</div>
 
-    <!-- 5. 기대 효과 -->
-    <div class="section">
-      <div class="card">
-        <h2>🎯 기대 효과</h2>
+<script>
+    // 모달 제어
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        <ul>
-          <li>정보 이해 능력 향상</li>
-          <li>사회 적응 능력 개선</li>
-          <li>피해 예방 및 안전 강화</li>
-        </ul>
-
-        <p>
-          이 서비스는
-          <strong>모두를 위한 공정한 정보 접근</strong>을 목표로 합니다.
-        </p>
-      </div>
-    </div>
-
-    <footer>© 2026 쉬운 글 배움터</footer>
-    <script>
-    // 페이지 로드 시 실행
+    // 1. 초기 로드 시 인증 확인
     window.onload = async function() {
         try {
-            // 1. 서버에 로그인 세션 확인 요청
             const response = await fetch('/api/check-auth');
-            
             if (response.ok) {
                 const userData = await response.json();
-                // 2. 서버 응답이 성공이면 로컬스토리지 갱신
                 localStorage.setItem('currentUser', userData.name);
-                
-                // 3. 로그인 상태 UI 적용
                 applyLoggedInUI(userData.name);
             } else {
-                // 로그인 상태가 아니면 로컬 데이터 삭제 및 게스트 UI 유지
                 localStorage.removeItem('currentUser');
                 applyLoggedOutUI();
             }
         } catch (error) {
             console.error("인증 확인 실패:", error);
-            localStorage.removeItem('currentUser');
         }
     };
 
-    // [추가] 로그인 성공 시 UI 전환 함수
+    // 2. 로그인 처리
+    async function handleLogin() {
+        const id = document.getElementById('loginId').value;
+        const pw = document.getElementById('loginPw').value;
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, pw })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert(`${data.name}님, 환영합니다!`);
+            location.reload();
+        } else {
+            alert("정보를 다시 확인해 주세요.");
+        }
+    }
+
+    // 3. 회원가입 처리
+    async function handleSignup() {
+        const id = document.getElementById('regId').value;
+        const pw = document.getElementById('regPw').value;
+        const name = document.getElementById('regName').value;
+        const level = document.getElementById('regLevel').value;
+        const res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, pw, name, level })
+        });
+        if (res.ok) {
+            alert("회원가입 완료! 로그인해 주세요.");
+            closeModal('signupModal');
+            openModal('loginModal');
+        } else {
+            alert("아이디 중복 또는 가입 실패");
+        }
+    }
+
     function applyLoggedInUI(userName) {
         document.getElementById('guest-menu').style.display = 'none';
         document.getElementById('user-menu').style.display = 'flex';
-        document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님`;
     }
 
-    // [추가] 로그아웃 상태일 때 UI 보정 (기본값)
     function applyLoggedOutUI() {
         document.getElementById('guest-menu').style.display = 'flex';
         document.getElementById('user-menu').style.display = 'none';
     }
 
-    // [추가] 로그아웃 처리 함수
     async function handleLogout() {
-        if (confirm("정말 로그아웃 하시겠습니까?")) {
-            try {
-                const response = await fetch('/api/logout', { method: 'POST' });
-                if (response.ok) {
-                    localStorage.removeItem('currentUser');
-                    alert("로그아웃 되었습니다.");
-                    location.reload(); // 페이지 새로고침하여 UI 갱신
-                }
-            } catch (error) {
-                alert("로그아웃 처리 중 오류가 발생했습니다.");
-            }
+        if (confirm("로그아웃 하시겠습니까?")) {
+            await fetch('/api/logout', { method: 'POST' });
+            localStorage.removeItem('currentUser');
+            location.reload();
         }
     }
 
-    // 로그아웃 버튼에 이벤트 연결 (HTML 구조상 버튼 클릭 시 실행되도록 추가)
-    document.querySelector('.logout-btn').onclick = handleLogout;
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
 </script>
-  </body>
+
+</body>
 </html>
