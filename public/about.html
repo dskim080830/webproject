@@ -166,22 +166,28 @@
 
     // 인증번호 발송 (index.html 동일 로직)
     async function sendAuthCode() {
-        const email = document.getElementById('regEmail').value;
-        if (!email) { alert("이메일을 입력해주세요."); return; }
+    const email = document.getElementById('regEmail').value;
+    if (!email) { alert("이메일을 입력해주세요."); return; }
 
-        try {
-            const res = await fetch('/api/send-code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            if (res.ok) {
-                alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
-            } else {
-                alert("발송 실패. 이메일을 확인해주세요.");
-            }
-        } catch (e) { console.error(e); }
+    try {
+        // 경로를 /api/send-code에서 /api/send-email로 변경
+        const res = await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        if (res.ok) {
+            alert("인증번호가 발송되었습니다. 메일함을 확인해주세요.");
+        } else {
+            const errData = await res.json();
+            alert("발송 실패: " + (errData.error || "서버 오류"));
+        }
+    } catch (e) {
+        console.error("연결 에러:", e);
+        alert("서버와 연결할 수 없습니다. 경로를 확인해주세요.");
     }
+}
 
     // 초기 로드 인증 확인
     window.onload = async function() {
