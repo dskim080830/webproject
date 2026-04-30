@@ -190,38 +190,38 @@
     </div>
 
     <script>
-      async function convertText() {
-        const text = document.getElementById("inputText").value.trim();
-        const level = document.getElementById("level").value;
-        const resultBox = document.getElementById("result");
-
-        if (!text) {
-          alert("글을 입력해주세요!");
-          return;
+      window.onload = async function() {
+    try {
+        // 1. 서버에 로그인 세션 및 사용자 정보 요청
+        const response = await fetch('/api/check-auth');
+        
+        if (response.ok) {
+            const userData = await response.json();
+            
+            // 로컬 스토리지 업데이트
+            localStorage.setItem('currentUser', userData.name);
+            
+            // [추가] 사용자의 수준(level) 정보가 있다면 셀렉트 박스에 자동 적용
+            if (userData.level) {
+                const levelSelect = document.getElementById('level');
+                if (levelSelect) {
+                    levelSelect.value = userData.level;
+                    console.log(`사용자 수준(${userData.level})이 적용되었습니다.`);
+                }
+            }
+            
+            // 로그인 UI 적용
+            if (typeof applyLoggedInUI === 'function') {
+                applyLoggedInUI(userData.name);
+            }
+        } else {
+            localStorage.removeItem('currentUser');
         }
-
-        resultBox.innerHTML = "변환 중...";
-
-        try {
-          const res = await fetch("http://localhost:3000/easy-text", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ text, level }),
-          });
-
-          if (!res.ok) throw new Error();
-
-          const data = await res.json();
-
-          // 🔥 핵심: HTML 그대로 출력
-          resultBox.innerHTML = data.result;
-        } catch (error) {
-          console.error(error);
-          resultBox.innerHTML = "오류가 발생했습니다 😢";
-        }
-      }
+    } catch (error) {
+        console.error("인증 확인 실패:", error);
+        localStorage.removeItem('currentUser');
+    }
+};
     </script>
   </body>
 </html>
