@@ -6,37 +6,82 @@
     <title>서비스 소개 - 쉬운 글 배움터</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
-        :root { --primary: #4a90e2; --bg: #fdfbf7; --white: #ffffff; --text: #333; }
+        :root {
+            --primary: #4a90e2;
+            --bg: #fdfbf7;
+            --white: #ffffff;
+            --text: #333;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; }
 
-        /* 헤더 스타일 */
+        /* 헤더 스타일 (index.html과 동일) */
         header {
-            background-color: var(--white); padding: 0 5%; height: 90px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 100;
+            background-color: var(--white);
+            padding: 0 5%;
+            height: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .header-left { display: flex; align-items: center; gap: 40px; }
         .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
         .main-menu { display: flex; list-style: none; gap: 30px; }
-        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
+        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; transition: 0.2s; }
+        .main-menu li a:hover { color: var(--primary); }
         
-        /* 버튼 및 모달 스타일 */
-        .login-btn { cursor: pointer; border: none; background: none; font-size: 17px; font-weight: 700; padding: 10px 15px; }
-        .signup-btn { cursor: pointer; background: var(--primary); color: white; padding: 10px 22px; border-radius: 50px; font-weight: 700; text-decoration: none; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-        .modal-content { background: var(--white); padding: 40px; border-radius: 30px; width: 90%; max-width: 500px; position: relative; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        #guest-menu { display: flex; align-items: center; gap: 10px; }
+        #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
+        
+        .login-btn { cursor: pointer; border: none; background: none; font-size: 17px; font-weight: 700; color: var(--text); padding: 10px 15px; }
+        .signup-btn { 
+            cursor: pointer; background: var(--primary); color: white; 
+            padding: 10px 22px; border-radius: 50px; font-weight: 700; text-decoration: none;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+        }
+
+        /* 모달 스타일 (이미지 양식 반영) */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center; backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background-color: var(--white); padding: 40px; border-radius: 30px;
+            width: 90%; max-width: 500px; position: relative;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
         .close-modal { position: absolute; right: 25px; top: 20px; font-size: 28px; cursor: pointer; color: #aaa; }
         
-        .modal-content label { display: block; font-weight: 700; margin-top: 15px; margin-bottom: 5px; }
-        .modal-content input, .modal-content select { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 16px; outline: none; }
-        .modal-btn { width: 100%; padding: 18px; margin-top: 25px; background: var(--primary); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 800; cursor: pointer; }
-        .auth-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .small-btn { width: 100px; border-radius: 15px; border: none; background: #eee; font-weight: 700; cursor: pointer; }
+        .modal-content h2 { margin-bottom: 30px; color: var(--primary); text-align: left; font-weight: 800; font-size: 28px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 15px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 15px; font-size: 16px; outline: none; transition: 0.2s;
+        }
+        .form-group input:focus { border-color: var(--primary); }
 
-        .container { max-width: 1000px; margin: 60px auto; padding: 50px; background: white; border-radius: 30px; text-align: center; }
+        .auth-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .btn-sub { 
+            background: #eee; color: #666; border: none; border-radius: 15px; 
+            padding: 0 20px; font-weight: 700; cursor: pointer; white-space: nowrap;
+        }
+        .modal-btn {
+            width: 100%; padding: 18px; margin-top: 10px; background: var(--primary);
+            color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 800; cursor: pointer;
+        }
+        .status-msg { font-size: 12px; margin-top: 5px; font-weight: bold; }
+
+        /* 본문 컨테이너 */
+        .container { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
+        .intro-card { background: var(--white); padding: 50px; border-radius: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); text-align: center; }
     </style>
 </head>
 <body>
@@ -46,9 +91,9 @@
         <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
         <ul class="main-menu">
             <li><a href="./about.html">서비스 소개</a></li>
-            <li><a href="./text.html">쉬운 글 변환기</a></li>
-            <li><a href="./behavior.html">행동 사전</a></li>
-            <li><a href="./read.html">글 읽어주기</a></li>
+            <li><a href="javascript:void(0)" onclick="protectedRoute('./text.html')">쉬운 글 변환기</a></li>
+            <li><a href="javascript:void(0)" onclick="protectedRoute('./behavior.html')">행동 사전</a></li>
+            <li><a href="javascript:void(0)" onclick="protectedRoute('./read.html')">글 읽어주기</a></li>
         </ul>
     </div>
     <div class="header-right">
@@ -56,193 +101,249 @@
             <button onclick="openModal('loginModal')" class="login-btn">로그인</button>
             <button onclick="openModal('signupModal')" class="signup-btn">회원가입</button>
         </div>
-        <div id="user-menu" style="display:none;">
-            <span id="user-info"></span>
-            <button onclick="handleLogout()" style="margin-left:10px; cursor:pointer; background:#eee; border:none; padding:5px 12px; border-radius:20px;">로그아웃</button>
+        <div id="user-menu">
+            <span id="u-info"></span>
+            <button class="btn-sub" style="margin-left:10px;" onclick="handleLogout()">로그아웃</button>
         </div>
     </div>
 </header>
 
 <div class="container">
-    <h2>🤝 서비스 소개</h2>
-    <p style="margin-top:20px;">모든 이들이 정보를 쉽게 누릴 수 있는 세상을 만듭니다.</p>
+    <div class="intro-card">
+        <h2 style="color: var(--primary); font-size: 32px; margin-bottom: 20px;">🤝 서비스 소개</h2>
+        <p style="font-size: 18px; color: #666;">누구나 정보를 평등하게 누릴 수 있는 세상을 꿈꿉니다.</p>
+    </div>
 </div>
 
 <div id="loginModal" class="modal">
     <div class="modal-content" style="max-width: 400px;">
         <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
-        <h2 style="text-align: center; color: var(--primary);">로그인</h2>
-        <input type="text" id="loginId" placeholder="아이디">
-        <input type="password" id="loginPw" placeholder="비밀번호" style="margin-top:10px;">
-        <button class="modal-btn" onclick="handleLogin()">로그인하기</button>
+        <h2 style="text-align: center;">로그인</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="loginId" required>
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" id="loginPw" required>
+            </div>
+            <button type="submit" class="modal-btn">로그인하기</button>
+        </form>
     </div>
 </div>
 
 <div id="signupModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal('signupModal')">&times;</span>
-        <h2 style="color: var(--primary);">회원가입</h2>
+        <h2>회원가입</h2>
         
-        <label>성함</label>
-        <input type="text" id="regName" placeholder="성함을 입력하세요">
+        <form id="signupForm">
+            <div class="form-group">
+                <label>성함</label>
+                <input type="text" id="regName" required>
+            </div>
 
-        <label>아이디</label>
-        <input type="text" id="regId" placeholder="아이디를 입력하세요">
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="regId" required>
+            </div>
 
-        <label>비밀번호</label>
-        <input type="password" id="regPw" placeholder="8자 이상, 특수문자 필수">
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" id="regPw" placeholder="8자 이상, 특수문자 필수" required oninput="validatePassword()">
+                <div id="pwMessage" class="status-msg"></div>
+            </div>
 
-        <label>이메일 인증</label>
-        <div class="auth-row">
-            <input type="email" id="regEmail" placeholder="example@gmail.com">
-            <button type="button" class="small-btn" onclick="sendAuthCode()">코드받기</button>
-        </div>
-        <div class="auth-row">
-            <input type="text" id="regAuthCode" placeholder="인증번호 6자리">
-            <button type="button" class="small-btn" style="background: var(--primary); color: white;" onclick="verifyAuthCode()">확인</button>
-        </div>
-        <p id="authMessage" style="font-size:13px; font-weight:bold; margin-top:-5px;"></p>
+            <div class="form-group">
+                <label>이메일 인증</label>
+                <div class="auth-row">
+                    <input type="email" id="regEmail" placeholder="example@gmail.com" required>
+                    <button type="button" class="btn-sub" id="emailSendBtn" onclick="sendEmailCode()">코드받기</button>
+                </div>
+            </div>
+            
+            <div id="emailAuthArea" class="form-group" style="display:none;">
+                <div class="auth-row">
+                    <input type="text" id="emailCodeInput" placeholder="6자리 번호">
+                    <button type="button" class="btn-sub" style="background: var(--primary); color: white;" onclick="verifyEmailCode()">확인</button>
+                </div>
+                <div id="emailMessage" class="status-msg"></div>
+            </div>
 
-        <label>휴대폰 번호</label>
-        <input type="tel" id="regPhone" placeholder="010-0000-0000">
+            <div class="form-group">
+                <label>휴대폰 번호</label>
+                <input type="tel" id="regPhone" placeholder="010-0000-0000" maxlength="13" required oninput="formatPhoneNumber(this)">
+            </div>
 
-        <label>생년월일</label>
-        <input type="date" id="regBirth">
+            <div class="form-group">
+                <label>생년월일</label>
+                <input type="date" id="regBirth" required>
+            </div>
 
-        <label>학습 단계</label>
-        <select id="regLevel">
-            <option value="1">경계선 지능</option>
-            <option value="2">경도 지적 장애</option>
-            <option value="3">중도 지적 장애</option>
-        </select>
-        
-        <button class="modal-btn" onclick="handleSignup()">가입하기</button>
+            <div class="form-group">
+                <label>학습 단계</label>
+                <select id="regLevel" required>
+                    <option value="1">경계선 지능</option>
+                    <option value="2">경도 지적 장애</option>
+                    <option value="3">중증 지적 장애</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="modal-btn">가입 완료</button>
+        </form>
     </div>
 </div>
 
 <script>
-    let isEmailVerified = false;
+    // [인증 핵심] index.html의 로직과 동일하게 설정
+    let generatedServerCode = ""; 
+    let isEmailSuccessfullyVerified = false;
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // 1. 인증번호 발송
-    async function sendAuthCode() {
-        const email = document.getElementById('regEmail').value;
-        if (!email) return alert("이메일을 입력해주세요.");
-
-        const res = await fetch('/api/send-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-        if (res.ok) alert("인증번호가 발송되었습니다.");
-        else alert("발송 실패. 메일 주소를 확인하세요.");
-    }
-
-    // 2. 인증번호 확인 함수 (수정본)
-async function verifyAuthCode() {
-    const email = document.getElementById('regEmail').value;
-    const code = document.getElementById('regAuthCode').value.trim();
-    const msg = document.getElementById('authMessage');
-
-    if (!email || !code) return alert("이메일과 인증번호를 모두 입력해주세요.");
-
-    try {
-        const res = await fetch('/api/verify-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            // 중요: 세션 쿠키를 함께 보내서 서버가 '나'를 알아보게 함
-            credentials: 'include', 
-            body: JSON.stringify({ 
-                email: email, 
-                code: code 
-            })
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert("인증 성공!");
-            isEmailVerified = true;
-            msg.innerText = "✅ 이메일 인증 완료";
-            msg.style.color = "green";
-            // 인증 완료 후 수정 방지
-            document.getElementById('regEmail').readOnly = true;
-            document.getElementById('regAuthCode').readOnly = true;
-        } else {
-            // 서버가 왜 틀렸다고 하는지 상세 메시지 출력
-            alert("인증 실패: " + (data.error || "번호가 일치하지 않습니다."));
-            isEmailVerified = false;
-            msg.innerText = "❌ 인증 실패";
-            msg.style.color = "red";
+    // 초기 상태 체크
+    window.onload = async function() {
+        try {
+            const response = await fetch('/api/check-auth');
+            if (response.ok) {
+                const userData = await response.json();
+                localStorage.setItem('currentUser', userData.name);
+                applyLoggedInUI(userData.name);
+            }
+        } catch (error) {
+            localStorage.removeItem('currentUser');
         }
-    } catch (e) {
-        console.error("확인 요청 중 에러:", e);
-        alert("서버와 연결할 수 없습니다.");
+    };
+
+    function applyLoggedInUI(userName) {
+        document.getElementById('guest-menu').style.display = 'none';
+        document.getElementById('user-menu').style.display = 'flex';
+        document.getElementById('u-info').innerHTML = `✨ <strong>${userName}</strong>님`;
     }
-}
 
-    // 3. 회원가입 실행
-    async function handleSignup() {
-        if (!isEmailVerified) return alert("이메일 인증을 먼저 완료해주세요.");
+    // 로그인 처리
+    document.getElementById('loginForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const userId = document.getElementById('loginId').value;
+        const userPw = document.getElementById('loginPw').value;
 
-        const signupData = {
-            name: document.getElementById('regName').value,
-            id: document.getElementById('regId').value,
+        try {
+            const response = await fetch('/api/login', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ userId: userId, pw: userPw }) 
+            });
+            const data = await response.json();
+            if (response.ok) {
+                location.reload();
+            } else { 
+                alert(data.message || "로그인 정보를 확인해주세요."); 
+            }
+        } catch (error) { alert("서버 오류"); }
+    };
+
+    // 이메일 코드 발송 (index.html 방식)
+    async function sendEmailCode() {
+        const emailInput = document.getElementById('regEmail').value;
+        if (emailInput.indexOf('@') === -1) return alert("올바른 이메일을 입력하세요.");
+        
+        try {
+            const response = await fetch('/api/send-email', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email: emailInput }) 
+            });
+            if (response.ok) {
+                const data = await response.json(); 
+                generatedServerCode = data.code; // [핵심] 서버에서 온 코드를 변수에 저장
+                document.getElementById('emailAuthArea').style.display = 'block'; 
+                alert("인증번호가 발송되었습니다!");
+            }
+        } catch (error) { alert("발송 실패"); }
+    }
+
+    // 이메일 코드 확인 (index.html 방식)
+    function verifyEmailCode() {
+        const userInputCode = document.getElementById('emailCodeInput').value;
+        const messageElement = document.getElementById('emailMessage');
+
+        // [핵심] 서버에 다시 묻지 않고 변수와 직접 비교
+        if (userInputCode === String(generatedServerCode) && generatedServerCode !== "") {
+            isEmailSuccessfullyVerified = true;
+            messageElement.innerText = "✅ 인증 성공"; 
+            messageElement.style.color = "#2ecc71";
+            document.getElementById('regEmail').readOnly = true;
+            document.getElementById('emailCodeInput').readOnly = true;
+        } else { 
+            alert("인증번호가 일치하지 않습니다."); 
+        }
+    }
+
+    // 회원가입 제출
+    document.getElementById('signupForm').onsubmit = async function(e) {
+        e.preventDefault();
+        if (!isEmailSuccessfullyVerified) return alert("이메일 인증을 완료해주세요.");
+
+        const payload = {
+            userId: document.getElementById('regId').value, 
             pw: document.getElementById('regPw').value,
-            email: document.getElementById('regEmail').value,
-            phone: document.getElementById('regPhone').value,
+            email: document.getElementById('regEmail').value, 
+            name: document.getElementById('regName').value,
+            phone: document.getElementById('regPhone').value, 
             birth: document.getElementById('regBirth').value,
             level: document.getElementById('regLevel').value
         };
 
-        const res = await fetch('/api/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(signupData)
-        });
+        try {
+            const response = await fetch('/api/signup', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            });
+            if (response.ok) { 
+                alert("가입을 축하합니다!"); 
+                location.reload(); 
+            } else { alert("가입 실패 (아이디 중복 등)"); }
+        } catch (error) { alert("서버 연결 실패"); }
+    };
 
-        if (res.ok) {
-            alert("가입 성공! 로그인해 주세요.");
-            location.reload();
+    // 유틸리티 함수들
+    function formatPhoneNumber(el) {
+        let num = el.value.replace(/[^0-9]/g, '');
+        el.value = num.replace(/^(\d{0,3})(\d{0,4})(\d{0,4})$/g, "$1-$2-$3").replace(/(\-{1,2})$/g, "");
+    }
+
+    function validatePassword() {
+        const pw = document.getElementById('regPw').value;
+        const msg = document.getElementById('pwMessage');
+        const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+        if (pw.length < 8 || !spec.test(pw)) {
+            msg.innerText = "❌ 8자 이상 + 특수문자 필수";
+            msg.style.color = "#e74c3c";
         } else {
-            const err = await res.json();
-            alert(err.error || "가입 실패");
+            msg.innerText = "✅ 안전한 비밀번호입니다.";
+            msg.style.color = "#2ecc71";
         }
     }
 
-    // 4. 로그인 및 인증 체크
-    window.onload = async () => {
-        try {
-            const res = await fetch('/api/check-auth');
-            if (res.ok) {
-                const data = await res.json();
-                document.getElementById('guest-menu').style.display = 'none';
-                document.getElementById('user-menu').style.display = 'flex';
-                document.getElementById('user-info').innerText = `✨ ${data.name}님`;
-            }
-        } catch (e) {}
-    };
-
-    async function handleLogin() {
-        const id = document.getElementById('loginId').value;
-        const pw = document.getElementById('loginPw').value;
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, pw })
-        });
-        if (res.ok) location.reload();
-        else alert("아이디 또는 비밀번호가 틀립니다.");
-    }
-
     async function handleLogout() {
-        await fetch('/api/logout', { method: 'POST' });
-        location.reload();
+        if (confirm("로그아웃 하시겠습니까?")) {
+            await fetch('/api/logout', { method: 'POST' });
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
     }
 
-    window.onclick = (e) => { if (e.target.className === 'modal') e.target.style.display = 'none'; };
+    function protectedRoute(url) {
+        if (!localStorage.getItem('currentUser')) {
+            alert("로그인 후 이용 가능합니다.");
+            openModal('loginModal');
+        } else { location.href = url; }
+    }
+
+    window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 </script>
 </body>
 </html>
