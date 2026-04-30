@@ -272,6 +272,66 @@
     </div>
 
     <script>
+      window.onload = async function() {
+    try {
+        // 1. 서버에 로그인 정보 요청
+        const response = await fetch('/api/check-auth');
+        
+        if (response.ok) {
+            const userData = await response.json();
+            
+            // 데이터가 정상적으로 있다면
+            if (userData && userData.name) {
+                localStorage.setItem('currentUser', userData.name);
+                
+                // 전역 변수나 hidden input에 수준 저장 (행동 사전/변환기용)
+                if (userData.level) {
+                    window.currentUserLevel = userData.level; 
+                    const levelDisplay = document.getElementById('displayLevel');
+                    if (levelDisplay) levelDisplay.innerText = userData.level;
+                    
+                    const levelInput = document.getElementById('userLevelValue');
+                    if (levelInput) levelInput.value = userData.level;
+                }
+
+                // 로그인 UI 적용 함수 호출
+                applyLoggedInUI(userData.name);
+            }
+        } else {
+            // 로그인 상태가 아니면 로컬 정보 삭제
+            localStorage.removeItem('currentUser');
+            applyLoggedOutUI();
+        }
+    } catch (error) {
+        console.error("인증 정보를 가져오는 중 오류 발생:", error);
+        localStorage.removeItem('currentUser');
+        applyLoggedOutUI();
+    }
+
+    // 2. 행동 사전 페이지라면 문제 생성 함수 호출
+    if (typeof generateProblem === 'function') {
+        generateProblem();
+    }
+};
+
+// UI 전환 함수 (정의되어 있는지 확인)
+function applyLoggedInUI(userName) {
+    const guestMenu = document.getElementById('guest-menu');
+    const userMenu = document.getElementById('user-menu');
+    const userInfo = document.getElementById('user-info');
+
+    if (guestMenu) guestMenu.style.display = 'none';
+    if (userMenu) userMenu.style.display = 'flex';
+    if (userInfo) userInfo.innerHTML = `✨ <strong>${userName}</strong>님`;
+}
+
+function applyLoggedOutUI() {
+    const guestMenu = document.getElementById('guest-menu');
+    const userMenu = document.getElementById('user-menu');
+
+    if (guestMenu) guestMenu.style.display = 'flex';
+    if (userMenu) userMenu.style.display = 'none';
+}
  async function generateProblem() {
     const questionEl = document.getElementById("question");
     const optionsEl = document.getElementById("options");
