@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
-        /* 헤더 스타일 (index.html과 동일) */
+        /* 1. 헤더 스타일 (index.html과 100% 동일화) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -32,58 +32,100 @@
         .header-left { display: flex; align-items: center; gap: 40px; }
         .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
         .main-menu { display: flex; list-style: none; gap: 30px; }
-        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; }
+        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; transition: color 0.2s; }
+        .main-menu li a:hover { color: var(--primary); }
         
         .header-right { display: flex; align-items: center; gap: 15px; }
-        #guest-menu { display: flex; gap: 10px; }
+        #guest-menu { display: flex; align-items: center; gap: 10px; }
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
-        .login-btn { text-decoration: none; color: #333; font-weight: 700; }
-        .signup-btn { background: var(--primary); color: white; padding: 10px 22px; border-radius: 50px; text-decoration: none; font-weight: 700; }
-        .logout-btn { background: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; }
+        .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
+        /* 회원가입 버튼 디자인 */
+        .signup-btn { 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px 22px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+            transition: all 0.2s;
+        }
+        .signup-btn:hover { background-color: #357abd; transform: translateY(-2px); }
+        
+        .logout-btn { background: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; }
 
-        /* 컨텐츠 스타일 */
+        /* 2. 컨텐츠 스타일 */
         .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
         .card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .title-area { text-align: center; margin-bottom: 30px; }
+        .title-area h2 { color: var(--primary); font-size: 32px; margin-bottom: 10px; font-weight: 800; }
         
-        textarea { width: 100%; height: 200px; padding: 20px; border-radius: 15px; border: 2px solid #e6eef8; font-size: 16px; resize: none; margin-bottom: 20px; }
+        textarea { 
+            width: 100%; height: 220px; padding: 25px; border-radius: 20px; 
+            border: 2px solid #e6eef8; font-size: 18px; resize: none; margin-bottom: 25px;
+            outline: none; transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--primary); }
         
         .info-bar { 
-            background: #f0f7ff; padding: 15px 25px; border-radius: 50px; 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+            background: #f0f7ff; padding: 18px 30px; border-radius: 50px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+            font-size: 17px;
         }
-        .user-level-badge { color: var(--primary); font-weight: 800; }
+        .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
 
+        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
         .convert-btn { 
-            width: 100%; padding: 18px; background: var(--primary); color: white; 
-            border: none; border-radius: 50px; font-size: 18px; font-weight: 800; cursor: pointer;
+            width: 100%; 
+            padding: 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            font-size: 20px; 
+            font-weight: 800; 
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3);
+            transition: all 0.3s;
+        }
+        .convert-btn:hover { 
+            background-color: #357abd; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
         }
 
         .result-box { 
-            margin-top: 30px; padding: 25px; border-radius: 20px; 
-            background: #fff; border: 2px dashed #bcd6f5; min-height: 100px; line-height: 1.8;
+            margin-top: 35px; padding: 30px; border-radius: 25px; 
+            background: #fff; border: 2px dashed #bcd6f5; min-height: 120px; line-height: 1.8;
+            font-size: 18px;
         }
         
-        /* 툴팁 스타일 */
-        .word { border-bottom: 2px solid var(--primary); cursor: help; position: relative; font-weight: bold; }
+        /* 툴팁 및 밑줄 스타일 */
+        .word { 
+            border-bottom: 2px solid var(--primary); 
+            cursor: help; 
+            position: relative; 
+            font-weight: bold; 
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="header-left">
-            <a href="index.html" class="logo">✨ 쉬운 글 배움터</a>
+            <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
             <ul class="main-menu">
-                <li><a href="about.html">서비스 소개</a></li>
-                <li><a href="text.html">쉬운 글 변환기</a></li>
-                <li><a href="behavior.html">행동 사전</a></li>
-                <li><a href="read.html">글 읽어주기</a></li>
+                <li><a href="./about.html">서비스 소개</a></li>
+                <li><a href="./text.html">쉬운 글 변환기</a></li>
+                <li><a href="./behavior.html">행동 사전</a></li>
+                <li><a href="./read.html">글 읽어주기</a></li>
             </ul>
         </div>
         <div class="header-right">
             <div id="guest-menu">
-                <a href="login.html" class="login-btn">로그인</a>
-                <a href="signup.html" class="signup-btn">회원가입</a>
+                <a href="./login.html" class="login-btn">로그인</a>
+                <a href="./signup.html" class="signup-btn">회원가입</a>
             </div>
             <div id="user-menu">
                 <span id="user-info">사용자님, 환영합니다!</span>
@@ -96,19 +138,19 @@
         <div class="card">
             <div class="title-area">
                 <h2>✍️ 쉬운 글 변환기</h2>
-                <p>내 학습 수준에 맞춰 글을 쉽게 바꿔보세요.</p>
+                <p>내가 읽기 힘든 복잡한 글을 입력하면 내 수준에 딱 맞춰서 바꿔줘요!</p>
             </div>
 
-            <textarea id="inputText" placeholder="변환하고 싶은 어려운 글을 입력하세요..."></textarea>
+            <textarea id="inputText" placeholder="여기에 어렵거나 복잡한 글을 복사해서 붙여넣어 보세요..."></textarea>
 
             <div class="info-bar">
                 <span>나의 맞춤 학습 수준: <span id="displayLevel" class="user-level-badge">불러오는 중...</span></span>
                 <input type="hidden" id="userLevelValue" value="보통">
             </div>
 
-            <button class="convert-btn" onclick="convertText()">지금 바로 변환하기</button>
+            <button class="convert-btn" onclick="convertText()">지금 바로 변환하기 🚀</button>
 
-            <div id="result" class="result-box">결과가 여기에 표시됩니다.</div>
+            <div id="result" class="result-box">변환 결과가 여기에 표시됩니다.</div>
         </div>
     </div>
 
@@ -124,16 +166,19 @@
                     // UI 반영
                     applyLoggedInUI(userData.name);
                     
-                    // 학습 수준 로드 및 적용
+                    // 학습 수준 로드 및 적용 (서버 데이터 기반)
                     if (userData.level) {
-                        document.getElementById('displayLevel').innerText = userData.level;
+                        // 1, 2, 3 단계 숫자를 한글로 변환해서 보여줌 (선택 사항)
+                        let levelText = userData.level;
+                        if(userData.level == "1") levelText = "경계선 지능";
+                        if(userData.level == "2") levelText = "경도 장애";
+                        if(userData.level == "3") levelText = "중도 장애";
+                        
+                        document.getElementById('displayLevel').innerText = levelText;
                         document.getElementById('userLevelValue').value = userData.level;
                     }
                 } else {
                     localStorage.removeItem('currentUser');
-                    // 로그인 안되어있으면 접근 제한 (선택 사항)
-                    // alert("로그인이 필요한 서비스입니다.");
-                    // location.href = 'login.html';
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
@@ -156,18 +201,18 @@
             }
         }
 
-        // 4. 핵심: 변환 함수 (Error 해결 지점)
+        // 4. 변환 함수
         async function convertText() {
             const text = document.getElementById("inputText").value.trim();
-            const level = document.getElementById("userLevelValue").value; // 읽어온 수준 사용
+            const level = document.getElementById("userLevelValue").value;
             const resultBox = document.getElementById("result");
 
             if (!text) {
-                alert("내용을 입력해주세요!");
+                alert("변환할 내용을 입력해주세요!");
                 return;
             }
 
-            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 변환하고 있습니다...";
+            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
 
             try {
                 const res = await fetch("/api/easy-text", {
@@ -179,10 +224,10 @@
                 if (!res.ok) throw new Error("변환 실패");
 
                 const data = await res.json();
-                resultBox.innerHTML = data.result; // HTML 응답 출력
+                resultBox.innerHTML = data.result; 
             } catch (error) {
                 console.error(error);
-                resultBox.innerHTML = "😢 변환 중 오류가 발생했습니다. 다시 시도해주세요.";
+                resultBox.innerHTML = "😢 변환 중에 문제가 생겼어요. 다시 한 번 시도해 볼까요?";
             }
         }
     </script>
