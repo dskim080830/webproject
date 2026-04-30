@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>쉬운 글 변환기</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary-color: #4a90e2;
+        --secondary-color: #ffd93d;
+        --accent-color: #ff8a5c;
+        --bg-color: #fdfbf7;
+        --text-color: #333333;
+        --white: #ffffff;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Nanum Gothic", sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      header {
+        background-color: var(--white);
+        padding: 0 5%;
+        height: 90px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .logo {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .main-menu {
+        display: flex;
+        list-style: none;
+        gap: 30px;
+      }
+
+      .main-menu li a {
+        text-decoration: none;
+        color: #444;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 80px auto;
+        padding: 0 20px;
+      }
+
+      .card {
+        background: var(--white);
+        padding: 50px 40px;
+        border-radius: 35px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      }
+
+      .title {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      textarea {
+        width: 100%;
+        height: 160px;
+        padding: 16px;
+        border-radius: 14px;
+        border: 2px solid #e6eef8;
+        font-size: 16px;
+        resize: none;
+      }
+
+      .control-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+      }
+
+      select {
+        padding: 12px;
+        border-radius: 10px;
+        border: 2px solid #ddd;
+      }
+
+      .main-btn {
+        padding: 14px 25px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50px;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .result {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 18px;
+        background: #f7fbff;
+        border: 2px dashed #bcd6f5;
+        min-height: 120px;
+        line-height: 1.6;
+      }
+
+      /* 🔥 툴팁 기능 */
+      .word {
+        position: relative;
+        cursor: pointer;
+        border-bottom: 1px dotted #4a90e2;
+        color: #4a90e2;
+        font-weight: bold;
+      }
+
+      .word:hover::after {
+        content: attr(data-original);
+        position: absolute;
+        bottom: 130%;
+        left: 0;
+        background: #333;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="header-left">
+        <a href="#" class="logo">✨ 쉬운 글 배움터</a>
+        <ul class="main-menu">
+          <li><a href="#">서비스 소개</a></li>
+          <li><a href="#">쉬운 글 변환기</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <div class="title">
+          <h2>✍️ 쉬운 글 변환기</h2>
+          <p>복잡한 글을 쉽게 바꿔드립니다.</p>
+        </div>
+
+        <textarea
+          id="inputText"
+          placeholder="어려운 글을 입력하세요"
+        ></textarea>
+
+        <div class="control-row">
+          <select id="level">
+            <option value="매우 쉬움">매우 쉬움</option>
+            <option value="쉬움">쉬움</option>
+            <option value="보통">보통</option>
+          </select>
+
+          <button class="main-btn" onclick="convertText()">변환하기</button>
+        </div>
+
+        <div class="result" id="result">결과가 여기에 표시됩니다.</div>
+      </div>
+    </div>
+
+    <script>
+      async function convertText() {
+        const text = document.getElementById("inputText").value.trim();
+        const level = document.getElementById("level").value;
+        const resultBox = document.getElementById("result");
+
+        if (!text) {
+          alert("글을 입력해주세요!");
+          return;
+        }
+
+        resultBox.innerHTML = "변환 중...";
+
+        try {
+          const res = await fetch("http://localhost:3000/easy-text", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ text, level }),
+          });
+
+          if (!res.ok) throw new Error();
+
+          const data = await res.json();
+
+          // 🔥 핵심: HTML 그대로 출력
+          resultBox.innerHTML = data.result;
+        } catch (error) {
+          console.error(error);
+          resultBox.innerHTML = "오류가 발생했습니다 😢";
+        }
+      }
+    </script>
+  </body>
+</html>
