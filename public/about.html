@@ -140,38 +140,48 @@
         else alert("발송 실패. 메일 주소를 확인하세요.");
     }
 
-    // 2. 인증번호 확인 (핵심: 형변환 및 엄격한 비교)
-    async function verifyAuthCode() {
-        const email = document.getElementById('regEmail').value;
-        const code = document.getElementById('regAuthCode').value.trim();
-        const msg = document.getElementById('authMessage');
+    // 2. 인증번호 확인 함수 (수정본)
+async function verifyAuthCode() {
+    const email = document.getElementById('regEmail').value;
+    const code = document.getElementById('regAuthCode').value.trim();
+    const msg = document.getElementById('authMessage');
 
-        if (!code) return alert("번호를 입력해주세요.");
+    if (!email || !code) return alert("이메일과 인증번호를 모두 입력해주세요.");
 
+    try {
         const res = await fetch('/api/verify-code', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            // 중요: 세션 쿠키를 함께 보내서 서버가 '나'를 알아보게 함
+            credentials: 'include', 
             body: JSON.stringify({ 
                 email: email, 
-                code: code // 숫자가 아닌 문자열 형태로 전송
+                code: code 
             })
         });
+
+        const data = await res.json();
 
         if (res.ok) {
             alert("인증 성공!");
             isEmailVerified = true;
             msg.innerText = "✅ 이메일 인증 완료";
             msg.style.color = "green";
+            // 인증 완료 후 수정 방지
             document.getElementById('regEmail').readOnly = true;
             document.getElementById('regAuthCode').readOnly = true;
         } else {
-            const data = await res.json();
-            alert(data.error || "인증번호가 일치하지 않습니다.");
+            // 서버가 왜 틀렸다고 하는지 상세 메시지 출력
+            alert("인증 실패: " + (data.error || "번호가 일치하지 않습니다."));
             isEmailVerified = false;
             msg.innerText = "❌ 인증 실패";
             msg.style.color = "red";
         }
+    } catch (e) {
+        console.error("확인 요청 중 에러:", e);
+        alert("서버와 연결할 수 없습니다.");
     }
+}
 
     // 3. 회원가입 실행
     async function handleSignup() {
