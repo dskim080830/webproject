@@ -272,47 +272,136 @@
     </div>
 
     <script>
-      window.onload = async function() {
+      let usedQuestions = [];
+  let currentUserLevel = "1"; // 기본값 (경계선 지능)
+
+  window.onload = async function() {
     try {
-        // 1. 서버에 로그인 정보 요청
-        const response = await fetch('/api/check-auth');
+      const response = await fetch('/api/check-auth');
+      if (response.ok) {
+        const userData = await response.json();
+        localStorage.setItem('currentUser', userData.name);
         
-        if (response.ok) {
-            const userData = await response.json();
-            
-            // 데이터가 정상적으로 있다면
-            if (userData && userData.name) {
-                localStorage.setItem('currentUser', userData.name);
-                
-                // 전역 변수나 hidden input에 수준 저장 (행동 사전/변환기용)
-                if (userData.level) {
-                    window.currentUserLevel = userData.level; 
-                    const levelDisplay = document.getElementById('displayLevel');
-                    if (levelDisplay) levelDisplay.innerText = userData.level;
-                    
-                    const levelInput = document.getElementById('userLevelValue');
-                    if (levelInput) levelInput.value = userData.level;
-                }
-
-                // 로그인 UI 적용 함수 호출
-                applyLoggedInUI(userData.name);
-            }
-        } else {
-            // 로그인 상태가 아니면 로컬 정보 삭제
-            localStorage.removeItem('currentUser');
-            applyLoggedOutUI();
+        // index.html의 회원가입 단계(1, 2, 3) 값을 가져옴
+        if (userData.level) {
+          currentUserLevel = userData.level.toString();
+          console.log("사용자 수준 확인:", currentUserLevel);
         }
+        applyLoggedInUI(userData.name);
+      }
     } catch (error) {
-        console.error("인증 정보를 가져오는 중 오류 발생:", error);
-        localStorage.removeItem('currentUser');
-        applyLoggedOutUI();
+      console.error("인증 실패:", error);
     }
+    // 페이지 로드 후 즉시 첫 문제 생성
+    generateProblem();
+  };
 
-    // 2. 행동 사전 페이지라면 문제 생성 함수 호출
-    if (typeof generateProblem === 'function') {
-        generateProblem();
+  // 수준(1, 2, 3)에 따른 GPT 프롬프트 설정
+  function getLevelPrompt(level) {
+    switch(level) {
+      case "3": // 중증 지적 장애
+        return "난이도: 매우 쉬움. '인사하기', '손씻기' 같은 아주 단순한 1단계 상황. 문장은 5단어 이내.";
+      case "2": // 경도 지적 장애
+        return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
+      case "1": // 경계선 지능
+      default:
+        return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
     }
-};
+  }
+
+  // GPT 응답에서 JSON만 뽑아내는 함수
+  function safeParse(text) {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      const match = text.match(/\{[\s\S]*\}/);
+      return match ? JSON.parse(match[0]) : null;
+    }
+  }
+
+  async function generateProblem() {
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const resultEl = document.getElementById("result");
+    const loadingEl = document.getElementById("loading");
+    const nextBtn = document.getElementById("nextBtn");
+
+    // 초기화
+    questionEl.innerText = "";
+    optionsEl.innerHTML = "";
+    resultEl.innerText = "";
+    loadingEl.innerText = "✨ 맞춤 문제를 만들고 있어요. 잠시만 기다려 주세요...";
+    nextBtn.style.display = "none";
+
+    const instruction = getLevelPrompt(currentUserLevel);
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instruction: instruction }),
+      });
+
+      if (!res.ok) throw new Error("네트워크 응답 없음");
+
+      const data = await res.json();
+      const quiz = safeParse(data.result);
+
+      if (!quiz) throw new Error("데이터 파싱 실패");
+
+      loadingEl.innerText = "";
+      showQuiz(quiz);
+      nextBtn.style.display = "block";
+      nextBtn.innerText = "다음 문제 ➡";
+    } catch (e) {
+      console.error(e);
+      loadingEl.innerText = "❌ 문제를 가져오지 못했습니다. 인터넷 연결을 확인하거나 다시 시도해 주세요.";
+      nextBtn.style.display = "block";
+      nextBtn.innerText = "다시 시도하기";
+    }
+  }
+
+  function showQuiz(q) {
+    document.getElementById("question").innerText = q.question;
+    const div = document.getElementById("options");
+    div.innerHTML = "";
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.innerText = opt;
+      btn.onclick = () => {
+        // 모든 버튼 비활성화
+        document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+        const resDiv = document.getElementById("result");
+        if (i === q.answer) {
+          btn.classList.add("correct");
+          resDiv.innerHTML = "✅ <strong>정답이에요!</strong><br>" + q.explanation;
+        } else {
+          btn.classList.add("wrong");
+          resDiv.innerHTML = "❌ <strong>틀렸어요.</strong><br>" + q.explanation;
+        }
+      };
+      div.appendChild(btn);
+    });
+  }
+
+  function applyLoggedInUI(userName) {
+    const guestMenu = document.getElementById('guest-menu');
+    const userMenu = document.getElementById('user-menu');
+    const uInfo = document.getElementById('u-info') || document.getElementById('user-info');
+    
+    if (guestMenu) guestMenu.style.display = 'none';
+    if (userMenu) userMenu.style.display = 'flex';
+    if (uInfo) uInfo.innerHTML = `✨ <strong>${userName}</strong>님`;
+  }
+
+  async function handleLogout() {
+    if (confirm("로그아웃 하시겠습니까?")) {
+      await fetch('/api/logout', { method: 'POST' });
+      localStorage.removeItem('currentUser');
+      location.reload();
+    }
+  }
 
 // UI 전환 함수 (정의되어 있는지 확인)
 function applyLoggedInUI(userName) {
