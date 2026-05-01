@@ -196,7 +196,7 @@
             if (confirm("로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
                 localStorage.removeItem('currentUser');
-                location.reload();
+                location.href = "index.html";
             }
         }
 
