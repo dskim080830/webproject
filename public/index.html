@@ -690,7 +690,6 @@
         // 3. 로그인 및 로그아웃 로직
         // -----------------------------------------
         // [수정된 로그인 로직]
-// [수정] 로그인 폼 제출 로직
 document.getElementById('loginForm').onsubmit = async function(event) {
     event.preventDefault();
     
@@ -712,13 +711,13 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             localStorage.setItem('currentUser', data.name);
             document.getElementById('loginForm').reset();
 
-            // [자체 처리 로직] 이 아이디로 임시 비밀번호가 발급된 기록이 있는지 확인
-            const isTempPwUser = localStorage.getItem('temp_pw_issued_' + userId);
+            // [핵심 자체 처리] 이 아이디로 임시 비번을 발급받은 적이 있는지 확인
+            const isTempUser = localStorage.getItem('temp_pw_issued_' + userId);
             
-            if (isTempPwUser === 'true') {
-                // 기록이 있다면 비밀번호 변경 모달을 띄우고 기록 삭제
+            if (data.needsPwChange || isTempUser === 'true') {
                 setTimeout(() => {
                     openModal('changePwModal');
+                    // 모달을 띄운 후 기록 삭제 (다음에 또 뜨지 않게)
                     localStorage.removeItem('temp_pw_issued_' + userId);
                 }, 500);
             }
@@ -729,7 +728,6 @@ document.getElementById('loginForm').onsubmit = async function(event) {
         alert("서버 통신 중 오류가 발생했습니다."); 
     }
 };
-
         async function handleLogout() {
             if (confirm("정말 로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
@@ -965,52 +963,40 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             }
         };
 
-// [수정] 비밀번호 변경 제출 로직
-document.getElementById('changePwForm').onsubmit = async function(e) {
-    e.preventDefault();
+document.getElementById('findPwForm').onsubmit = async function(event) {
+    event.preventDefault();
     
-    // 현재 로그인된 유저의 이름을 가져옵니다.
-    const currentUser = localStorage.getItem('currentUser');
-    const newPw = document.getElementById('newPw').value;
-    const confirmPw = document.getElementById('newPwConfirm').value;
-    const msgElement = document.getElementById('newPwMsg');
+    const buttonElement = document.getElementById('submitFindPwBtn');
+    const userIdValue = document.getElementById('findPwId').value;
+    const nameValue = document.getElementById('findPwName').value;
+    const emailValue = document.getElementById('findPwEmail').value;
 
-    if (newPw !== confirmPw) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
-    }
-
-    // 비밀번호 규칙 체크 (실시간 검사 결과 활용)
-    if (msgElement && msgElement.classList.contains('invalid')) {
-        alert("비밀번호 보안 규칙을 확인해주세요.");
-        return;
-    }
-
+    buttonElement.innerText = "이메일 발송 중..."; 
+    buttonElement.disabled = true;
+    
     try {
-        const res = await fetch('/api/change-pw', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                userName: currentUser, // DB 유저 식별용
-                newPw: newPw 
-            })
+        const response = await fetch('/api/find-pw', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ userId: userIdValue, name: nameValue, email: emailValue }) 
         });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            alert("비밀번호가 안전하게 변경되었습니다. 다시 로그인할 필요 없이 이용 가능합니다.");
-            closeModal('changePwModal');
-            document.getElementById('changePwForm').reset();
-            
-            // 임시 비밀번호 로그인 딱지 제거
-            localStorage.removeItem('temp_pw_issued_' + currentUser);
-        } else {
-            alert(data.message || "변경 실패. 다시 시도해주세요.");
+        
+        const data = await response.json();
+        
+        if (response.ok) { 
+            // [핵심] 성공 시에만 로컬 스토리지에 임시 비번 발급 상태 저장
+            localStorage.setItem('temp_pw_issued_' + userIdValue, 'true');
+            alert(data.message || "임시 비밀번호가 메일로 전송되었습니다."); 
+            closeModal('findAccountModal'); // 성공했을 때만 닫기
+        } else { 
+            alert(data.message || "정보가 일치하지 않습니다."); 
+            // 실패 시에는 창을 닫지 않고 버튼만 원상복구
         }
-    } catch (err) {
-        console.error("연동 오류:", err);
-        alert("서버와 통신할 수 없습니다.");
+    } catch (error) {
+        alert("임시 비밀번호 발급 중 오류가 발생했습니다.");
+    } finally {
+        buttonElement.innerText = "임시 비밀번호 발급"; 
+        buttonElement.disabled = false;
     }
 };
 
