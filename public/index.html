@@ -689,37 +689,100 @@
         // -----------------------------------------
         // 3. 로그인 및 로그아웃 로직
         // -----------------------------------------
-        document.getElementById('loginForm').onsubmit = async function(event) {
-            event.preventDefault();
-            
-            const userId = document.getElementById('loginId').value;
-            const userPw = document.getElementById('loginPw').value;
+        // [기존 로그인 로직 수정] 로그인 시 needsPwChange 값에 따라 모달을 띄웁니다.
+document.getElementById('loginForm').onsubmit = async function(event) {
+    event.preventDefault();
+    
+    const userId = document.getElementById('loginId').value;
+    const userPw = document.getElementById('loginPw').value;
 
-            try {
-                const response = await fetch('/api/login', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ userId: userId, pw: userPw }) 
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    closeModal('loginModal');
-                    applyLoggedInUI(data.name);
-                    document.getElementById('loginForm').reset();
+    try {
+        const response = await fetch('/api/login', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ userId: userId, pw: userPw }) 
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            closeModal('loginModal');
+            applyLoggedInUI(data.name);
+            localStorage.setItem('currentUser', data.name); // 로컬 스토리지 갱신
+            document.getElementById('loginForm').reset();
 
-                    // [수정] 임시 비밀번호 사용자라면 변경 모달 띄우기
-                    if (data.needsPwChange) {
-                        openModal('changePwModal');
-                    }
-                } else { 
-                    alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
-                }
-            } catch (error) { 
-                alert("서버 통신 중 오류가 발생했습니다."); 
+            // 중요: 서버에서 임시 비밀번호 상태임을 알려주면 변경 모달을 즉시 띄움
+            if (data.needsPwChange === true) {
+                openModal('changePwModal');
             }
-        };
+        } else { 
+            alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
+        }
+    } catch (error) { 
+        alert("서버 통신 중 오류가 발생했습니다."); 
+    }
+};
+
+// [비밀번호 변경 제출 로직 확인/수정]
+document.getElementById('changePwForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const newPw = document.getElementById('newPw').value;
+    const confirmPw = document.getElementById('newPwConfirm').value;
+    const msgElement = document.getElementById('newPwMsg');
+
+    // 1. 일치 여부 확인
+    if (newPw !== confirmPw) {
+        alert("새 비밀번호가 서로 일치하지 않습니다.");
+        return;
+    }
+
+    // 2. 규칙 위반 여부 확인 (validateNewPwRule에서 처리된 메시지 기준)
+    if (msgElement.classList.contains('invalid')) {
+        alert("비밀번호 규칙(8자 이상, 특수문자 포함)을 지켜주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/change-pw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newPw: newPw })
+        });
+
+        if (res.ok) {
+            alert("비밀번호가 안전하게 변경되었습니다. 다시 로그인할 필요 없이 계속 이용 가능합니다.");
+            closeModal('changePwModal');
+            // 폼 초기화
+            document.getElementById('changePwForm').reset();
+            msgElement.innerText = "";
+        } else { 
+            const errorData = await res.json();
+            alert(errorData.message || "비밀번호 변경에 실패했습니다. 다시 시도해주세요."); 
+        }
+    } catch (err) { 
+        alert("서버 오류가 발생했습니다."); 
+    }
+};
+
+// [규칙 검사 함수 확인]
+function validateNewPwRule() {
+    const pw = document.getElementById('newPw').value;
+    const msg = document.getElementById('newPwMsg');
+    const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+
+    if (pw === "") {
+        msg.innerText = "";
+        return;
+    }
+
+    if (pw.length < 8 || !spec.test(pw)) {
+        msg.innerText = "❌ 8자 이상 + 특수문자 필수"; 
+        msg.className = "status-msg invalid";
+    } else {
+        msg.innerText = "✅ 사용 가능한 비밀번호입니다."; 
+        msg.className = "status-msg valid";
+    }
+}
 
         async function handleLogout() {
             if (confirm("정말 로그아웃 하시겠습니까?")) {
