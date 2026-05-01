@@ -124,8 +124,8 @@
         </div>
         <div class="header-right">
             <div id="guest-menu">
-                <a href="./login.html" class="login-btn">로그인</a>
-                <a href="./signup.html" class="signup-btn">회원가입</a>
+                <a href="javascript:void(0)" onclick="openLoginModal()" class="login-btn">로그인</a>
+                <a href="javascript:void(0)" onclick="openSignupModal()" class="signup-btn">회원가입</a>
             </div>
             <div id="user-menu">
                 <span id="user-info">사용자님, 환영합니다!</span>
@@ -163,12 +163,11 @@
                     const userData = await response.json();
                     localStorage.setItem('currentUser', userData.name);
                     
-                    // UI 반영
+                    // UI 반영 (ㅇㅇㅇ님, 환영합니다! 로 적용됨)
                     applyLoggedInUI(userData.name);
                     
-                    // 학습 수준 로드 및 적용 (서버 데이터 기반)
+                    // 학습 수준 로드 및 적용
                     if (userData.level) {
-                        // 1, 2, 3 단계 숫자를 한글로 변환해서 보여줌 (선택 사항)
                         let levelText = userData.level;
                         if(userData.level == "1") levelText = "경계선 지능";
                         if(userData.level == "2") levelText = "경도 장애";
@@ -185,11 +184,11 @@
             }
         };
 
-        // 2. 로그인 UI 전환
+        // 2. 로그인 UI 전환 (문구 수정 반영)
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
             document.getElementById('user-menu').style.display = 'flex';
-            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님`;
+            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
         // 3. 로그아웃 처리
@@ -230,6 +229,10 @@
                 resultBox.innerHTML = "😢 변환 중에 문제가 생겼어요. 다시 한 번 시도해 볼까요?";
             }
         }
+        
+        // 헬퍼 함수 (모달 연동이 필요한 경우 index.html의 함수 호출 혹은 경로 이동)
+        function openLoginModal() { location.href = "./index.html?login=true"; }
+        function openSignupModal() { location.href = "./index.html?signup=true"; }
     </script>
 </body>
 </html>
