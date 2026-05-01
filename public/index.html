@@ -690,6 +690,7 @@
         // 3. 로그인 및 로그아웃 로직
         // -----------------------------------------
         // [수정된 로그인 로직]
+// [수정] 로그인 폼 제출 로직
 document.getElementById('loginForm').onsubmit = async function(event) {
     event.preventDefault();
     
@@ -706,25 +707,25 @@ document.getElementById('loginForm').onsubmit = async function(event) {
         const data = await response.json();
         
         if (response.ok) {
-            // 1. 로그인 모달을 닫고 UI를 로그인 상태로 변경
             closeModal('loginModal');
             applyLoggedInUI(data.name);
             localStorage.setItem('currentUser', data.name);
             document.getElementById('loginForm').reset();
 
-            // 2. 중요: 서버에서 '임시 비밀번호 사용자'임을 알리는 flag 확인
-            // api/login에서 발급한 임시 비밀번호로 로그인 성공 시 needsPwChange: true를 보내줘야 합니다.
-            if (data.needsPwChange === true || data.isTemporary === true) {
-                // 약간의 지연을 주어 로그인 완료 후 자연스럽게 뜨도록 함
+            // [자체 처리 로직] 이 아이디로 임시 비밀번호가 발급된 기록이 있는지 확인
+            const isTempPwUser = localStorage.getItem('temp_pw_issued_' + userId);
+            
+            if (isTempPwUser === 'true') {
+                // 기록이 있다면 비밀번호 변경 모달을 띄우고 기록 삭제
                 setTimeout(() => {
                     openModal('changePwModal');
-                }, 300);
+                    localStorage.removeItem('temp_pw_issued_' + userId);
+                }, 500);
             }
         } else { 
             alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
         }
     } catch (error) { 
-        console.error("로그인 중 오류 발생:", error);
         alert("서버 통신 중 오류가 발생했습니다."); 
     }
 };
@@ -965,39 +966,43 @@ document.getElementById('loginForm').onsubmit = async function(event) {
         };
 
         // 비밀번호 찾기(임시 비밀번호 발급) 제출
-        document.getElementById('findPwForm').onsubmit = async function(event) {
-            event.preventDefault();
-            
-            const buttonElement = document.getElementById('submitFindPwBtn');
-            buttonElement.innerText = "이메일 발송 중..."; 
-            buttonElement.disabled = true;
+        // [수정] 비밀번호 찾기(임시 비밀번호 발급) 제출 로직
+document.getElementById('findPwForm').onsubmit = async function(event) {
+    event.preventDefault();
+    
+    const buttonElement = document.getElementById('submitFindPwBtn');
+    buttonElement.innerText = "이메일 발송 중..."; 
+    buttonElement.disabled = true;
 
-            const userIdValue = document.getElementById('findPwId').value;
-            const nameValue = document.getElementById('findPwName').value;
-            const emailValue = document.getElementById('findPwEmail').value;
+    const userIdValue = document.getElementById('findPwId').value;
+    const nameValue = document.getElementById('findPwName').value;
+    const emailValue = document.getElementById('findPwEmail').value;
+    
+    try {
+        const response = await fetch('/api/find-pw', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ userId: userIdValue, name: nameValue, email: emailValue }) 
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) { 
+            // [자체 처리 추가] 임시 비밀번호 발급 사실을 로컬에 저장
+            localStorage.setItem('temp_pw_issued_' + userIdValue, 'true');
             
-            try {
-                const response = await fetch('/api/find-pw', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ userId: userIdValue, name: nameValue, email: emailValue }) 
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) { 
-                    alert(data.message); 
-                    closeModal('findAccountModal');
-                } else { 
-                    alert(data.message); 
-                }
-            } catch (error) {
-                alert("임시 비밀번호 발급 중 오류가 발생했습니다.");
-            } finally {
-                buttonElement.innerText = "임시 비밀번호 발급"; 
-                buttonElement.disabled = false;
-            }
-        };
+            alert(data.message); 
+            closeModal('findAccountModal');
+        } else { 
+            alert(data.message); 
+        }
+    } catch (error) {
+        alert("임시 비밀번호 발급 중 오류가 발생했습니다.");
+    } finally {
+        buttonElement.innerText = "임시 비밀번호 발급"; 
+        buttonElement.disabled = false;
+    }
+};
 
         // -----------------------------------------
         // 8. TTS (텍스트 읽어주기 및 하이라이팅) 로직
