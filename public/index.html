@@ -963,6 +963,7 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             }
         };
 
+// [수정] 7. 비밀번호 찾기 제출 (창 사라짐 방지 및 로컬 기록)
 document.getElementById('findPwForm').onsubmit = async function(event) {
     event.preventDefault();
     
@@ -984,19 +985,101 @@ document.getElementById('findPwForm').onsubmit = async function(event) {
         const data = await response.json();
         
         if (response.ok) { 
-            // [핵심] 성공 시에만 로컬 스토리지에 임시 비번 발급 상태 저장
-            localStorage.setItem('temp_pw_issued_' + userIdValue, 'true');
-            alert(data.message || "임시 비밀번호가 메일로 전송되었습니다."); 
-            closeModal('findAccountModal'); // 성공했을 때만 닫기
+            // 성공 시에만 로컬 스토리지에 발급 기록 저장 (아이디 기준)
+            localStorage.setItem('is_temp_pw_' + userIdValue, 'true');
+            alert(data.message || "임시 비밀번호가 발송되었습니다."); 
+            closeModal('findAccountModal');
         } else { 
             alert(data.message || "정보가 일치하지 않습니다."); 
-            // 실패 시에는 창을 닫지 않고 버튼만 원상복구
+            // 실패 시 창을 닫지 않음
         }
     } catch (error) {
-        alert("임시 비밀번호 발급 중 오류가 발생했습니다.");
+        alert("통신 오류가 발생했습니다.");
     } finally {
         buttonElement.innerText = "임시 비밀번호 발급"; 
         buttonElement.disabled = false;
+    }
+};
+
+// [수정] 3. 로그인 로직 (임시 비밀번호 여부 자체 판단)
+document.getElementById('loginForm').onsubmit = async function(event) {
+    event.preventDefault();
+    
+    const userId = document.getElementById('loginId').value;
+    const userPw = document.getElementById('loginPw').value;
+
+    try {
+        const response = await fetch('/api/login', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ userId: userId, pw: userPw }) 
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            closeModal('loginModal');
+            applyLoggedInUI(data.name);
+            localStorage.setItem('currentUser', data.name);
+            document.getElementById('loginForm').reset();
+
+            // 로컬 스토리지에 임시 비번 발급 기록이 있는지 확인
+            const isTempUser = localStorage.getItem('is_temp_pw_' + userId);
+            
+            if (data.needsPwChange || isTempUser === 'true') {
+                setTimeout(() => {
+                    openModal('changePwModal');
+                    // 플래그 삭제 (변경창 띄운 후 한 번만 작동하게)
+                    localStorage.removeItem('is_temp_pw_' + userId);
+                }, 500);
+            }
+        } else { 
+            alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
+        }
+    } catch (error) { 
+        alert("서버 통신 중 오류가 발생했습니다."); 
+    }
+};
+
+// [수정] 비밀번호 변경 제출 로직 (Aiven 연동용)
+document.getElementById('changePwForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const currentUser = localStorage.getItem('currentUser');
+    const newPw = document.getElementById('newPw').value;
+    const confirmPw = document.getElementById('newPwConfirm').value;
+
+    if (newPw !== confirmPw) {
+        alert("비밀번호가 일치하지 않습니다.");
+        return;
+    }
+
+    if (document.getElementById('newPwMsg').innerText.includes("❌")) {
+        alert("비밀번호 규칙을 확인해주세요.");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/change-pw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                userName: currentUser, // Aiven DB에서 유저를 찾기 위한 이름
+                newPw: newPw 
+            })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            alert("비밀번호가 안전하게 변경되었습니다.");
+            closeModal('changePwModal');
+            document.getElementById('changePwForm').reset();
+        } else {
+            alert(result.message || "변경 실패. 다시 시도해주세요.");
+        }
+    } catch (err) {
+        alert("서버 연결 실패. 네트워크 상태를 확인해주세요.");
     }
 };
 
