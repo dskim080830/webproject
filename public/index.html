@@ -965,50 +965,52 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             }
         };
 
-// [수정] 비밀번호 변경 제출 로직 (Aiven DB 연동 보완)
+// [수정] 비밀번호 변경 제출 로직
 document.getElementById('changePwForm').onsubmit = async function(e) {
     e.preventDefault();
     
-    // 현재 로그인된 유저의 아이디나 이름을 로컬 스토리지 또는 UI에서 가져옵니다.
-    const userName = localStorage.getItem('currentUser');
+    // 현재 로그인된 유저의 이름을 가져옵니다.
+    const currentUser = localStorage.getItem('currentUser');
     const newPw = document.getElementById('newPw').value;
     const confirmPw = document.getElementById('newPwConfirm').value;
     const msgElement = document.getElementById('newPwMsg');
 
-    // 1. 유효성 검사
     if (newPw !== confirmPw) {
         alert("비밀번호가 일치하지 않습니다.");
         return;
     }
-    if (msgElement && msgElement.innerText.includes("❌")) {
-        alert("비밀번호 규칙을 확인해주세요.");
+
+    // 비밀번호 규칙 체크 (실시간 검사 결과 활용)
+    if (msgElement && msgElement.classList.contains('invalid')) {
+        alert("비밀번호 보안 규칙을 확인해주세요.");
         return;
     }
 
     try {
-        // Aiven DB로 업데이트 요청을 보낼 때 유저 식별값(name 등)을 포함합니다.
         const res = await fetch('/api/change-pw', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                userName: userName, // 서버가 DB에서 유저를 찾을 수 있도록 추가
+                userName: currentUser, // DB 유저 식별용
                 newPw: newPw 
             })
         });
 
+        const data = await res.json();
+
         if (res.ok) {
-            alert("비밀번호가 안전하게 변경되었습니다.");
+            alert("비밀번호가 안전하게 변경되었습니다. 다시 로그인할 필요 없이 이용 가능합니다.");
             closeModal('changePwModal');
             document.getElementById('changePwForm').reset();
-            // 성공 시 임시 비밀번호 플래그 완전 삭제
-            localStorage.removeItem('temp_pw_issued_' + userName); 
-        } else { 
-            const errorData = await res.json();
-            alert(errorData.message || "변경 실패. 서버 설정을 확인해주세요."); 
+            
+            // 임시 비밀번호 로그인 딱지 제거
+            localStorage.removeItem('temp_pw_issued_' + currentUser);
+        } else {
+            alert(data.message || "변경 실패. 다시 시도해주세요.");
         }
-    } catch (err) { 
-        console.error("Aiven 연동 오류:", err);
-        alert("서버 통신 중 오류가 발생했습니다."); 
+    } catch (err) {
+        console.error("연동 오류:", err);
+        alert("서버와 통신할 수 없습니다.");
     }
 };
 
