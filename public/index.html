@@ -612,6 +612,25 @@
         </div>
     </div>
 
+    <div id="changePwModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="margin-bottom:10px; color:var(--primary);">🔒 비밀번호 변경</h2>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">임시 비밀번호로 로그인하셨습니다.<br>안전을 위해 새로운 비밀번호를 설정해 주세요.</p>
+            <form id="changePwForm">
+                <div class="form-group">
+                    <label>새 비밀번호</label>
+                    <input type="password" id="newPw" placeholder="8자 이상, 특수문자 필수" required oninput="validateNewPwRule()">
+                    <div id="newPwMsg" class="status-msg"></div>
+                </div>
+                <div class="form-group">
+                    <label>새 비밀번호 확인</label>
+                    <input type="password" id="newPwConfirm" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding: 15px;">비밀번호 변경하기</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 전역 상태 변수 (이메일 인증용)
         let generatedServerCode = ""; 
@@ -689,6 +708,11 @@
                     closeModal('loginModal');
                     applyLoggedInUI(data.name);
                     document.getElementById('loginForm').reset();
+
+                    // [신규] 임시 비밀번호 사용자라면 변경 모달 띄우기
+                    if (data.needsPwChange) {
+                        openModal('changePwModal');
+                    }
                 } else { 
                     alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
                 }
@@ -745,6 +769,41 @@
                 messageElement.className = "status-msg valid"; 
             }
         }
+
+        // [신규] 비밀번호 변경용 실시간 검사
+        function validateNewPwRule() {
+            const pw = document.getElementById('newPw').value;
+            const msg = document.getElementById('newPwMsg');
+            const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+
+            if (pw.length < 8 || !spec.test(pw)) {
+                msg.innerText = "❌ 8자 이상 + 특수문자 필수"; msg.className = "status-msg invalid";
+            } else {
+                msg.innerText = "✅ 안전한 비밀번호입니다."; msg.className = "status-msg valid";
+            }
+        }
+
+        // [신규] 비밀번호 변경 제출 로직
+        document.getElementById('changePwForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const newPw = document.getElementById('newPw').value;
+            const confirmPw = document.getElementById('newPwConfirm').value;
+
+            if (newPw !== confirmPw) return alert("비밀번호가 일치하지 않습니다.");
+            if (document.getElementById('newPwMsg').innerText.includes("❌")) return alert("비밀번호 규칙을 확인해주세요.");
+
+            try {
+                const res = await fetch('/api/change-pw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newPw })
+                });
+                if (res.ok) {
+                    alert("비밀번호가 안전하게 변경되었습니다.");
+                    closeModal('changePwModal');
+                } else { alert("변경 실패. 다시 시도해주세요."); }
+            } catch (err) { alert("서버 오류"); }
+        };
 
         // -----------------------------------------
         // 5. 이메일 인증 로직
@@ -937,9 +996,13 @@
         // -----------------------------------------
         
         // 속도 조절 슬라이더 UI 텍스트 업데이트
-        document.getElementById('ttsRate').addEventListener('input', function() { 
-            document.getElementById('rateValue').innerText = this.value + "배속"; 
-        });
+        const ttsRateInput = document.getElementById('ttsRate');
+        if (ttsRateInput) {
+            ttsRateInput.addEventListener('input', function() { 
+                const rateVal = document.getElementById('rateValue');
+                if (rateVal) rateVal.innerText = this.value + "배속"; 
+            });
+        }
 
         // 음성 읽기 시작
         function startTTS() {
