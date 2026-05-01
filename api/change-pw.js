@@ -1,11 +1,13 @@
 const mysql = require('mysql2/promise');
 
-// SSL 설정을 포함한 연결 풀 생성 (Aiven 필수 설정)
+// Aiven MySQL 연결 설정 (SSL 설정 포함)
 const pool = mysql.createPool({
     uri: process.env.MYSQL_URL,
-    ssl: { rejectUnauthorized: false }, // Aiven SSL 연결 허용
+    ssl: {
+        rejectUnauthorized: false // Aiven SSL 인증 허용
+    },
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 1,
     queueLimit: 0
 });
 
@@ -15,12 +17,11 @@ export default async function handler(req, res) {
     const { userName, newPw } = req.body;
 
     if (!userName || !newPw) {
-        return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+        return res.status(400).json({ message: "사용자 정보가 누락되었습니다." });
     }
 
     try {
-        // [필독] 테이블명과 컬럼명이 실제 DB와 일치하는지 확인하세요.
-        // 현재 기준: 테이블 'users', 비밀번호 컬럼 'pw', 이름 컬럼 'name'
+        // 테이블 이름 'users', 비밀번호 컬럼 'pw', 이름 컬럼 'name' 기준
         const [result] = await pool.query(
             'UPDATE users SET pw = ? WHERE name = ?',
             [newPw, userName]
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
             return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
         }
     } catch (error) {
-        console.error('DB Error:', error);
-        return res.status(500).json({ message: "데이터베이스 연결 오류가 발생했습니다." });
+        console.error('DB 연결 오류:', error);
+        return res.status(500).json({ message: "데이터베이스 연결에 실패했습니다." });
     }
 }
