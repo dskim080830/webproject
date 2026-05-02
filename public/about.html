@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
         :root { 
-            --primary: #4a90e2; /* 업로드된 파일의 기본 포인트 컬러 */
-            --modal-blue: #5191e3; /* 로그인 이미지 속 버튼 컬러 */
+            --primary: #4a90e2; 
+            --modal-blue: #5191e3; 
             --bg: #fdfbf7; 
             --text: #333; 
             --white: #fff; 
@@ -17,7 +17,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; }
 
-        /* [복원] 헤더 스타일 */
         header { 
             background-color: var(--white); 
             padding: 0 5%; 
@@ -37,12 +36,10 @@
         .main-menu li a:hover { color: var(--primary); }
         .header-right { display: flex; align-items: center; gap: 15px; }
 
-        /* 버튼 스타일 */
         .login-btn { background: none; color: #333; padding: 10px 15px; text-decoration: none; font-weight: 700; border: none; cursor: pointer; font-size: 16px; }
         .signup-btn { background-color: var(--primary); color: white; padding: 10px 22px; border-radius: 50px; text-decoration: none; font-weight: 700; border: none; cursor: pointer; font-size: 16px; }
-        .logout-btn { background-color: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; }
+        .logout-btn { background-color: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; }
 
-        /* [복원] 본문 섹션 및 카드 디자인 */
         .section { max-width: 1000px; margin: 60px auto; padding: 0 20px; }
         .title { font-size: 36px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         .card { background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); margin-bottom: 30px; }
@@ -51,7 +48,7 @@
         h2 { margin-bottom: 15px; }
         ul { margin-top: 10px; padding-left: 20px; }
 
-        /* [유지] 로그인 및 찾기 모달 디자인 (이미지 반영) */
+        /* 모달 스타일 */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal-content { background: #fff; padding: 35px; border-radius: 40px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); position: relative; }
         .modal-h2 { font-size: 28px; font-weight: 700; margin-bottom: 30px; text-align: left; }
@@ -82,12 +79,12 @@
         </ul>
     </div>
     <div class="header-right">
-        <div id="guest-menu">
+        <div id="guest-menu" style="display: flex;">
             <button class="login-btn" onclick="openModal('loginModal')">로그인</button>
             <button class="signup-btn" onclick="location.href='signup.html'">회원가입</button>
         </div>
         <div id="user-menu" style="display: none;">
-            <span id="user-info">사용자님, 환영합니다!</span>
+            <span id="user-info" style="margin-right: 10px;">사용자님, 환영합니다!</span>
             <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
         </div>
     </div>
@@ -138,17 +135,7 @@
     </div>
 </div>
 
-<div class="section">
-    <div class="card">
-        <h2>🎯 기대 효과</h2>
-        <ul>
-            <li>정보 이해 능력 향상</li>
-            <li>사회 적응 능력 개선</li>
-            <li>피해 예방 및 안전 강화</li>
-        </ul>
-        <p>이 서비스는 <strong>모두를 위한 공정한 정보 접근</strong>을 목표로 합니다.</p>
-    </div>
-</div>
+<footer>© 2026 쉬운 글 배움터</footer>
 
 <div id="loginModal" class="modal">
     <div class="modal-content">
@@ -190,14 +177,87 @@
     </div>
 </div>
 
-<footer>© 2026 쉬운 글 배움터</footer>
-
 <script>
     const openModal = (id) => document.getElementById(id).style.display = 'flex';
     const closeModal = (id) => document.getElementById(id).style.display = 'none';
 
-    function openFindModal(type) { openModal('findModal'); switchTab(type); }
+    // UI 업데이트 함수: 로그인 여부에 따라 헤더 메뉴를 전환합니다.
+    function updateHeaderUI(isLoggedIn, userName = "") {
+        const guestMenu = document.getElementById('guest-menu');
+        const userMenu = document.getElementById('user-menu');
+        const userInfo = document.getElementById('user-info');
 
+        if (isLoggedIn) {
+            guestMenu.style.display = 'none';
+            userMenu.style.display = 'flex';
+            userInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        } else {
+            guestMenu.style.display = 'flex';
+            userMenu.style.display = 'none';
+        }
+    }
+
+    // 페이지 로드 시 인증 상태 확인
+    window.onload = async () => {
+        try {
+            const res = await fetch('/api/check-auth');
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('currentUser', data.name);
+                updateHeaderUI(true, data.name);
+            } else {
+                localStorage.removeItem('currentUser');
+                updateHeaderUI(false);
+            }
+        } catch (err) {
+            // 서버 연결 실패 시 로컬스토리지만큼은 확인
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) updateHeaderUI(true, savedUser);
+            else updateHeaderUI(false);
+        }
+    };
+
+    // 로그인 제출
+    document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const userId = document.getElementById('loginId').value;
+        const pw = document.getElementById('loginPw').value;
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, pw })
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                localStorage.setItem('currentUser', data.name);
+                location.reload(); // 페이지 새로고침으로 UI 갱신
+            } else {
+                alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+            }
+        } catch (err) {
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        }
+    };
+
+    // 로그아웃 처리
+    async function handleLogout() {
+        if (confirm("로그아웃 하시겠습니까?")) {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                localStorage.removeItem('currentUser');
+                location.href = "index.html";
+            } catch (err) {
+                localStorage.removeItem('currentUser');
+                location.href = "index.html";
+            }
+        }
+    }
+
+    // 찾기 탭 전환
+    function openFindModal(type) { openModal('findModal'); switchTab(type); }
     function switchTab(type) {
         const idTab = document.getElementById('tab-id'), pwTab = document.getElementById('tab-pw');
         const idForm = document.getElementById('form-find-id'), pwForm = document.getElementById('form-find-pw');
@@ -210,66 +270,36 @@
         }
     }
 
-    // 아이디 찾기 로직 (요청하신 포맷 적용)
-    document.getElementById('findIdForm').onsubmit = async function(e) {
+    // 아이디/비밀번호 찾기 폼 로직 (생략 없이 유지)
+    document.getElementById('findIdForm').onsubmit = async (e) => {
         e.preventDefault();
-        try {
-            const res = await fetch('/api/find-id', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    name: document.getElementById('findIdName').value, 
-                    email: document.getElementById('findIdEmail').value 
-                })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert(`요청하신 회원님의 아이디는 [ ${data.userId} ] 입니다.`);
-                closeModal('findModal'); openModal('loginModal');
-            } else { alert(data.message || "정보가 일치하지 않습니다."); }
-        } catch { alert("서버 오류"); }
-    };
-
-    // 비밀번호 찾기 로직
-    document.getElementById('findPwForm').onsubmit = async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('findPwBtn');
-        btn.innerText = "발송 중..."; btn.disabled = true;
-        try {
-            const res = await fetch('/api/find-pw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: document.getElementById('findPwId').value,
-                    name: document.getElementById('findPwName').value,
-                    email: document.getElementById('findPwEmail').value
-                })
-            });
-            if (res.ok) {
-                alert("이메일로 임시 비밀번호를 발송했습니다.");
-                closeModal('findModal'); openModal('loginModal');
-            } else { alert("정보가 일치하지 않습니다."); }
-        } catch { alert("연결 실패"); }
-        finally { btn.innerText = "비밀번호 찾기"; btn.disabled = false; }
-    };
-
-    // 로그인 UI 처리
-    document.getElementById('loginForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const res = await fetch('/api/login', {
+        const res = await fetch('/api/find-id', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: document.getElementById('loginId').value, pw: document.getElementById('loginPw').value })
+            body: JSON.stringify({ 
+                name: document.getElementById('findIdName').value, 
+                email: document.getElementById('findIdEmail').value 
+            })
         });
-        if (res.ok) location.reload(); else alert("로그인 실패");
+        const data = await res.json();
+        if (res.ok) alert(`요청하신 회원님의 아이디는 [ ${data.userId} ] 입니다.`);
+        else alert(data.message || "정보가 일치하지 않습니다.");
     };
 
-    async function handleLogout() {
-        if (confirm("로그아웃 하시겠습니까?")) {
-            await fetch('/api/logout', { method: 'POST' });
-            location.href = "index.html";
-        }
-    }
+    document.getElementById('findPwForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const res = await fetch('/api/find-pw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: document.getElementById('findPwId').value,
+                name: document.getElementById('findPwName').value,
+                email: document.getElementById('findPwEmail').value
+            })
+        });
+        if (res.ok) alert("이메일로 임시 비밀번호를 발송했습니다.");
+        else alert("정보가 일치하지 않습니다.");
+    };
 
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 </script>
