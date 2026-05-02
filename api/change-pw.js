@@ -1,9 +1,10 @@
 const mysql = require('mysql2/promise');
-const bcrypt = require('bcrypt'); // 비밀번호 암호화를 위해 필요
+const bcrypt = require('bcrypt'); // 비밀번호 암호화 라이브러리
 
+// Aiven MySQL 연결 설정 (이미지 정보 반영)
 const pool = mysql.createPool({
     uri: process.env.MYSQL_URL,
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: false }, // SSL 연결 필수 설정
     waitForConnections: true,
     connectionLimit: 1,
     queueLimit: 0
@@ -19,11 +20,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 1. 새 비밀번호를 Bcrypt로 암호화 (이미지의 데이터 형식과 일치시킴)
+        // 1. 새 비밀번호를 Bcrypt로 암호화 (DB 이미지 형식 일치)
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(newPw, saltRounds);
 
-        // 2. DB 업데이트 (이미지의 컬럼명 'password'와 'name' 반영)
+        // 2. DB 업데이트 (이미지의 실제 컬럼명 'password'와 'name' 사용)
         const sql = 'UPDATE users SET password = ? WHERE name = ?';
         const [result] = await pool.query(sql, [hashedPassword, userName]);
 
@@ -34,6 +35,6 @@ export default async function handler(req, res) {
         }
     } catch (error) {
         console.error('DB Error:', error);
-        return res.status(500).json({ message: "데이터베이스 연결 실패" });
+        return res.status(500).json({ message: "데이터베이스 연결에 실패했습니다." });
     }
 }
