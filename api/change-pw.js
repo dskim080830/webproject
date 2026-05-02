@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise');
-const crypto = require('crypto'); // Node.js 내장 모듈 (추가 설치 불필요)
+const bcrypt = require('bcryptjs'); // bcrypt 대신 bcryptjs 사용
 
 const pool = mysql.createPool({
     uri: process.env.MYSQL_URL,
@@ -18,10 +18,11 @@ export default async function handler(req, res) {
     }
 
     try {
-        // [수정] bcrypt 대신 내장 crypto 모듈을 사용하여 비밀번호 암호화
-        const hashedPassword = crypto.createHash('sha256').update(newPw).digest('hex');
+        // 1. bcryptjs를 사용하여 비밀번호 암호화
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPw, salt);
 
-        // DB 이미지 기준 컬럼명: password, name
+        // 2. DB 업데이트 (이미지 기준 컬럼명 password, name 적용)
         const sql = 'UPDATE users SET password = ? WHERE name = ?';
         const [result] = await pool.query(sql, [hashedPassword, userName]);
 
@@ -32,6 +33,6 @@ export default async function handler(req, res) {
         }
     } catch (error) {
         console.error('DB Error:', error);
-        return res.status(500).json({ message: "데이터베이스 연결 실패: " + error.message });
+        return res.status(500).json({ message: "DB 연결 실패: " + error.message });
     }
 }
