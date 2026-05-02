@@ -19,7 +19,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.8; }
 
-        /* 헤더 스타일: 로고 높이에 맞춰 메뉴 정렬 */
         header { 
             background: var(--white); 
             padding: 0 5%; 
@@ -33,55 +32,20 @@
             z-index: 100; 
         }
         
-        .header-left { 
-            display: flex; 
-            align-items: center; 
-            gap: 40px; 
-        }
-
-        .logo { 
-            font-size: 26px; 
-            font-weight: 800; 
-            color: var(--primary); 
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-
-        .nav-menu { 
-            display: flex; 
-            list-style: none; 
-            gap: 25px; 
-            margin: 0;
-            padding: 0;
-            align-items: center; /* 메뉴 텍스트 높이를 로고와 맞춤 */
-        }
-
-        .nav-menu a { 
-            text-decoration: none; 
-            color: #555; 
-            font-weight: 700; 
-            font-size: 17px; 
-            transition: 0.2s;
-            line-height: 1;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 40px; }
+        .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; align-items: center; }
+        .nav-menu { display: flex; list-style: none; gap: 25px; align-items: center; }
+        .nav-menu a { text-decoration: none; color: #555; font-weight: 700; font-size: 17px; transition: 0.2s; }
         .nav-menu a:hover { color: var(--primary); }
         
-        .header-right { 
-            display: flex; 
-            gap: 15px; 
-            align-items: center; 
-        }
+        .header-right { display: flex; gap: 15px; align-items: center; }
 
-        /* 버튼 공통 스타일 */
         .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; display: inline-block; font-size: 16px; text-align: center; text-decoration: none; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
         .btn-primary:hover { background: #357abd; }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
         .btn-outline { background: none; padding: 10px 15px; color: var(--text); }
 
-        /* 본문 콘텐츠 스타일 (about.html 내용 반영) */
         .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
         .intro-card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
         .intro-title { color: var(--primary); font-size: 32px; font-weight: 800; margin-bottom: 25px; text-align: center; }
@@ -97,7 +61,6 @@
         ul { padding-left: 20px; margin-bottom: 15px; }
         li { margin-bottom: 8px; color: #555; }
 
-        /* 모달 스타일 */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; backdrop-filter: blur(3px); }
         .modal-content { background: #fff; padding: 35px; border-radius: 30px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; }
         .form-group { margin-bottom: 15px; text-align: left; }
@@ -120,11 +83,11 @@
         </ul>
     </div>
     <div class="header-right">
-        <div id="guest-menu">
+        <div id="guest-menu" style="display: none;">
             <button class="btn btn-outline" onclick="openModal('loginModal')">로그인</button>
             <button class="btn btn-primary" onclick="openModal('signupModal')">회원가입</button>
         </div>
-        <div id="user-menu">
+        <div id="user-menu" style="display: none;">
             <span id="u-info" style="font-weight: 700; color: #333; font-size: 16px; margin-right: 10px;"></span>
             <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
         </div>
@@ -170,15 +133,6 @@
             </div>
         </div>
     </div>
-
-    <div class="intro-card">
-        <h3 class="section-title">🎯 기대 효과</h3>
-        <ul>
-            <li>정보 이해 능력 향상 및 사회 적응 능력 개선</li>
-            <li>피해 예방 및 안전 강화</li>
-            <li><strong>모두를 위한 공정한 정보 접근 권리 보장</strong></li>
-        </ul>
-    </div>
 </div>
 
 <footer>© 2026 쉬운 글 배움터</footer>
@@ -191,7 +145,24 @@
             <div class="form-group"><label>비밀번호</label><input type="password" id="loginPw" required></div>
             <button type="submit" class="btn btn-primary" style="width:100%; padding: 15px;">로그인하기</button>
         </form>
+        <div style="margin-top:15px; text-align:center;">
+            <a href="javascript:void(0)" onclick="closeModal('loginModal'); openModal('findPwModal')" style="color:#888; font-size:14px; text-decoration:none;">비밀번호를 잊으셨나요?</a>
+        </div>
         <button onclick="closeModal('loginModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">닫기</button>
+    </div>
+</div>
+
+<div id="findPwModal" class="modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <h2 style="margin-bottom:20px; color:var(--primary);">비밀번호 찾기</h2>
+        <p style="font-size:14px; color:#666; margin-bottom:20px;">가입 시 입력한 정보를 알려주세요.</p>
+        <form id="findPwForm">
+            <div class="form-group"><label>아이디</label><input type="text" id="findId" required></div>
+            <div class="form-group"><label>이름</label><input type="text" id="findName" required></div>
+            <div class="form-group"><label>이메일</label><input type="email" id="findEmail" required></div>
+            <button type="submit" id="findPwBtn" class="btn btn-primary" style="width:100%; padding: 15px;">임시 비밀번호 발급</button>
+        </form>
+        <button onclick="closeModal('findPwModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">취소</button>
     </div>
 </div>
 
@@ -221,23 +192,35 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    function applyLoggedInUI(userName) {
-        document.getElementById('guest-menu').style.display = 'none';
-        document.getElementById('user-menu').style.display = 'flex';
-        document.getElementById('u-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+    // 로그인 UI 상태 제어
+    function updateUI(isLoggedIn, userName = "") {
+        if (isLoggedIn) {
+            document.getElementById('guest-menu').style.display = 'none';
+            document.getElementById('user-menu').style.display = 'flex';
+            document.getElementById('u-info').innerHTML = `✨ <strong>${userName}</strong>님`;
+        } else {
+            document.getElementById('guest-menu').style.display = 'flex';
+            document.getElementById('user-menu').style.display = 'none';
+        }
     }
 
+    // 초기 로드 시 인증 체크
     window.onload = async function() {
         try {
             const response = await fetch('/api/check-auth');
             if (response.ok) {
                 const userData = await response.json();
                 localStorage.setItem('currentUser', userData.name);
-                applyLoggedInUI(userData.name);
+                updateUI(true, userData.name);
+            } else {
+                updateUI(false);
             }
-        } catch (error) { localStorage.removeItem('currentUser'); }
+        } catch (error) { 
+            updateUI(false);
+        }
     };
 
+    // 로그인
     document.getElementById('loginForm').onsubmit = async function(e) {
         e.preventDefault();
         const userId = document.getElementById('loginId').value;
@@ -249,10 +232,43 @@
                 body: JSON.stringify({ userId, pw: userPw }) 
             });
             if (response.ok) { location.reload(); } 
-            else { alert("로그인 실패"); }
-        } catch (error) { alert("서버 오류"); }
+            else { alert("아이디 혹은 비밀번호를 확인해주세요."); }
+        } catch (error) { alert("서버 오류가 발생했습니다."); }
     };
 
+    // 비밀번호 찾기 (임시 비번 발급) - 창 사라짐 방지 적용
+    document.getElementById('findPwForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('findPwBtn');
+        btn.innerText = "처리 중...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/find-pw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: document.getElementById('findId').value,
+                    name: document.getElementById('findName').value,
+                    email: document.getElementById('findEmail').value
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert("임시 비밀번호가 이메일로 발송되었습니다.");
+                closeModal('findPwModal');
+            } else {
+                alert(data.message || "입력한 정보가 일치하지 않습니다.");
+            }
+        } catch (err) {
+            alert("연결 오류가 발생했습니다.");
+        } finally {
+            btn.innerText = "임시 비밀번호 발급";
+            btn.disabled = false;
+        }
+    };
+
+    // 로그아웃
     async function handleLogout() {
         if (confirm("로그아웃 하시겠습니까?")) {
             await fetch('/api/logout', { method: 'POST' });
@@ -261,15 +277,17 @@
         }
     }
 
+    // 접근 제어
     function protectedRoute(url) {
         if (!localStorage.getItem('currentUser')) { 
-            alert("로그인 후 이용 가능합니다."); 
+            alert("로그인이 필요한 서비스입니다."); 
             openModal('loginModal'); 
         } else { 
             location.href = url; 
         }
     }
 
+    // 배경 클릭 시 모달 닫기
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 </script>
 </body>
