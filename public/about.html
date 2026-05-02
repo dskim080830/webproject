@@ -252,7 +252,7 @@
     function updateUI(isLoggedIn, name = "") {
         document.getElementById('guest-menu').style.display = isLoggedIn ? 'none' : 'flex';
         document.getElementById('user-menu').style.display = isLoggedIn ? 'flex' : 'none';
-        if(isLoggedIn) document.getElementById('u-info').innerHTML = `✨ <strong>${name}</strong>님`;
+        if(isLoggedIn) document.getElementById('u-info').innerHTML = `✨ <strong>${name}</strong>님, 환영합니다!`;
     }
 
     window.onload = async () => {
