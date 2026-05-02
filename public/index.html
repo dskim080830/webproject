@@ -690,9 +690,9 @@
         // 3. 로그인 및 로그아웃 로직
         // -----------------------------------------
         // [수정된 로그인 로직]
+// [수정] 3. 로그인 로직 (임시 비밀번호 여부 자체 판단 추가)
 document.getElementById('loginForm').onsubmit = async function(event) {
     event.preventDefault();
-    
     const userId = document.getElementById('loginId').value;
     const userPw = document.getElementById('loginPw').value;
 
@@ -702,31 +702,23 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify({ userId: userId, pw: userPw }) 
         });
-        
         const data = await response.json();
         
         if (response.ok) {
             closeModal('loginModal');
             applyLoggedInUI(data.name);
-            localStorage.setItem('currentUser', data.name);
-            document.getElementById('loginForm').reset();
+            localStorage.setItem('currentUser', data.name); // 중요: 변경 시 식별자로 사용
 
-            // [핵심 자체 처리] 이 아이디로 임시 비번을 발급받은 적이 있는지 확인
-            const isTempUser = localStorage.getItem('temp_pw_issued_' + userId);
-            
-            if (data.needsPwChange || isTempUser === 'true') {
+            // 자체 기록 확인: 임시 비번 발급 유저라면 변경 모달 띄움
+            const isTemp = localStorage.getItem('is_temp_user_' + userId);
+            if (data.needsPwChange || isTemp === 'true') {
                 setTimeout(() => {
                     openModal('changePwModal');
-                    // 모달을 띄운 후 기록 삭제 (다음에 또 뜨지 않게)
-                    localStorage.removeItem('temp_pw_issued_' + userId);
+                    localStorage.removeItem('is_temp_user_' + userId);
                 }, 500);
             }
-        } else { 
-            alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
-        }
-    } catch (error) { 
-        alert("서버 통신 중 오류가 발생했습니다."); 
-    }
+        } else { alert(data.message || "로그인 실패"); }
+    } catch (error) { alert("통신 오류"); }
 };
         async function handleLogout() {
             if (confirm("정말 로그아웃 하시겠습니까?")) {
@@ -963,9 +955,9 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             }
         };
 
-// [수정] 비밀번호 찾기 제출 - 창 사라짐 방지 로직 강화
+// [수정] 7. 비밀번호 찾기 제출 (성공 시에만 창 닫기)
 document.getElementById('findPwForm').onsubmit = async function(event) {
-    event.preventDefault(); // 폼 제출로 인한 페이지 새로고침 방지
+    event.preventDefault(); // 창 사라짐 방지
     
     const buttonElement = document.getElementById('submitFindPwBtn');
     const userIdValue = document.getElementById('findPwId').value;
@@ -985,97 +977,46 @@ document.getElementById('findPwForm').onsubmit = async function(event) {
         const data = await response.json();
         
         if (response.ok) { 
-            // 성공 시에만 로컬에 기록하고 창을 닫음
-            localStorage.setItem('is_temp_pw_' + userIdValue, 'true');
+            // 성공 시에만 기록하고 창 닫기
+            localStorage.setItem('is_temp_user_' + userIdValue, 'true');
             alert(data.message || "임시 비밀번호가 발송되었습니다."); 
             closeModal('findAccountModal');
         } else { 
-            // 실패 시 경고창만 띄우고 창은 그대로 유지
             alert(data.message || "정보가 일치하지 않습니다."); 
         }
     } catch (error) {
-        alert("통신 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        alert("서버 통신 오류가 발생했습니다.");
     } finally {
         buttonElement.innerText = "임시 비밀번호 발급"; 
         buttonElement.disabled = false;
     }
 };
 
-// [추가] 비밀번호 변경 제출 로직 - Aiven DB 연동
+// [수정] 비밀번호 변경 제출 (Aiven 연동용)
 document.getElementById('changePwForm').onsubmit = async function(e) {
     e.preventDefault();
-    
     const currentUser = localStorage.getItem('currentUser');
     const newPw = document.getElementById('newPw').value;
     const confirmPw = document.getElementById('newPwConfirm').value;
 
-    if (newPw !== confirmPw) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
-    }
+    if (newPw !== confirmPw) return alert("비밀번호가 일치하지 않습니다.");
 
     try {
         const res = await fetch('/api/change-pw', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                userName: currentUser, 
-                newPw: newPw 
-            })
+            body: JSON.stringify({ userName: currentUser, newPw: newPw })
         });
-
-        const result = await res.json();
 
         if (res.ok) {
             alert("비밀번호가 안전하게 변경되었습니다.");
             closeModal('changePwModal');
             document.getElementById('changePwForm').reset();
         } else {
+            const result = await res.json();
             alert(result.message || "변경 실패. 다시 시도해주세요.");
         }
-    } catch (err) {
-        alert("서버 연결 오류가 발생했습니다.");
-    }
-};
-
-// [수정] 3. 로그인 로직 (임시 비밀번호 여부 자체 판단)
-document.getElementById('loginForm').onsubmit = async function(event) {
-    event.preventDefault();
-    
-    const userId = document.getElementById('loginId').value;
-    const userPw = document.getElementById('loginPw').value;
-
-    try {
-        const response = await fetch('/api/login', { 
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ userId: userId, pw: userPw }) 
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            closeModal('loginModal');
-            applyLoggedInUI(data.name);
-            localStorage.setItem('currentUser', data.name);
-            document.getElementById('loginForm').reset();
-
-            // 로컬 스토리지에 임시 비번 발급 기록이 있는지 확인
-            const isTempUser = localStorage.getItem('is_temp_pw_' + userId);
-            
-            if (data.needsPwChange || isTempUser === 'true') {
-                setTimeout(() => {
-                    openModal('changePwModal');
-                    // 플래그 삭제 (변경창 띄운 후 한 번만 작동하게)
-                    localStorage.removeItem('is_temp_pw_' + userId);
-                }, 500);
-            }
-        } else { 
-            alert(data.message || "아이디 혹은 비밀번호가 일치하지 않습니다."); 
-        }
-    } catch (error) { 
-        alert("서버 통신 중 오류가 발생했습니다."); 
-    }
+    } catch (err) { alert("데이터베이스 연결 실패. 관리자에게 문의하세요."); }
 };
 
 
