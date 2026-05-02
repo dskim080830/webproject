@@ -37,6 +37,7 @@
         .nav-menu a:hover { color: var(--primary); }
         .header-right { display: flex; gap: 15px; align-items: center; height: 100%; }
 
+        /* 버튼 및 레이아웃 */
         .btn { cursor: pointer; border: none; border-radius: 50px; font-weight: 700; transition: 0.2s; display: inline-block; font-size: 16px; text-align: center; text-decoration: none; }
         .btn-primary { background: var(--primary); color: #fff; padding: 12px 25px; }
         .btn-sub { background: #eee; color: #666; padding: 8px 15px; font-size: 14px; }
@@ -45,11 +46,8 @@
         .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
         .intro-title { color: var(--primary); font-size: 32px; font-weight: 800; margin-bottom: 35px; text-align: center; }
         .intro-card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .section-title { font-size: 24px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .intro-text { font-size: 17px; color: #444; line-height: 1.8; word-break: keep-all; }
-        .highlight { color: var(--primary); font-weight: 800; }
 
-        /* 모달 스타일 (이미지 디자인 반영) */
+        /* 모달 스타일 (제공된 이미지 디자인 반영) */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal-content { background: #fff; padding: 45px 35px; border-radius: 40px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
         
@@ -60,6 +58,11 @@
         
         .btn-login { width: 100%; padding: 18px; background-color: #5191e3; color: white; border: none; border-radius: 20px; font-size: 18px; font-weight: 700; margin-top: 10px; margin-bottom: 20px; cursor: pointer; }
         
+        /* 선택 모달 전용 스타일 */
+        .choice-container { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .btn-choice { width: 100%; padding: 20px; border: 2px solid #eee; border-radius: 20px; background: #fff; font-size: 17px; font-weight: 700; color: #555; cursor: pointer; transition: 0.2s; }
+        .btn-choice:hover { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
+
         .modal-footer-links { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; font-size: 14px; color: #666; }
         .modal-footer-links span { cursor: pointer; text-decoration: underline; }
         .btn-close-text { background: none; border: none; color: #aaa; font-size: 15px; cursor: pointer; }
@@ -95,8 +98,7 @@
     <h2 class="intro-title">🤝 서비스 소개</h2>
     <div class="intro-card">
         <p class="intro-text">
-            <span class="highlight">쉬운 글 배움터</span>는 발달장애인과 경계선 지능인을 위한 정보 이해 지원 서비스입니다.
-            어려운 정보를 누구나 쉽게 이해할 수 있도록 세상을 바꿉니다.
+            쉬운 글 배움터는 누구나 정보를 평등하게 누릴 수 있는 세상을 만듭니다.
         </p>
     </div>
 </div>
@@ -110,10 +112,20 @@
             <button type="submit" class="btn btn-login">로그인하기</button>
         </form>
         <div class="modal-footer-links">
-            <span onclick="closeModal('loginModal'); openModal('findIdModal')">아이디</span> / 
-            <span onclick="closeModal('loginModal'); openModal('findPwModal')">비밀번호</span>를 잊으셨나요?
+            <span onclick="closeModal('loginModal'); openModal('choiceModal')">아이디 / 비밀번호를 잊으셨나요?</span>
         </div>
         <button class="btn-close-text" onclick="closeModal('loginModal')">닫기</button>
+    </div>
+</div>
+
+<div id="choiceModal" class="modal">
+    <div class="modal-content">
+        <h2 class="modal-h2" style="text-align: center;">어떤 정보를 찾으세요?</h2>
+        <div class="choice-container">
+            <button class="btn-choice" onclick="closeModal('choiceModal'); openModal('findIdModal')">👤 아이디 찾기</button>
+            <button class="btn-choice" onclick="closeModal('choiceModal'); openModal('findPwModal')">🔒 비밀번호 찾기</button>
+        </div>
+        <button class="btn-close-text" style="margin-top: 30px;" onclick="closeModal('choiceModal'); openModal('loginModal')">취소</button>
     </div>
 </div>
 
@@ -125,7 +137,7 @@
             <div class="form-group"><label>이메일</label><input type="email" id="findIdEmail" required></div>
             <button type="submit" class="btn btn-login">아이디 찾기</button>
         </form>
-        <button class="btn-close-text" onclick="closeModal('findIdModal'); openModal('loginModal')">돌아가기</button>
+        <button class="btn-close-text" onclick="closeModal('findIdModal'); openModal('choiceModal')">돌아가기</button>
     </div>
 </div>
 
@@ -138,15 +150,17 @@
             <div class="form-group"><label>이메일</label><input type="email" id="findPwEmail" required></div>
             <button type="submit" class="btn btn-login" id="findPwBtn">임시 비밀번호 발급</button>
         </form>
-        <button class="btn-close-text" onclick="closeModal('findPwModal'); openModal('loginModal')">돌아가기</button>
+        <button class="btn-close-text" onclick="closeModal('findPwModal'); openModal('choiceModal')">돌아가기</button>
     </div>
 </div>
+
+<footer>© 2026 쉬운 글 배움터</footer>
 
 <script>
     const openModal = (id) => document.getElementById(id).style.display = 'flex';
     const closeModal = (id) => document.getElementById(id).style.display = 'none';
 
-    // 아이디 찾기 로직
+    // 아이디 찾기 성공 알림 (요청 문구 적용)
     document.getElementById('findIdForm').onsubmit = async function(e) {
         e.preventDefault();
         try {
@@ -160,7 +174,6 @@
             });
             const data = await res.json();
             if (res.ok) {
-                // 요청하신 포맷으로 알림창 출력
                 alert(`요청하신 회원님의 아이디는 [ ${data.userId} ] 입니다.`);
                 closeModal('findIdModal');
                 openModal('loginModal');
@@ -168,7 +181,7 @@
         } catch { alert("서버 오류"); }
     };
 
-    // 비밀번호 찾기 로직
+    // 비밀번호 찾기 (임시 비번 발급)
     document.getElementById('findPwForm').onsubmit = async function(e) {
         e.preventDefault();
         const btn = document.getElementById('findPwBtn');
@@ -192,12 +205,13 @@
         finally { btn.innerText = "임시 비밀번호 발급"; btn.disabled = false; }
     };
 
-    // 로그인 UI 업데이트 및 기타 스크립트 생략 (기존과 동일)
+    // 로그인 및 UI 제어
     function updateUI(isLoggedIn, name = "") {
         document.getElementById('guest-menu').style.display = isLoggedIn ? 'none' : 'flex';
         document.getElementById('user-menu').style.display = isLoggedIn ? 'flex' : 'none';
         if(isLoggedIn) document.getElementById('u-info').innerHTML = `✨ <strong>${name}</strong>님`;
     }
+
     window.onload = async () => {
         try {
             const res = await fetch('/api/check-auth');
@@ -208,6 +222,7 @@
             } else { updateUI(false); }
         } catch { updateUI(false); }
     };
+
     document.getElementById('loginForm').onsubmit = async (e) => {
         e.preventDefault();
         const res = await fetch('/api/login', {
@@ -217,6 +232,7 @@
         });
         if (res.ok) location.reload(); else alert("로그인 실패");
     };
+
     function handleLogout() {
         if (confirm("로그아웃 하시겠습니까?")) {
             fetch('/api/logout', { method: 'POST' }).then(() => {
@@ -225,10 +241,12 @@
             });
         }
     }
+
     function protectedRoute(url) {
         if (!localStorage.getItem('currentUser')) { alert("로그인 후 이용 가능합니다."); openModal('loginModal'); }
         else location.href = url;
     }
+
     window.onclick = (e) => { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 </script>
 </body>
