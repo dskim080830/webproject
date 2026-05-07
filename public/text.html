@@ -16,6 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
+        /* 1. 헤더 스타일 (원본 100% 유지) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -53,6 +54,7 @@
         
         .logout-btn { background: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; }
 
+        /* 2. 컨텐츠 스타일 */
         .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
         .card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .title-area { text-align: center; margin-bottom: 30px; }
@@ -85,8 +87,8 @@
             font-size: 18px;
         }
 
-        /* [추가] 밑줄 및 마우스 포인터 스타일 */
-        .easy-word {
+        /* [추가] 툴팁 및 밑줄 스타일 */
+        .tooltip-word {
             border-bottom: 2px solid var(--primary);
             cursor: help;
             color: var(--primary);
@@ -141,7 +143,9 @@
     <script type="module">
         import { easyWordMap } from './api/wordMap.js';
 
+        // 1. 페이지 로드 시 인증 및 수준 정보 로드 (로그인 유지 핵심 로직)
         window.onload = async function() {
+            // 로컬 스토리지 확인 (깜빡임 방지)
             const cachedName = localStorage.getItem('currentUser');
             if (cachedName) applyLoggedInUI(cachedName);
 
@@ -150,8 +154,11 @@
                 if (response.ok) {
                     const userData = await response.json();
                     localStorage.setItem('currentUser', userData.name);
+                    
+                    // UI 반영
                     applyLoggedInUI(userData.name);
                     
+                    // 학습 수준 로드 및 적용
                     if (userData.level) {
                         let levelText = userData.level;
                         if(userData.level == "1") levelText = "경계선 지능";
@@ -163,18 +170,22 @@
                     }
                 } else {
                     localStorage.removeItem('currentUser');
+                    document.getElementById('guest-menu').style.display = 'flex';
+                    document.getElementById('user-menu').style.display = 'none';
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
             }
         };
 
+        // 2. 로그인 UI 전환
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
             document.getElementById('user-menu').style.display = 'flex';
             document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
+        // 3. 로그아웃 처리
         window.handleLogout = async function() {
             if (confirm("로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
@@ -183,6 +194,7 @@
             }
         }
 
+        // 4. 변환 함수 (API 통신 + wordMap 툴팁 결합)
         window.convertText = async function() {
             const text = document.getElementById("inputText").value.trim();
             const level = document.getElementById("userLevelValue").value;
@@ -205,32 +217,31 @@
                 if (!res.ok) throw new Error("변환 실패");
 
                 const data = await res.json();
-                let convertedResult = data.result;
+                let resultHTML = data.result;
 
-                // [핵심] WordMap.js의 데이터를 사용하여 밑줄 및 툴팁(? 표시 효과) 적용
-                // 수준에 맞는 key 설정 (1: normal, 2: easy, 3: veryEasy)
+                // [핵심] WordMap.js 연동: 변환된 텍스트에서 단어를 찾아 밑줄 및 툴팁 추가
                 const levelKeys = { "1": "normal", "2": "easy", "3": "veryEasy" };
                 const currentKey = levelKeys[level] || "normal";
 
                 Object.keys(easyWordMap).forEach(word => {
                     const regex = new RegExp(word, 'g');
-                    // 변환된 텍스트 안에 해당 단어가 있다면 <span> 태그로 감쌈
-                    if (regex.test(convertedResult)) {
+                    if (regex.test(resultHTML)) {
                         const meaning = easyWordMap[word][currentKey];
-                        // title 속성이 마우스를 가져다 댈 때 나타나는 말풍선(툴팁) 역할을 함
-                        convertedResult = convertedResult.replace(regex, `<span class="easy-word" title="${meaning}">${word}</span>`);
+                        // title 속성으로 마우스 오버 시 풀이가 나타나게 함
+                        resultHTML = resultHTML.replace(regex, `<span class="tooltip-word" title="뜻: ${meaning}">${word}</span>`);
                     }
                 });
 
-                resultBox.innerHTML = convertedResult; 
+                resultBox.innerHTML = resultHTML; 
             } catch (error) {
                 console.error(error);
                 resultBox.innerHTML = "😢 변환 중에 문제가 생겼어요. 다시 한 번 시도해 볼까요?";
             }
         }
-
-        window.openLoginModal = () => { location.href = "./index.html?login=true"; };
-        window.openSignupModal = () => { location.href = "./index.html?signup=true"; };
+        
+        // 헬퍼 함수
+        window.openLoginModal = function() { location.href = "./index.html?login=true"; }
+        window.openSignupModal = function() { location.href = "./index.html?signup=true"; }
     </script>
 </body>
 </html>
