@@ -16,6 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
+        /* 1. 헤더 스타일 (index.html과 100% 동일화) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -39,6 +40,7 @@
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
         .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
+        /* 회원가입 버튼 디자인 */
         .signup-btn { 
             background: var(--primary); 
             color: white; 
@@ -53,6 +55,7 @@
         
         .logout-btn { background: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; }
 
+        /* 2. 컨텐츠 스타일 */
         .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
         .card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .title-area { text-align: center; margin-bottom: 30px; }
@@ -72,12 +75,25 @@
         }
         .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
 
+        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
         .convert-btn { 
-            width: 100%; padding: 20px; background: var(--primary); color: white; border: none; 
-            border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3); transition: all 0.3s;
+            width: 100%; 
+            padding: 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            font-size: 20px; 
+            font-weight: 800; 
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3);
+            transition: all 0.3s;
         }
-        .convert-btn:hover { background-color: #357abd; transform: translateY(-3px); }
+        .convert-btn:hover { 
+            background-color: #357abd; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
 
         .result-box { 
             margin-top: 35px; padding: 30px; border-radius: 25px; 
@@ -85,7 +101,7 @@
             font-size: 18px;
         }
         
-        /* 마우스를 올렸을 때 표시되는 단어 스타일 */
+        /* 툴팁 및 밑줄 스타일 */
         .word { 
             border-bottom: 2.5px solid var(--primary); 
             cursor: help; 
@@ -152,18 +168,20 @@
                     
                     applyLoggedInUI(finalName);
                     
-                    if (userData.level !== undefined) {
-                        const levelStr = String(userData.level);
-                        let levelText = "보통";
+                    if (userData.level) {
+                        let levelText = userData.level;
                         let internalLevel = "normal";
                         
-                        if(levelStr === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
-                        else if(levelStr === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
-                        else if(levelStr === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
+                        // 숫자형 문자열 처리
+                        if(String(userData.level) === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
+                        else if(String(userData.level) === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
+                        else if(String(userData.level) === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
                         
                         document.getElementById('displayLevel').innerText = levelText;
                         document.getElementById('userLevelValue').value = internalLevel;
                     }
+                } else {
+                    localStorage.removeItem('currentUser');
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
@@ -176,7 +194,7 @@
             document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
-        // 전역 함수로 등록 (onclick 호출용)
+        // 모듈 스크립트 내 함수를 전역에서 사용하기 위해 window 객체에 할당
         window.handleLogout = async function() {
             if (confirm("로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
@@ -195,29 +213,31 @@
                 return;
             }
 
-            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다...";
+            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
 
             let resultHTML = text;
 
-            // 1. 단순 단어 교체 (금일 -> 오늘)
+            // 1. 단순 단어 교체 (replaceMap: 금일 -> 오늘 등)
             Object.keys(replaceMap).forEach(key => {
-                resultHTML = resultHTML.replace(new RegExp(key, 'g'), replaceMap[key]);
+                const regex = new RegExp(key, 'g');
+                resultHTML = resultHTML.replace(regex, replaceMap[key]);
             });
 
-            // 2. 수준별 단어 변환 및 마우스 오버(tooltip) 설정
+            // 2. 수준별 단어 변환 및 마우스 오버 툴팁(title) 설정
             Object.keys(easyWordMap).forEach(word => {
-                if (resultHTML.includes(word)) {
+                const regex = new RegExp(word, 'g');
+                if (regex.test(resultHTML)) {
                     const easyMeaning = easyWordMap[word][levelKey];
-                    // 마우스를 올렸을 때 원래 단어(word)가 보이도록 title 속성 추가
-                    const spanTag = `<span class="word" title="원래 뜻: ${word}">${easyMeaning}</span>`;
-                    resultHTML = resultHTML.replace(new RegExp(word, 'g'), spanTag);
+                    // 마우스를 가져다 대면 원래 단어가 보이도록 title 속성 추가
+                    const spanTag = `<span class="word" title="원래 단어: ${word}">${easyMeaning}</span>`;
+                    resultHTML = resultHTML.replace(regex, spanTag);
                 }
             });
 
-            // 결과 반영 (줄바꿈 처리 포함)
-            resultBox.innerHTML = resultHTML.replace(/\n/g, '<br>');
+            // 줄바꿈 처리 및 결과 반영
+            resultBox.innerHTML = resultHTML.replace(/\n/g, '<br>'); 
         };
-
+        
         window.openLoginModal = () => { location.href = "./index.html?login=true"; };
         window.openSignupModal = () => { location.href = "./index.html?signup=true"; };
     </script>
