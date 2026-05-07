@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
-        /* 1. 헤더 스타일 */
+        /* 1. 헤더 스타일 (기본 디자인 100% 유지) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -88,7 +88,7 @@
         }
         
         .word { 
-            border-bottom: 2.5px solid var(--primary); cursor: help; position: relative; 
+            border-bottom: 2.5px solid var(--primary); cursor: help; 
             font-weight: bold; color: var(--primary); padding: 0 2px;
         }
     </style>
@@ -109,7 +109,7 @@
                 <a href="javascript:void(0)" onclick="openLoginModal()" class="login-btn">로그인</a>
                 <a href="javascript:void(0)" onclick="openSignupModal()" class="signup-btn">회원가입</a>
             </div>
-            <div id="user-menu" style="display: none;">
+            <div id="user-menu">
                 <span id="user-info"></span>
                 <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
             </div>
@@ -139,66 +139,53 @@
     <script type="module">
         import { easyWordMap, replaceMap } from './api/wordMap.js';
 
-        // UI를 로그인 상태로 변경하는 핵심 함수
+        // UI 업데이트 함수
         function applyLoggedInUI(userName) {
-            const guestMenu = document.getElementById('guest-menu');
-            const userMenu = document.getElementById('user-menu');
-            const userInfo = document.getElementById('user-info');
-            
-            if (guestMenu) guestMenu.style.display = 'none';
-            if (userMenu) {
-                userMenu.style.display = 'flex';
-                userInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
-            }
+            document.getElementById('guest-menu').style.display = 'none';
+            document.getElementById('user-menu').style.display = 'flex';
+            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
         window.onload = async function() {
-            // 1. 서버인증 전에 로컬스토리지에 데이터가 있으면 먼저 UI를 바꿔서 깜빡임 방지
-            const savedName = localStorage.getItem('currentUser');
-            if (savedName) {
-                applyLoggedInUI(savedName);
-            }
+            // 초기 깜빡임 방지용 로컬 스토리지 확인
+            const cachedName = localStorage.getItem('currentUser');
+            if(cachedName) applyLoggedInUI(cachedName);
 
             try {
-                // 2. 서버에 실제 로그인 세션 확인 요청
-                const response = await fetch('/api/check-auth');
+                // [수정 포인트] 경로를 check-auth.js로 명시
+                const response = await fetch('./api/check-auth.js'); 
                 if (response.ok) {
                     const userData = await response.json();
                     const finalName = userData.name || userData.userId || "사용자";
                     
-                    // 최신 데이터로 업데이트
                     localStorage.setItem('currentUser', finalName);
                     applyLoggedInUI(finalName);
                     
-                    // 학습 수준 적용
-                    if (userData.level !== undefined) {
-                        const levelStr = String(userData.level);
+                    // [기존 로직 그대로 수준 복원] 1, 2, 3 레벨 매칭
+                    if (userData.level) {
+                        const levelVal = String(userData.level);
                         let levelText = "보통";
                         let internalLevel = "normal";
                         
-                        if(levelStr === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
-                        else if(levelStr === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
-                        else if(levelStr === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
+                        if(levelVal === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
+                        else if(levelVal === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
+                        else if(levelVal === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
                         
                         document.getElementById('displayLevel').innerText = levelText;
                         document.getElementById('userLevelValue').value = internalLevel;
                     }
                 } else {
-                    // 서버 세션이 없으면 로그아웃 상태로 강제 전환
                     localStorage.removeItem('currentUser');
-                    document.getElementById('guest-menu').style.display = 'flex';
-                    document.getElementById('user-menu').style.display = 'none';
-                    document.getElementById('displayLevel').innerText = "로그인 필요";
                 }
             } catch (error) {
-                console.error("인증 확인 실패:", error);
+                console.error("인증 로드 실패:", error);
             }
         };
 
         window.handleLogout = async function() {
             if (confirm("로그아웃 하시겠습니까?")) {
-                await fetch('/api/logout', { method: 'POST' });
-                localStorage.removeItem('currentUser');
+                await fetch('./api/logout.js', { method: 'POST' });
+                localStorage.clear();
                 location.href = "index.html";
             }
         };
@@ -217,17 +204,17 @@
 
             let resultHTML = text;
 
-            // 1. 단순 단어 교체
+            // 1. replaceMap 적용
             Object.keys(replaceMap).forEach(key => {
-                const regex = new RegExp(key, 'g');
-                resultHTML = resultHTML.replace(regex, replaceMap[key]);
+                resultHTML = resultHTML.replace(new RegExp(key, 'g'), replaceMap[key]);
             });
 
-            // 2. 수준별 단어 변환 및 마우스 오버 툴팁 설정
+            // 2. easyWordMap 적용 및 툴팁 추가
             Object.keys(easyWordMap).forEach(word => {
                 const regex = new RegExp(word, 'g');
                 if (regex.test(resultHTML)) {
                     const easyMeaning = easyWordMap[word][levelKey];
+                    // 마우스 올리면 원래 단어 보이게 title 속성 추가
                     const spanTag = `<span class="word" title="원래 단어: ${word}">${easyMeaning}</span>`;
                     resultHTML = resultHTML.replace(regex, spanTag);
                 }
