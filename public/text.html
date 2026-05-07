@@ -40,7 +40,6 @@
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
         .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
-        /* 회원가입 버튼 디자인 */
         .signup-btn { 
             background: var(--primary); 
             color: white; 
@@ -75,39 +74,17 @@
         }
         .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
 
-        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
         .convert-btn { 
-            width: 100%; 
-            padding: 20px; 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            border-radius: 50px; 
-            font-size: 20px; 
-            font-weight: 800; 
-            cursor: pointer;
-            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3);
-            transition: all 0.3s;
+            width: 100%; padding: 20px; background: var(--primary); color: white; border: none; 
+            border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3); transition: all 0.3s;
         }
-        .convert-btn:hover { 
-            background-color: #357abd; 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
-        }
+        .convert-btn:hover { background-color: #357abd; transform: translateY(-3px); }
 
         .result-box { 
             margin-top: 35px; padding: 30px; border-radius: 25px; 
             background: #fff; border: 2px dashed #bcd6f5; min-height: 120px; line-height: 1.8;
             font-size: 18px;
-        }
-        
-        /* 툴팁 및 밑줄 스타일 */
-        .word { 
-            border-bottom: 2px solid var(--primary); 
-            cursor: help; 
-            position: relative; 
-            font-weight: bold; 
-            color: var(--primary);
         }
     </style>
 </head>
@@ -128,7 +105,7 @@
                 <a href="javascript:void(0)" onclick="openSignupModal()" class="signup-btn">회원가입</a>
             </div>
             <div id="user-menu">
-                <span id="user-info">사용자님, 환영합니다!</span>
+                <span id="user-info"></span>
                 <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
             </div>
         </div>
@@ -145,7 +122,7 @@
 
             <div class="info-bar">
                 <span>나의 맞춤 학습 수준: <span id="displayLevel" class="user-level-badge">불러오는 중...</span></span>
-                <input type="hidden" id="userLevelValue" value="보통">
+                <input type="hidden" id="userLevelValue" value="1">
             </div>
 
             <button class="convert-btn" onclick="convertText()">지금 바로 변환하기 🚀</button>
@@ -157,13 +134,19 @@
     <script>
         // 1. 페이지 로드 시 인증 및 수준 정보 로드
         window.onload = async function() {
+            // 로컬 스토리지에 데이터가 있으면 즉시 반영하여 깜빡임 방지
+            const cachedName = localStorage.getItem('currentUser');
+            if (cachedName) {
+                applyLoggedInUI(cachedName);
+            }
+
             try {
                 const response = await fetch('/api/check-auth');
                 if (response.ok) {
                     const userData = await response.json();
                     localStorage.setItem('currentUser', userData.name);
                     
-                    // UI 반영 (ㅇㅇㅇ님, 환영합니다! 로 적용됨)
+                    // UI 반영
                     applyLoggedInUI(userData.name);
                     
                     // 학습 수준 로드 및 적용
@@ -177,14 +160,18 @@
                         document.getElementById('userLevelValue').value = userData.level;
                     }
                 } else {
+                    // 인증 실패 시 (로그인 안 된 상태)
                     localStorage.removeItem('currentUser');
+                    document.getElementById('guest-menu').style.display = 'flex';
+                    document.getElementById('user-menu').style.display = 'none';
+                    document.getElementById('displayLevel').innerText = "로그인 필요";
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
             }
         };
 
-        // 2. 로그인 UI 전환 (문구 수정 반영)
+        // 2. 로그인 UI 전환
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
             document.getElementById('user-menu').style.display = 'flex';
@@ -200,7 +187,7 @@
             }
         }
 
-        // 4. 변환 함수
+        // 4. 변환 함수 (API 통신)
         async function convertText() {
             const text = document.getElementById("inputText").value.trim();
             const level = document.getElementById("userLevelValue").value;
@@ -230,7 +217,7 @@
             }
         }
         
-        // 헬퍼 함수 (모달 연동이 필요한 경우 index.html의 함수 호출 혹은 경로 이동)
+        // 헬퍼 함수
         function openLoginModal() { location.href = "./index.html?login=true"; }
         function openSignupModal() { location.href = "./index.html?signup=true"; }
     </script>
