@@ -6,247 +6,240 @@
     <title>쉬운 글 변환기 - 쉬운 글 배움터</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
     <style>
-        :root { 
-            --primary: #4a90e2; 
-            --modal-blue: #5191e3; 
-            --bg: #fdfbf7; 
-            --white: #ffffff; 
+        :root {
+            --primary: #4a90e2;
+            --bg: #fdfbf7;
+            --white: #ffffff;
+            --text: #333;
         }
-        
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
-        body { background-color: var(--bg); color: #333; line-height: 1.8; }
+        body { background-color: var(--bg); color: var(--text); }
 
-        /* 헤더 스타일 */
-        header { 
-            background-color: var(--white); 
-            padding: 0 5%; 
-            height: 90px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-        }
-        .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .header-left { display: flex; align-items: center; gap: 40px; }
-        .main-menu { display: flex; list-style: none; gap: 30px; }
-        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; transition: 0.2s; }
-        .main-menu li a:hover { color: var(--primary); }
-
-        .header-right { display: flex; align-items: center; gap: 15px; }
-        .logout-btn { background-color: #eee; color: #666; padding: 8px 18px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; transition: 0.2s; }
-        .logout-btn:hover { background-color: #e0e0e0; }
-
-        /* 컨테이너 및 변환기 UI */
-        .container { max-width: 1100px; margin: 50px auto; padding: 0 20px; }
-        .converter-box { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        
-        @media (max-width: 850px) {
-            .converter-box { grid-template-columns: 1fr; }
-        }
-
-        .input-panel, .output-panel { background: white; padding: 35px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        
-        h2 { font-size: 22px; font-weight: 800; margin-bottom: 15px; color: #333; }
-        textarea { 
-            width: 100%; 
-            height: 350px; 
-            border: 1.5px solid #eee; 
-            border-radius: 20px; 
-            padding: 20px; 
-            font-size: 17px; 
-            resize: none; 
-            outline: none; 
-            background: #fafafa; 
-            margin-top: 10px; 
-            transition: 0.3s;
-        }
-        textarea:focus { border-color: var(--primary); background: #fff; }
-        
-        /* 지능 수준 표시 바 */
-        .level-indicator { 
-            margin-bottom: 25px; 
-            padding: 18px; 
-            background: #f0f7ff; 
-            border-radius: 20px; 
-            border-left: 6px solid var(--primary);
+        /* 1. 헤더 스타일 (index.html과 100% 동일화) */
+        header {
+            background-color: var(--white);
+            padding: 0 5%;
+            height: 90px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
-            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .level-tag { font-weight: 800; color: var(--primary); font-size: 19px; }
+        .header-left { display: flex; align-items: center; gap: 40px; }
+        .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .main-menu { display: flex; list-style: none; gap: 30px; }
+        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; transition: color 0.2s; }
+        .main-menu li a:hover { color: var(--primary); }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        #guest-menu { display: flex; align-items: center; gap: 10px; }
+        #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
+        
+        .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
+        /* 회원가입 버튼 디자인 */
+        .signup-btn { 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px 22px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+            transition: all 0.2s;
+        }
+        .signup-btn:hover { background-color: #357abd; transform: translateY(-2px); }
+        
+        .logout-btn { background: #eee; color: #666; padding: 8px 15px; border-radius: 50px; border: none; cursor: pointer; font-weight: 700; }
 
-        .btn-convert { 
+        /* 2. 컨텐츠 스타일 */
+        .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+        .card { background: var(--white); padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .title-area { text-align: center; margin-bottom: 30px; }
+        .title-area h2 { color: var(--primary); font-size: 32px; margin-bottom: 10px; font-weight: 800; }
+        
+        textarea { 
+            width: 100%; height: 220px; padding: 25px; border-radius: 20px; 
+            border: 2px solid #e6eef8; font-size: 18px; resize: none; margin-bottom: 25px;
+            outline: none; transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: var(--primary); }
+        
+        .info-bar { 
+            background: #f0f7ff; padding: 18px 30px; border-radius: 50px; 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+            font-size: 17px;
+        }
+        .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
+
+        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
+        .convert-btn { 
             width: 100%; 
             padding: 20px; 
             background: var(--primary); 
             color: white; 
             border: none; 
-            border-radius: 20px; 
-            font-size: 19px; 
+            border-radius: 50px; 
+            font-size: 20px; 
             font-weight: 800; 
-            cursor: pointer; 
-            margin-top: 20px; 
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3);
+            transition: all 0.3s;
         }
-        .btn-convert:hover { background: #357abd; transform: translateY(-2px); }
+        .convert-btn:hover { 
+            background-color: #357abd; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
 
-        .result-area { 
-            min-height: 350px; 
-            padding: 25px; 
-            border-radius: 20px; 
-            background: #f8fbff; 
-            font-size: 18px; 
-            line-height: 1.9; 
-            color: #444;
-            word-break: keep-all;
+        .result-box { 
+            margin-top: 35px; padding: 30px; border-radius: 25px; 
+            background: #fff; border: 2px dashed #bcd6f5; min-height: 120px; line-height: 1.8;
+            font-size: 18px;
         }
         
-        /* 변환된 단어 강조 스타일 */
-        .highlight-word { 
-            color: var(--primary); 
-            font-weight: 800; 
-            border-bottom: 2.5px solid #cfe2ff; 
-            padding: 0 2px;
-            cursor: help;
+        /* 툴팁 및 밑줄 스타일 */
+        .word { 
+            border-bottom: 2px solid var(--primary); 
+            cursor: help; 
+            position: relative; 
+            font-weight: bold; 
+            color: var(--primary);
         }
-
-        footer { text-align: center; padding: 60px 0; color: #888; font-size: 15px; }
     </style>
 </head>
 <body>
-
-<header>
-    <div class="header-left">
-        <a href="index.html" class="logo">✨ 쉬운 글 배움터</a>
-        <ul class="main-menu">
-            <li><a href="./about.html">서비스 소개</a></li>
-            <li><a href="./text.html" style="color: var(--primary);">쉬운 글 변환기</a></li>
-            <li><a href="./behavior.html">행동 사전</a></li>
-            <li><a href="./read.html">글 읽어주기</a></li>
-        </ul>
-    </div>
-    <div class="header-right">
-        <span id="user-info" style="font-weight: 700;"></span>
-        <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
-    </div>
-</header>
-
-<div class="container">
-    <div class="converter-box">
-        <div class="input-panel">
-            <div class="level-indicator">
-                <span>내 맞춤 수준:</span>
-                <span id="displayLevel" class="level-tag">정보 불러오는 중...</span>
-            </div>
-            <h2>바꿀 내용을 적어주세요</h2>
-            <textarea id="inputText" placeholder="여기에 어려운 문장이나 단어가 포함된 글을 입력해 주세요. 예: 금일 합의를 통해 생산을 재개하기로 했습니다."></textarea>
-            <button class="btn-convert" onclick="processConversion()">내 수준에 맞춰 바꾸기</button>
+    <header>
+        <div class="header-left">
+            <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
+            <ul class="main-menu">
+                <li><a href="./about.html">서비스 소개</a></li>
+                <li><a href="./text.html">쉬운 글 변환기</a></li>
+                <li><a href="./behavior.html">행동 사전</a></li>
+                <li><a href="./read.html">글 읽어주기</a></li>
+            </ul>
         </div>
-
-        <div class="output-panel">
-            <h2>변환 결과</h2>
-            <div id="resultArea" class="result-area">
-                왼쪽 판넬에 내용을 입력하고 버튼을 누르면, 이곳에 쉬운 글이 나타납니다.
+        <div class="header-right">
+            <div id="guest-menu">
+                <a href="javascript:void(0)" onclick="openLoginModal()" class="login-btn">로그인</a>
+                <a href="javascript:void(0)" onclick="openSignupModal()" class="signup-btn">회원가입</a>
+            </div>
+            <div id="user-menu">
+                <span id="user-info">사용자님, 환영합니다!</span>
+                <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
             </div>
         </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <div class="title-area">
+                <h2>✍️ 쉬운 글 변환기</h2>
+                <p>내가 읽기 힘든 복잡한 글을 입력하면 내 수준에 딱 맞춰서 바꿔줘요!</p>
+            </div>
+
+            <textarea id="inputText" placeholder="여기에 어렵거나 복잡한 글을 복사해서 붙여넣어 보세요..."></textarea>
+
+            <div class="info-bar">
+                <span>나의 맞춤 학습 수준: <span id="displayLevel" class="user-level-badge">불러오는 중...</span></span>
+                <input type="hidden" id="userLevelValue" value="보통">
+            </div>
+
+            <button class="convert-btn" onclick="convertText()">지금 바로 변환하기 🚀</button>
+
+            <div id="result" class="result-box">변환 결과가 여기에 표시됩니다.</div>
+        </div>
     </div>
-</div>
 
-<footer>© 2026 쉬운 글 배움터</footer>
-
-<script type="module">
-    // api 폴더에 위치한 wordMap.js에서 데이터 임포트
-    import { easyWordMap, replaceMap } from './api/wordMap.js';
-
-    let userMapLevel = 'normal'; // 기본값 (레벨 1)
-
-    // 페이지 로드 시 실행: 로그인 확인 및 사용자의 지능 레벨 설정
-    window.onload = async () => {
-        try {
-            const res = await fetch('/api/check-auth');
-            if (res.ok) {
-                const data = await res.json();
-                document.getElementById('user-info').innerHTML = `✨ <strong>${data.name}</strong>님`;
-                
-                const levelDisplay = document.getElementById('displayLevel');
-                
-                // 가입 정보의 data.level (1, 2, 3)에 따라 wordMap의 키값 매핑
-                if (data.level == 1) {
-                    userMapLevel = 'normal'; // 경계선 지능
-                    levelDisplay.innerText = "레벨 1 (경계선 지능)";
-                } else if (data.level == 2) {
-                    userMapLevel = 'easy';   // 경도 지적 장애
-                    levelDisplay.innerText = "레벨 2 (경도 지적 장애)";
-                } else if (data.level == 3) {
-                    userMapLevel = 'veryEasy'; // 중증 지적 장애
-                    levelDisplay.innerText = "레벨 3 (중증 지적 장애)";
-                } else {
-                    userMapLevel = 'normal';
-                    levelDisplay.innerText = "기본 수준";
-                }
-            } else {
-                // 로그인 세션이 없으면 메인으로 리다이렉트
-                alert("로그인이 필요한 서비스입니다.");
-                location.href = "index.html";
-            }
-        } catch (err) {
-            console.error("인증 확인 오류:", err);
-            document.getElementById('displayLevel').innerText = "오류 발생";
-        }
-    };
-
-    // 변환 버튼 클릭 시 실행되는 메인 로직
-    window.processConversion = () => {
-        const inputTextArea = document.getElementById('inputText');
-        const resultArea = document.getElementById('resultArea');
-        let text = inputTextArea.value;
-
-        if (!text.trim()) {
-            alert("변환할 내용을 입력해 주세요.");
-            inputTextArea.focus();
-            return;
-        }
-
-        let resultHTML = text;
-
-        // 1단계: 단순 단어 교체 (replaceMap 사용 - 금일 -> 오늘 등)
-        Object.keys(replaceMap).forEach(key => {
-            const regex = new RegExp(key, 'g');
-            resultHTML = resultHTML.replace(regex, replaceMap[key]);
-        });
-
-        // 2단계: 지능 수준별 상세 변환 (easyWordMap 사용)
-        // 사용자의 레벨(normal, easy, veryEasy)에 해당하는 설명을 매칭
-        Object.keys(easyWordMap).forEach(key => {
-            const regex = new RegExp(key, 'g');
-            const easyValue = easyWordMap[key][userMapLevel];
-            
-            // 변환된 단어를 시각적으로 강조하기 위해 span 태그로 감쌈
-            resultHTML = resultHTML.replace(regex, `<span class="highlight-word" title="원래 단어: ${key}">${easyValue}</span>`);
-        });
-
-        // 결과 출력 (줄바꿈 보존을 위해 \n을 <br>로 변경)
-        resultArea.innerHTML = resultHTML.replace(/\n/g, '<br>');
-    };
-
-    // 로그아웃 처리
-    window.handleLogout = async () => {
-        if (confirm("로그아웃 하시겠습니까?")) {
+    <script>
+        // 1. 페이지 로드 시 인증 및 수준 정보 로드 (이름 미출력 및 레벨 인식 오류 수정)
+        window.onload = async function() {
             try {
+                const response = await fetch('/api/check-auth');
+                if (response.ok) {
+                    const userData = await response.json();
+                    
+                    // [핵심 수정] 이름이 없으면 userId를 이름으로 사용
+                    const finalName = userData.name || userData.userId || "사용자";
+                    localStorage.setItem('currentUser', finalName);
+                    
+                    // UI 반영 (ㅇㅇㅇ님, 환영합니다! 문구 보장)
+                    applyLoggedInUI(finalName);
+                    
+                    // [핵심 수정] 학습 수준 로드 및 적용 (데이터 타입 보정)
+                    if (userData.level !== undefined) {
+                        const levelStr = String(userData.level); // 숫자여도 문자로 변환하여 비교
+                        let levelText = "보통";
+                        
+                        if(levelStr === "1") levelText = "경계선 지능";
+                        else if(levelStr === "2") levelText = "경도 지적 장애";
+                        else if(levelStr === "3") levelText = "중증 지적 장애";
+                        
+                        document.getElementById('displayLevel').innerText = levelText;
+                        document.getElementById('userLevelValue').value = levelStr;
+                    }
+                } else {
+                    localStorage.removeItem('currentUser');
+                    // 로그인 안된 경우 UI는 기본값(guest-menu) 유지
+                }
+            } catch (error) {
+                console.error("인증 로드 실패:", error);
+                document.getElementById('displayLevel').innerText = "로드 실패";
+            }
+        };
+
+        // 2. 로그인 UI 전환 (문구 수정 반영)
+        function applyLoggedInUI(userName) {
+            document.getElementById('guest-menu').style.display = 'none';
+            document.getElementById('user-menu').style.display = 'flex';
+            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        }
+
+        // 3. 로그아웃 처리
+        async function handleLogout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
                 localStorage.removeItem('currentUser');
                 location.href = "index.html";
-            } catch (err) {
-                console.error("로그아웃 실패:", err);
-                location.href = "index.html";
             }
         }
-    };
-</script>
+
+        // 4. 변환 함수
+        async function convertText() {
+            const text = document.getElementById("inputText").value.trim();
+            const level = document.getElementById("userLevelValue").value;
+            const resultBox = document.getElementById("result");
+
+            if (!text) {
+                alert("변환할 내용을 입력해주세요!");
+                return;
+            }
+
+            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
+
+            try {
+                const res = await fetch("/api/easy-text", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text, level }),
+                });
+
+                if (!res.ok) throw new Error("변환 실패");
+
+                const data = await res.json();
+                resultBox.innerHTML = data.result; 
+            } catch (error) {
+                console.error(error);
+                resultBox.innerHTML = "😢 변환 중에 문제가 생겼어요. 다시 한 번 시도해 볼까요?";
+            }
+        }
+        
+        // 헬퍼 함수
+        function openLoginModal() { location.href = "./index.html?login=true"; }
+        function openSignupModal() { location.href = "./index.html?signup=true"; }
+    </script>
 </body>
 </html>
