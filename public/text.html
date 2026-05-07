@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
-        /* 1. 헤더 스타일 (기본 디자인 100% 유지) */
+        /* 1. 헤더 스타일 (index.html과 100% 동일화) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -40,6 +40,7 @@
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
         .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
+        /* 회원가입 버튼 디자인 */
         .signup-btn { 
             background: var(--primary); 
             color: white; 
@@ -74,12 +75,25 @@
         }
         .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
 
+        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
         .convert-btn { 
-            width: 100%; padding: 20px; background: var(--primary); color: white; border: none; 
-            border-radius: 50px; font-size: 20px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3); transition: all 0.3s;
+            width: 100%; 
+            padding: 20px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            font-size: 20px; 
+            font-weight: 800; 
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.3);
+            transition: all 0.3s;
         }
-        .convert-btn:hover { background-color: #357abd; transform: translateY(-3px); }
+        .convert-btn:hover { 
+            background-color: #357abd; 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
 
         .result-box { 
             margin-top: 35px; padding: 30px; border-radius: 25px; 
@@ -87,9 +101,13 @@
             font-size: 18px;
         }
         
+        /* 툴팁 및 밑줄 스타일 */
         .word { 
-            border-bottom: 2.5px solid var(--primary); cursor: help; 
-            font-weight: bold; color: var(--primary); padding: 0 2px;
+            border-bottom: 2px solid var(--primary); 
+            cursor: help; 
+            position: relative; 
+            font-weight: bold; 
+            color: var(--primary);
         }
     </style>
 </head>
@@ -110,7 +128,7 @@
                 <a href="javascript:void(0)" onclick="openSignupModal()" class="signup-btn">회원가입</a>
             </div>
             <div id="user-menu">
-                <span id="user-info"></span>
+                <span id="user-info">사용자님, 환영합니다!</span>
                 <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
             </div>
         </div>
@@ -139,37 +157,32 @@
     <script type="module">
         import { easyWordMap, replaceMap } from './api/wordMap.js';
 
-        // UI 업데이트 함수
-        function applyLoggedInUI(userName) {
-            document.getElementById('guest-menu').style.display = 'none';
-            document.getElementById('user-menu').style.display = 'flex';
-            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
-        }
-
+        // 1. 페이지 로드 시 인증 및 수준 정보 로드 (check-auth.js 경로 수정)
         window.onload = async function() {
-            // 초기 깜빡임 방지용 로컬 스토리지 확인
-            const cachedName = localStorage.getItem('currentUser');
-            if(cachedName) applyLoggedInUI(cachedName);
+            // 로컬 스토리지에 이미 이름이 있다면 즉시 표시 (상태 유지 보완)
+            const cachedUser = localStorage.getItem('currentUser');
+            if (cachedUser) {
+                applyLoggedInUI(cachedUser);
+            }
 
             try {
-                // [수정 포인트] 경로를 check-auth.js로 명시
-                const response = await fetch('./api/check-auth.js'); 
+                // 경로를 check-auth.js로 명시하여 상태 확인
+                const response = await fetch('/api/check-auth.js');
                 if (response.ok) {
                     const userData = await response.json();
                     const finalName = userData.name || userData.userId || "사용자";
-                    
                     localStorage.setItem('currentUser', finalName);
+                    
                     applyLoggedInUI(finalName);
                     
-                    // [기존 로직 그대로 수준 복원] 1, 2, 3 레벨 매칭
+                    // 학습 수준 로드 및 적용
                     if (userData.level) {
-                        const levelVal = String(userData.level);
-                        let levelText = "보통";
-                        let internalLevel = "normal";
+                        let levelText = userData.level;
+                        let internalLevel = "normal"; // wordMap 매핑용
                         
-                        if(levelVal === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
-                        else if(levelVal === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
-                        else if(levelVal === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
+                        if(String(userData.level) === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
+                        if(String(userData.level) === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
+                        if(String(userData.level) === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
                         
                         document.getElementById('displayLevel').innerText = levelText;
                         document.getElementById('userLevelValue').value = internalLevel;
@@ -182,17 +195,26 @@
             }
         };
 
+        // 2. 로그인 UI 전환
+        function applyLoggedInUI(userName) {
+            document.getElementById('guest-menu').style.display = 'none';
+            document.getElementById('user-menu').style.display = 'flex';
+            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        }
+
+        // 3. 로그아웃 처리
         window.handleLogout = async function() {
             if (confirm("로그아웃 하시겠습니까?")) {
-                await fetch('./api/logout.js', { method: 'POST' });
-                localStorage.clear();
+                await fetch('/api/logout.js', { method: 'POST' });
+                localStorage.removeItem('currentUser');
                 location.href = "index.html";
             }
-        };
+        }
 
+        // 4. 변환 함수 (wordMap.js 데이터 적용 및 툴팁 추가)
         window.convertText = async function() {
             const text = document.getElementById("inputText").value.trim();
-            const levelKey = document.getElementById("userLevelValue").value;
+            const level = document.getElementById("userLevelValue").value; // 'normal', 'easy', 'veryEasy'
             const resultBox = document.getElementById("result");
 
             if (!text) {
@@ -200,31 +222,34 @@
                 return;
             }
 
-            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다...";
+            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
 
             let resultHTML = text;
 
-            // 1. replaceMap 적용
+            // [추가된 로직] 1. 단순 단어 교체 (금일 -> 오늘)
             Object.keys(replaceMap).forEach(key => {
-                resultHTML = resultHTML.replace(new RegExp(key, 'g'), replaceMap[key]);
+                const regex = new RegExp(key, 'g');
+                resultHTML = resultHTML.replace(regex, replaceMap[key]);
             });
 
-            // 2. easyWordMap 적용 및 툴팁 추가
+            // [추가된 로직] 2. easyWordMap 적용 및 마우스 오버(title) 설정
             Object.keys(easyWordMap).forEach(word => {
                 const regex = new RegExp(word, 'g');
                 if (regex.test(resultHTML)) {
-                    const easyMeaning = easyWordMap[word][levelKey];
-                    // 마우스 올리면 원래 단어 보이게 title 속성 추가
-                    const spanTag = `<span class="word" title="원래 단어: ${word}">${easyMeaning}</span>`;
+                    const easyMeaning = easyWordMap[word][level];
+                    // 마우스를 가져다 대면 원래 단어가 보이도록 title 속성 추가
+                    const spanTag = `<span class="word" title="원래 뜻: ${word}">${easyMeaning}</span>`;
                     resultHTML = resultHTML.replace(regex, spanTag);
                 }
             });
 
+            // 줄바꿈 처리 및 결과 출력
             resultBox.innerHTML = resultHTML.replace(/\n/g, '<br>');
-        };
-
-        window.openLoginModal = () => { location.href = "./index.html?login=true"; };
-        window.openSignupModal = () => { location.href = "./index.html?signup=true"; };
+        }
+        
+        // 헬퍼 함수
+        window.openLoginModal = function() { location.href = "./index.html?login=true"; }
+        window.openSignupModal = function() { location.href = "./index.html?signup=true"; }
     </script>
 </body>
 </html>
