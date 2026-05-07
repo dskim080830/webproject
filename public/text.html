@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
-        /* 1. 헤더 스타일 */
+        /* 1. 헤더 스타일 (제공해주신 코드 100% 유지) */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -87,8 +87,8 @@
             font-size: 18px;
         }
         
-        /* 툴팁 스타일 */
-        .word { border-bottom: 2px solid var(--primary); cursor: help; font-weight: bold; color: var(--primary); }
+        /* 툴팁 강조 스타일 */
+        .word { border-bottom: 2px solid var(--primary); cursor: help; font-weight: bold; color: var(--primary); padding: 0 2px; }
     </style>
 </head>
 <body>
@@ -125,7 +125,7 @@
 
             <div class="info-bar">
                 <span>나의 맞춤 학습 수준: <span id="displayLevel" class="user-level-badge">불러오는 중...</span></span>
-                <input type="hidden" id="userLevelValue" value="보통">
+                <input type="hidden" id="userLevelValue" value="normal">
             </div>
 
             <button class="convert-btn" onclick="convertText()">지금 바로 변환하기 🚀</button>
@@ -137,63 +137,67 @@
     <script type="module">
         import { easyWordMap, replaceMap } from './api/wordMap.js';
 
-        // 1. [text (2).html 로직 적용] 페이지 로드 시 인증 및 수준 정보 로드
+        // 1. 로그인 상태 확인 로직 (제공해주신 text (2).html 기반 수정)
         window.onload = async function() {
-            // 서버 확인 전, 로컬 스토리지에 이름이 있다면 즉시 UI 반영 (깜빡임 방지)
-            const cachedUser = localStorage.getItem('currentUser');
-            if (cachedUser) {
-                applyLoggedInUI(cachedUser);
+            // [핵심] 서버 응답 기다리기 전 로컬 스토리지 데이터로 선제 UI 적용
+            const cachedName = localStorage.getItem('currentUser');
+            if (cachedName) {
+                applyLoggedInUI(cachedName);
             }
 
             try {
-                const response = await fetch('/api/check-auth.js'); // .js 명시
+                // check-auth.js 호출
+                const response = await fetch('/api/check-auth.js');
                 if (response.ok) {
                     const userData = await response.json();
-                    localStorage.setItem('currentUser', userData.name);
                     
-                    // UI 반영
+                    // 최신 이름 저장 및 UI 갱신
+                    localStorage.setItem('currentUser', userData.name);
                     applyLoggedInUI(userData.name);
                     
-                    // 학습 수준 로드 및 적용
+                    // 사용자 수준 설정 (수준 1, 2, 3 로직)
                     if (userData.level) {
                         let levelText = userData.level;
                         let internalLevel = "normal";
 
                         if(String(userData.level) === "1") { levelText = "경계선 지능"; internalLevel = "normal"; }
-                        if(String(userData.level) === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
-                        if(String(userData.level) === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
+                        else if(String(userData.level) === "2") { levelText = "경도 지적 장애"; internalLevel = "easy"; }
+                        else if(String(userData.level) === "3") { levelText = "중증 지적 장애"; internalLevel = "veryEasy"; }
                         
                         document.getElementById('displayLevel').innerText = levelText;
                         document.getElementById('userLevelValue').value = internalLevel;
                     }
                 } else {
+                    // 인증 실패 시 초기화
                     localStorage.removeItem('currentUser');
+                    document.getElementById('guest-menu').style.display = 'flex';
+                    document.getElementById('user-menu').style.display = 'none';
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
             }
         };
 
-        // 2. [text (2).html 로직 적용] 로그인 UI 전환
+        // UI 전환 함수
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
             document.getElementById('user-menu').style.display = 'flex';
             document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
-        // 3. [text (2).html 로직 적용] 로그아웃 처리
+        // 로그아웃 (logout.js 호출)
         window.handleLogout = async function() {
             if (confirm("로그아웃 하시겠습니까?")) {
-                await fetch('/api/logout.js', { method: 'POST' }); // .js 명시
+                await fetch('/api/logout.js', { method: 'POST' });
                 localStorage.removeItem('currentUser');
                 location.href = "index.html";
             }
         };
 
-        // 4. 변환 함수 (wordMap.js 활용)
+        // 2. 변환 함수 (wordMap.js와 직접 연동하도록 수정)
         window.convertText = function() {
             const text = document.getElementById("inputText").value.trim();
-            const levelKey = document.getElementById("userLevelValue").value; 
+            const levelKey = document.getElementById("userLevelValue").value; // 'normal', 'easy', 'veryEasy'
             const resultBox = document.getElementById("result");
 
             if (!text) {
@@ -201,21 +205,24 @@
                 return;
             }
 
-            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
+            resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다...";
 
             let resultHTML = text;
 
-            // replaceMap 적용
+            // replaceMap 적용 (단순 교체)
             Object.keys(replaceMap).forEach(key => {
-                resultHTML = resultHTML.replace(new RegExp(key, 'g'), replaceMap[key]);
+                const regex = new RegExp(key, 'g');
+                resultHTML = resultHTML.replace(regex, replaceMap[key]);
             });
 
-            // easyWordMap 적용 (title 속성으로 툴팁 추가)
+            // easyWordMap 적용 (수준별 변환 및 툴팁 추가)
             Object.keys(easyWordMap).forEach(word => {
                 const regex = new RegExp(word, 'g');
                 if (regex.test(resultHTML)) {
                     const easyMeaning = easyWordMap[word][levelKey];
-                    resultHTML = resultHTML.replace(regex, `<span class="word" title="원래 뜻: ${word}">${easyMeaning}</span>`);
+                    // title 속성으로 마우스 오버 툴팁 생성
+                    const spanTag = `<span class="word" title="원래 뜻: ${word}">${easyMeaning}</span>`;
+                    resultHTML = resultHTML.replace(regex, spanTag);
                 }
             });
 
