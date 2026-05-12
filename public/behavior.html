@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>행동 사전</title>
 
     <style>
@@ -294,12 +294,13 @@
       // 수준(1, 2, 3)에 따른 GPT 프롬프트 설정 (3단계 다양성 강화)
       function getLevelPrompt(level) {
         switch(level) {
+          case "4":
+            return "난이도: 어려움.";
           case "3": // 중증 지적 장애
             return "난이도: 매우 쉬움. 주제: [인사하기, 손 씻기, 식사 예절, 쓰레기 버리기, 조용히 하기] 중 하나를 랜덤하게 선택. 아주 단순한 1단계 상황. 문장은 5단어 이내.";
           case "2": // 경도 지적 장애
             return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
           case "1": // 경계선 지능
-          default:
             return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
         }
       }
