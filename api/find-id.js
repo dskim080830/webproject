@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     
     // 프론트엔드에서 보낸 이름과 이메일을 받습니다.
-    const { name, phone } = req.body; 
+    const { name, email } = req.body; 
     let db;
 
     try {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         });
 
         // 이름과 이메일이 일치하는 유저의 아이디를 찾습니다.
-        const [rows] = await db.execute('SELECT user_id FROM users WHERE name = ? AND email = ?', [name, phone]);
+        const [rows] = await db.execute('SELECT user_id FROM users WHERE name = ? AND email = ?', [name, email]);
 
         if (rows.length > 0) {
             // [핵심] 마스킹(***) 처리 없이 전체 아이디를 그대로 반환합니다.
