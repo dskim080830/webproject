@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'; // 1. bcrypt 임포트 추가
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method Not Allowed' });
 
-    const { userId, pw, email, name, birth, phone, level } = req.body;
+    const { userId, pw, email, name, birth, level } = req.body;
     
     let db;
     try {
@@ -25,11 +25,11 @@ export default async function handler(req, res) {
 
         // 3. DB 저장 시 'pw' 대신 'hashedPassword'를 넣습니다.
         const query = `
-            INSERT INTO users (user_id, password, email, name, birth, phone, user_level) 
+            INSERT INTO users (user_id, password, email, name, birth, user_level) 
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         
-        await db.execute(query, [userId, hashedPassword, email, name, birth, phone, level]);
+        await db.execute(query, [userId, hashedPassword, email, name, birth, level]);
 
         res.status(200).json({ message: '회원가입 성공!' });
     } catch (error) {
