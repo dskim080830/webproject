@@ -338,54 +338,48 @@
             min-height: 52px; /* 설명 글 두 줄 높이 고정 */
         }
 
-        /* TTS 영역 (기존 유지하되, 홈화면 변경에 따라 스타일 조정됨 - 기능은 같음) */
-        /* 하이라이팅 등 스크립트 기능 유지를 위해 .word, .highlight 등 클래스명 유지 */
-        .word { 
-            display: inline-block; 
-            padding: 0 2px; 
-            border-radius: 4px; 
-            font-size: 18px; /* 카드로 들어가면서 크기 조정 */
-            font-weight: 700; 
-            transition: all 0.1s ease; 
-            color: #444; 
-        }
+        /<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>쉬운 글 배움터 - Easy Read</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
+    <style>
+        /* 기존 스타일 유지 */
+        :root { --primary: #4a90e2; --bg: #fdfbf7; --text: #333; --white: #fff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.8; }
         
-        .highlight { 
-            background-color: var(--secondary); 
-            transform: scale(1.1); 
-            color: #000; 
-        }
-        
-        textarea { 
-            width: 100%; 
-            border: 1px solid #ddd; 
-            border-radius: 15px; 
-            padding: 15px; 
-            font-size: 16px; 
-            resize: none; 
-            background: #fafafa; 
-            outline: none; 
-            margin-bottom: 15px;
-        }
-        
-        .voice-select { 
-            padding: 5px; 
-            border-radius: 8px; 
-            border: 1px solid #ddd; 
-            cursor: pointer; 
-            font-size: 14px;
-        }
+        header { background-color: var(--white); padding: 0 5%; height: 90px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 40px; }
+        .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .main-menu { display: flex; list-style: none; gap: 30px; }
+        .main-menu li a { text-decoration: none; color: #444; font-size: 18px; font-weight: 700; }
 
-        /* TTS 내부 출력 영역 */
-        #ttsOutput {
-            margin-top: 20px;
-            min-height: 100px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 15px;
-            text-align: left;
-            line-height: 2;
-        }
+        /* 모달 공통 스타일 */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background: var(--white); padding: 30px; border-radius: 25px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; position: relative; }
+        
+        /* 약관 상세 모달 전용 스타일 */
+        .terms-detail-box { display: none; position: fixed; z-index: 1100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; }
+        .terms-inner { background: white; padding: 40px; border-radius: 20px; width: 85%; max-width: 600px; max-height: 80vh; overflow-y: auto; line-height: 2; }
+        .terms-inner h3 { color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .terms-inner p { margin-bottom: 15px; font-size: 16px; }
+        .terms-inner strong { color: #000; background: #fff9c4; }
+
+        /* 폼 스타일 */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-weight: 800; margin-bottom: 8px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; }
+        
+        /* 약관 체크 박스 스타일 */
+        .agree-container { background: #f0f7ff; padding: 15px; border-radius: 15px; margin-top: 10px; border: 1px solid #dbe9ff; }
+        .agree-item { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .agree-item input { width: 22px; height: 22px; cursor: pointer; }
+        .view-btn { margin-left: auto; background: #fff; border: 1px solid #ccc; padding: 4px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        
+        .modal-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 20px; }
 
     </style>
 </head>
@@ -476,21 +470,9 @@
                     <input type="password" id="regPw" placeholder="8자 이상, 특수문자 필수" required oninput="validatePassword()">
                     <div id="pwMessage" class="status-msg"></div>
                 </div>
-
                 <div class="form-group">
-                    <label>이메일 인증</label>
-                    <div style="display:flex; gap:10px;">
-                        <input type="email" id="regEmail" placeholder="example@gmail.com" required>
-                        <button type="button" class="btn btn-sub" id="emailSendBtn" onclick="sendEmailCode()">코드받기</button>
-                    </div>
-                </div>
-                
-                <div id="emailAuthArea" class="form-group" style="display:none;">
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="emailCodeInput" placeholder="6자리 번호">
-                        <button type="button" class="btn btn-primary" onclick="verifyEmailCode()">확인</button>
-                    </div>
-                    <div id="emailMessage" class="status-msg"></div>
+                    <label>이메일 주소</label>
+                    <input type="email" id="regEmail" placeholder="hello@example.com">
                 </div>
 
                 <div class="form-group">
@@ -512,9 +494,39 @@
                         <option value="4">일반인</option>
                     </select>
                 </div>
+
+                <div class="agree-container">
+                <p style="font-weight: 800; font-size: 14px; margin-bottom: 10px; color: #444;">📜 이용을 위한 소중한 약속 (동의)</p>
+                
+                <div class="agree-item">
+                    <input type="checkbox" id="agree1" required>
+                    <span style="font-size: 14px;">[필수] 내 정보를 보관하는 것에 동의해요.</span>
+                    <button type="button" class="view-btn" onclick="openTerms('privacy')">읽어보기</button>
+                </div>
+                
+                <div class="agree-item">
+                    <input type="checkbox" id="agree2" required>
+                    <span style="font-size: 14px;">[필수] 정보를 다른 회사에 맡기는 것에 동의해요.</span>
+                    <button type="button" class="view-btn" onclick="openTerms('trust')">읽어보기</button>
+                </div>
+
+                <div class="agree-item">
+                    <input type="checkbox" id="agree3" required>
+                    <span style="font-size: 14px;">[필수] 정보를 아주 안전한 곳에 저장하는 것에 동의해요.</span>
+                    <button type="button" class="view-btn" onclick="openTerms('overseas')">읽어보기</button>
+                </div>
+            </div>
                 
                 <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding: 15px;">가입 완료</button>
             </form>
+            <div id="termsDetailModal" class="terms-detail-box">
+    <div class="terms-inner">
+        <h3 id="termsTitle">상세 약관</h3>
+        <div id="termsContent">
+            </div>
+        <button class="modal-btn" onclick="closeTerms()">다 읽었습니다</button>
+    </div>
+</div>
             
             <button onclick="closeModal('signupModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">취소</button>
         </div>
@@ -558,8 +570,8 @@
                     <input type="text" id="findIdName" required>
                 </div>
                 <div class="form-group">
-                    <label>이메일</label>
-                    <input type="email" id="findIdEmail" required>
+                    <label>휴대폰 번호</label>
+                    <input type="phone" id="findIdPhone" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%; padding: 15px;">아이디 찾기</button>
             </form>
@@ -604,6 +616,76 @@
         </div>
     </div>
 
+    <script>
+    // 상세 약관 데이터 (매우 상세한 버전)
+    const termsData = {
+        privacy: {
+            title: "1. 내 정보를 보관하는 것에 대한 상세 약속",
+            content: `
+                <p><strong>[어떤 정보를 보관하나요?]</strong><br>
+                우리는 사용자님을 확인하기 위해 <strong>성함, 아이디, 비밀번호, 휴대폰 번호, 생일</strong>을 보관합니다. 또한 사용자님의 실력에 맞는 문제를 드리기 위해 <strong>공부 단계</strong>를 저장합니다.</p>
+                <p><strong>[왜 보관하나요?]</strong><br>
+                1. 사용자님이 누구인지 확인하고 우리 식구(회원)로 맞이하기 위해서입니다.<br>
+                2. 사용자님이 오늘 공부한 내용을 잊어버리지 않고 내일 다시 보여드리기 위해서입니다.<br>
+                3. 아이디를 잊어버렸을 때 휴대폰 번호로 다시 찾아드리기 위해서입니다.</p>
+                <p><strong>[언제까지 보관하나요?]</strong><br>
+                사용자님이 우리 서비스를 이용하는 동안에는 평생 소중하게 보관합니다. 만약 사용자님이 <strong>"탈퇴할래요"</strong>라고 버튼을 누르면, 가지고 있던 모든 정보는 그 즉시 종이 조각처럼 갈기갈기 찢어서 아무도 모르게 버릴 것입니다.</p>
+            `
+        },
+        trust: {
+            title: "2. 다른 전문 회사에 정보를 맡기는 상세 약속",
+            content: `
+                <p><strong>[누구에게 맡기나요?]</strong><br>
+                우리는 컴퓨터를 아주 잘 관리하는 <strong>서버 관리 회사</strong>와 알림 문자를 대신 보내주는 <strong>메시지 회사</strong>에 사용자님의 정보를 잠시 공유합니다.</p>
+                <p><strong>[왜 맡기나요?]</strong><br>
+                우리가 직접 하기 어려운 복잡하고 전문적인 일들을 더 잘 처리하기 위해서입니다. 예를 들어, 사용자님이 비밀번호를 잊었을 때 <strong>정확하게 문자를 보내드리기 위해</strong> 전문 회사의 힘을 빌리는 것입니다.</p>
+                <p><strong>[안전한가요?]</strong><br>
+                네! 정보를 맡은 회사들은 우리와 <strong>"정보를 절대 다른 곳에 말하지 않겠다"</strong>고 아주 무거운 약속을 했습니다. 우리가 매일매일 그 회사들이 약속을 잘 지키는지 감시하고 있습니다.</p>
+            `
+        },
+        overseas: {
+            title: "3. 정보를 아주 튼튼한 외국 창고에 저장하는 상세 약속",
+            content: `
+                <p><strong>[어디로 보내나요?]</strong><br>
+                사용자님의 소중한 정보는 전 세계에서 가장 안전하다고 소문난 <strong>구글(Google)이나 아마존(AWS)</strong> 같은 회사가 관리하는 큰 컴퓨터 창고에 저장됩니다. 이 창고는 바다 건너 외국에 있을 수 있습니다.</p>
+                <p><strong>[왜 외국인가요?]</strong><br>
+                이 회사들은 우리 나라에 있는 일반적인 컴퓨터보다 훨씬 더 튼튼한 방패를 가지고 있습니다. <strong>지진이 나거나 불이 나도</strong> 사용자님의 공부 기록이 절대 사라지지 않게 지켜주기 때문입니다.</p>
+                <p><strong>[보호가 되나요?]</strong><br>
+                나라 밖으로 정보가 나가더라도, 우리 나라 법보다 더 까다로운 보안 규칙을 적용해서 도둑이 절대 들어오지 못하게 지키고 있으니 안심하셔도 됩니다.</p>
+            `
+        }
+    };
+
+    function openTerms(type) {
+        document.getElementById('termsTitle').innerHTML = termsData[type].title;
+        document.getElementById('termsContent').innerHTML = termsData[type].content;
+        document.getElementById('termsDetailModal').style.display = 'flex';
+    }
+
+    function closeTerms() {
+        document.getElementById('termsDetailModal').style.display = 'none';
+    }
+
+    function validatePassword() {
+        const pw = document.getElementById('regPw').value;
+        const msg = document.getElementById('pwMessage');
+        const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+        if (pw.length < 8 || !spec.test(pw)) {
+            msg.innerText = "❌ 아직 부족해요 (8자 이상 + 기호 필수)";
+            msg.style.color = "red";
+        } else {
+            msg.innerText = "✅ 아주 튼튼한 비밀번호예요!";
+            msg.style.color = "green";
+        }
+    }
+
+    document.getElementById('signupForm').onsubmit = function(e) {
+        e.preventDefault();
+        alert("가입 요청이 전달되었습니다! 모든 약관에 동의하셨습니다.");
+        // 실제 fetch 로직 추가 부분
+    };
+</script>
+    
     <script>
         // 전역 상태 변수 (이메일 인증용)
         let generatedServerCode = ""; 
