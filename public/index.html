@@ -404,7 +404,7 @@
             
             <div id="user-menu">
                 <span id="u-info"></span>
-                <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
+                <button class="btn btn-sub" onclick="openUpdateModal()">정보 수정</button> <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
             </div>
         </div>
     </header>
@@ -555,7 +555,39 @@
             <button onclick="closeModal('loginModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">닫기</button>
         </div>
     </div>
-
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+        <h2 style="margin-bottom:20px; color:var(--primary);">개인정보 수정</h2>
+        <form id="updateForm">
+            <div class="form-group">
+                <label>성함</label>
+                <input type="text" id="upName" required>
+            </div>
+            <div class="form-group">
+                <label>아이디 (수정 불가)</label>
+                <input type="text" id="upId" readonly style="background:#eee;">
+            </div>
+            <div class="form-group">
+                <label>새 비밀번호 (변경 시에만 입력)</label>
+                <input type="password" id="upPw" placeholder="8자 이상, 특수문자 필수">
+            </div>
+            <div class="form-group">
+                <label>이메일 주소</label>
+                <input type="email" id="upEmail">
+            </div>
+            <div class="form-group">
+                <label>휴대폰 번호</label>
+                <input type="tel" id="upPhone" placeholder="010-0000-0000" maxlength="13" oninput="formatPhoneNumber(this)">
+            </div>
+            <div class="form-group">
+                <label>생년월일</label>
+                <input type="date" id="upBirth">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:20px; padding: 15px;">수정 완료</button>
+        </form>
+        <button onclick="closeModal('updateModal')" style="margin-top:15px; border:none; background:none; color:#999; cursor:pointer; width:100%;">취on소</button>
+    </div>
+</div>
     <div id="findAccountModal" class="modal">
         <div class="modal-content">
             <div class="tab-buttons">
@@ -616,7 +648,66 @@
         </div>
     </div>
 
+    
     <script>
+        // 1. 수정 모달 열기 및 기존 데이터 불러오기
+async function openUpdateModal() {
+    const currentUser = localStorage.getItem('currentUser'); // 현재 세션에 저장된 사용자 이름/아이디
+    
+    try {
+        // 서버에서 현재 사용자의 상세 정보를 가져오는 API 호출 (없다면 새로 만드셔야 합니다)
+        const response = await fetch(`/api/get-profile`); 
+        if (response.ok) {
+            const user = await response.json();
+            
+            // 가져온 데이터를 입력창에 채워넣기
+            document.getElementById('upName').value = user.name;
+            document.getElementById('upId').value = user.user_id;
+            document.getElementById('upEmail').value = user.email;
+            document.getElementById('upPhone').value = user.phone;
+            document.getElementById('upBirth').value = user.birth;
+            
+            openModal('updateModal');
+        } else {
+            alert("사용자 정보를 불러올 수 없습니다.");
+        }
+    } catch (error) {
+        alert("서버 통신 오류가 발생했습니다.");
+    }
+}
+
+// 2. 수정 내용 저장하기
+document.getElementById('updateForm').onsubmit = async function(e) {
+    e.preventDefault();
+    
+    const payload = {
+        userId: document.getElementById('upId').value,
+        pw: document.getElementById('upPw').value, // 입력값이 있을 때만 서버에서 처리하도록 함
+        name: document.getElementById('upName').value,
+        email: document.getElementById('upEmail').value,
+        phone: document.getElementById('upPhone').value,
+        birth: document.getElementById('upBirth').value
+    };
+
+    try {
+        const response = await fetch('/api/update-profile', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert("성공적으로 수정되었습니다!");
+            closeModal('updateModal');
+            location.reload(); // 화면 갱신
+        } else {
+            alert(data.message || "수정에 실패했습니다.");
+        }
+    } catch (error) {
+        alert("서버 연결 오류가 발생했습니다.");
+    }
+};
     // 상세 약관 데이터 (매우 상세한 버전)
     const termsData = {
         privacy: {
