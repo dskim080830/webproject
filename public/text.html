@@ -16,7 +16,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Nanum Gothic", sans-serif; }
         body { background-color: var(--bg); color: var(--text); }
 
-        /* 1. 헤더 스타일 (index.html과 100% 동일화) */
+        /* 1. 헤더 스타일 */
         header {
             background-color: var(--white);
             padding: 0 5%;
@@ -39,8 +39,7 @@
         #guest-menu { display: flex; align-items: center; gap: 10px; }
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
-        .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; }
-        /* 회원가입 버튼 디자인 */
+        .login-btn { text-decoration: none; color: var(--text); font-weight: 700; padding: 10px 15px; cursor: pointer; }
         .signup-btn { 
             background: var(--primary); 
             color: white; 
@@ -68,14 +67,26 @@
         }
         textarea:focus { border-color: var(--primary); }
         
+        /* 수준 선택 바 스타일 수정 */
         .info-bar { 
             background: #f0f7ff; padding: 18px 30px; border-radius: 50px; 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
             font-size: 17px;
         }
         .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
+        
+        /* 게스트용 수준 선택 드롭다운 */
+        #guestLevelSelector {
+            padding: 8px 15px;
+            border-radius: 15px;
+            border: 2px solid var(--primary);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary);
+            outline: none;
+            cursor: pointer;
+        }
 
-        /* 3. 변환 버튼 디자인 (signup-btn과 통일) */
         .convert-btn { 
             width: 100%; 
             padding: 20px; 
@@ -99,15 +110,6 @@
             margin-top: 35px; padding: 30px; border-radius: 25px; 
             background: #fff; border: 2px dashed #bcd6f5; min-height: 120px; line-height: 1.8;
             font-size: 18px;
-        }
-        
-        /* 툴팁 및 밑줄 스타일 */
-        .word { 
-            border-bottom: 2px solid var(--primary); 
-            cursor: help; 
-            position: relative; 
-            font-weight: bold; 
-            color: var(--primary);
         }
     </style>
 </head>
@@ -144,8 +146,17 @@
             <textarea id="inputText" placeholder="여기에 어렵거나 복잡한 글을 복사해서 붙여넣어 보세요..."></textarea>
 
             <div class="info-bar">
-                <span>나의 맞춤 학습 수준: <span id="displayLevel" class="user-level-badge">불러오는 중...</span></span>
-                <input type="hidden" id="userLevelValue" value="보통">
+                <span>나의 맞춤 학습 수준: 
+                    <span id="displayLevel" class="user-level-badge" style="display:none;"></span>
+                    
+                    <select id="guestLevelSelector">
+                        <option value="1">1단계: 경계선 지능 (조금 쉬운 글)</option>
+                        <option value="2">2단계: 경도 지적 장애 (많이 쉬운 글)</option>
+                        <option value="3">3단계: 중증 지적 장애 (아주 쉬운 말)</option>
+                        <option value="4">4단계: 일반인</option>
+                    </select>
+                </span>
+                <input type="hidden" id="userLevelValue" value="1">
             </div>
 
             <button class="convert-btn" onclick="convertText()">지금 바로 변환하기 🚀</button>
@@ -155,56 +166,63 @@
     </div>
 
     <script>
-        // 1. 페이지 로드 시 인증 및 수준 정보 로드
+        // 1. 페이지 로드 시 인증 확인
         window.onload = async function() {
             try {
                 const response = await fetch('/api/check-auth');
+                const displayLevel = document.getElementById('displayLevel');
+                const guestLevelSelector = document.getElementById('guestLevelSelector');
+                const userLevelValue = document.getElementById('userLevelValue');
+
                 if (response.ok) {
                     const userData = await response.json();
                     localStorage.setItem('currentUser', userData.name);
-                    
-                    // UI 반영 (ㅇㅇㅇ님, 환영합니다! 로 적용됨)
                     applyLoggedInUI(userData.name);
                     
-                    // 학습 수준 로드 및 적용
-                    if (userData.level) {
-                        let levelText = userData.level;
-                        if(userData.level == "1") levelText = "경계선 지능";
-                        if(userData.level == "2") levelText = "경도 지적 장애";
-                        if(userData.level == "3") levelText = "중증 지적 장애";
-                        if(userData.level == "4") levelText = "일반인";
-                        
-                        document.getElementById('displayLevel').innerText = levelText;
-                        document.getElementById('userLevelValue').value = userData.level;
-                    }
+                    // 로그인한 경우: 선택창 숨기고 뱃지 표시
+                    guestLevelSelector.style.display = 'none';
+                    displayLevel.style.display = 'inline-block';
+                    
+                    let levelText = "경계선 지능";
+                    if(userData.level == "2") levelText = "경도 지적 장애";
+                    if(userData.level == "3") levelText = "중증 지적 장애";
+                    if(userData.level == "4") levelText = "일반인";
+                    
+                    displayLevel.innerText = levelText;
+                    userLevelValue.value = userData.level;
                 } else {
+                    // 로그인하지 않은 경우 (게스트): 선택창 유지
                     localStorage.removeItem('currentUser');
+                    guestLevelSelector.style.display = 'inline-block';
+                    displayLevel.style.display = 'none';
+                    
+                    // 선택창 변경 시 히든 필드에 자동 업데이트
+                    guestLevelSelector.onchange = function() {
+                        userLevelValue.value = this.value;
+                    };
                 }
             } catch (error) {
                 console.error("인증 로드 실패:", error);
             }
         };
 
-        // 2. 로그인 UI 전환 (문구 수정 반영)
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
             document.getElementById('user-menu').style.display = 'flex';
             document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
         }
 
-        // 3. 로그아웃 처리
         async function handleLogout() {
             if (confirm("로그아웃 하시겠습니까?")) {
                 await fetch('/api/logout', { method: 'POST' });
                 localStorage.removeItem('currentUser');
-                location.href = "index.html";
+                location.reload(); // 현재 페이지 새로고침하여 게스트 모드로 전환
             }
         }
 
-        // 4. 변환 함수
         async function convertText() {
             const text = document.getElementById("inputText").value.trim();
-            const level = document.getElementById("userLevelValue").value;
+            const level = document.getElementById("userLevelValue").value; // 로그인 수준 혹은 게스트 선택 수준
             const resultBox = document.getElementById("result");
 
             if (!text) {
@@ -231,7 +249,6 @@
             }
         }
         
-        // 헬퍼 함수 (모달 연동이 필요한 경우 index.html의 함수 호출 혹은 경로 이동)
         function openLoginModal() { location.href = "./index.html?login=true"; }
         function openSignupModal() { location.href = "./index.html?signup=true"; }
     </script>
