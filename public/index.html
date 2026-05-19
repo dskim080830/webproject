@@ -648,39 +648,49 @@
         // 1. 수정 모달 열기 및 기존 데이터 불러오기
 // index.html 내의 openUpdateModal 함수 부분을 확인하세요.
 async function openUpdateModal() {
-    // 로컬 스토리지에서 저장된 아이디를 읽어옵니다.
-    const userId = localStorage.getItem('currentUserId');
+    // 1. 현재 세션에 기억된 유저 ID 확인
+    let userId = localStorage.getItem('currentUserId');
     
-    // 만약 로그인이 제대로 안 되어 있어서 값이 없다면 경고창을 띄웁니다.
+    // 만약 없으면 대안으로 currentUser(이름 혹은 아이디가 들어가있던 구 버전 키) 확인
     if (!userId) {
-        alert("로그인 정보가 없거나 세션이 만료되었습니다. 다시 로그인해 주세요.");
+        userId = localStorage.getItem('currentUser');
+    }
+    
+    if (!userId) {
+        alert("로그인 정보가 없거나 세션이 만료되었습니다. 로그아웃 후 다시 로그인해 주세요.");
         openModal('loginModal');
         return;
     }
 
     try {
-        // 주소 끝에 ?userId=내아이디 형태로 정확하게 붙여서 백엔드로 보냅니다.
+        // 2. 주소창 파라미터로 명확하게 전달
         const res = await fetch(`/api/get-profile?userId=${encodeURIComponent(userId)}`);
-        if (res.ok) {
-            const user = await res.json();
-            document.getElementById('upId').value = user.user_id;
-            document.getElementById('upName').value = user.name;
-            document.getElementById('upEmail').value = user.email || '';
-            document.getElementById('upPhone').value = user.phone || '';
-            
-            if (user.birth) {
-                document.getElementById('upBirth').value = user.birth.split('T')[0];
-            }
-            
-            document.getElementById('upPw').value = '';
-            document.getElementById('upPwMsg').innerText = '';
-            openModal('updateModal');
-        } else {
-            const err = await res.json();
-            alert(err.message || "회원 정보를 가져오지 못했습니다.");
+        
+        // 3. 만약 200 OK가 아니라 400, 404, 500 에러 코드가 왔을 때 처리
+        if (!res.ok) {
+            const errData = await res.json();
+            alert(`⚠️ 서버 안내: ${errData.message || '정보를 불러오지 못했습니다.'}`);
+            return;
         }
+
+        // 4. 성공 시 모달에 데이터 바인딩
+        const user = await res.json();
+        document.getElementById('upId').value = user.user_id;
+        document.getElementById('upName').value = user.name;
+        document.getElementById('upEmail').value = user.email || '';
+        document.getElementById('upPhone').value = user.phone || '';
+        
+        if (user.birth) {
+            document.getElementById('upBirth').value = user.birth.split('T')[0];
+        }
+        
+        document.getElementById('upPw').value = '';
+        document.getElementById('upPwMsg').innerText = '';
+        openModal('updateModal');
+
     } catch (err) {
-        alert("서버와 통신하는 도중 오류가 발생했습니다.");
+        // 실제 네트워크 단절, 주소 잘못됨, Vercel 함수 빌드 터짐 등일 때만 실행됨
+        alert(`🚨 통신 오류 상세: 서버가 응답하지 않거나 주소가 올바르지 않습니다. (${err.message})`);
     }
 }
 // 2. 수정 내용 저장하기
