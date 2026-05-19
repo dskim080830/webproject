@@ -678,7 +678,6 @@ async function openUpdateModal() {
         document.getElementById('upId').value = user.user_id;
         document.getElementById('upName').value = user.name;
         document.getElementById('upEmail').value = user.email || '';
-        document.getElementById('upPhone').value = user.phone || '';
         
         if (user.birth) {
             document.getElementById('upBirth').value = user.birth.split('T')[0];
@@ -707,7 +706,6 @@ document.getElementById('updateForm').onsubmit = async function(e) {
         pw: document.getElementById('upPw').value, // 입력값이 있을 때만 서버에서 처리하도록 함
         name: document.getElementById('upName').value,
         email: document.getElementById('upEmail').value,
-        phone: document.getElementById('upPhone').value,
         birth: document.getElementById('upBirth').value
     };
 
