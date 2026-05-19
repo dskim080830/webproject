@@ -983,23 +983,6 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             }
         }
 
-        function verifyEmailCode() {
-            const userInputCode = document.getElementById('emailCodeInput').value;
-            const messageElement = document.getElementById('emailMessage');
-
-            if (userInputCode === generatedServerCode && generatedServerCode !== "") {
-                isEmailSuccessfullyVerified = true;
-                messageElement.innerText = "✅ 인증 성공"; 
-                messageElement.className = "status-msg valid";
-                
-                // 이메일을 변경하지 못하도록 읽기 전용으로 설정
-                document.getElementById('regEmail').readOnly = true;
-                document.getElementById('emailCodeInput').readOnly = true;
-            } else { 
-                alert("인증번호가 일치하지 않습니다. 다시 확인해 주세요."); 
-            }
-        }
-
         // -----------------------------------------
         // 6. 회원가입 제출 로직
         // -----------------------------------------
