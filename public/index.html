@@ -646,12 +646,12 @@
     
     <script>
         // 1. 수정 모달 열기 및 기존 데이터 불러오기
-// index.html 내의 openUpdateModal 함수 부분을 확인하세요.
+// index.html 내의 openUpdateModal 함수를 아래 코드로 완전히 교체하세요.
 async function openUpdateModal() {
     // 1. 현재 세션에 기억된 유저 ID 확인
     let userId = localStorage.getItem('currentUserId');
     
-    // 만약 없으면 대안으로 currentUser(이름 혹은 아이디가 들어가있던 구 버전 키) 확인
+    // 만약 없으면 대안으로 currentUser 확인
     if (!userId) {
         userId = localStorage.getItem('currentUser');
     }
@@ -666,7 +666,7 @@ async function openUpdateModal() {
         // 2. 주소창 파라미터로 명확하게 전달
         const res = await fetch(`/api/get-profile?userId=${encodeURIComponent(userId)}`);
         
-        // 3. 만약 200 OK가 아니라 400, 404, 500 에러 코드가 왔을 때 처리
+        // 3. 만약 200 OK가 아니라 에러 코드가 왔을 때 처리
         if (!res.ok) {
             const errData = await res.json();
             alert(`⚠️ 서버 안내: ${errData.message || '정보를 불러오지 못했습니다.'}`);
@@ -684,8 +684,13 @@ async function openUpdateModal() {
             document.getElementById('upBirth').value = user.birth.split('T')[0];
         }
         
+        // 5. [안전 장치 추가] 태그가 있을 때만 innerText 초기화 진행 (에러 완전 방지)
         document.getElementById('upPw').value = '';
-        document.getElementById('upPwMsg').innerText = '';
+        const upPwMsgEl = document.getElementById('upPwMsg') || document.getElementById('upPwMessage');
+        if (upPwMsgEl) {
+            upPwMsgEl.innerText = '';
+        }
+        
         openModal('updateModal');
 
     } catch (err) {
@@ -774,18 +779,22 @@ document.getElementById('updateForm').onsubmit = async function(e) {
         document.getElementById('termsDetailModal').style.display = 'none';
     }
 
-    function validatePassword() {
-        const pw = document.getElementById('regPw').value;
-        const msg = document.getElementById('pwMessage');
-        const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
-        if (pw.length < 8 || !spec.test(pw)) {
-            msg.innerText = "❌ 아직 부족해요 (8자 이상 + 기호 필수)";
-            msg.style.color = "red";
-        } else {
-            msg.innerText = "✅ 아주 튼튼한 비밀번호예요!";
-            msg.style.color = "green";
-        }
+    function validateNewPwRule(inputId = 'newPw', msgId = 'newPwMsg') {
+    const pw = document.getElementById(inputId).value;
+    const msg = document.getElementById(msgId);
+    const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+
+    // 만약 화면에 메시지를 뿌려줄 태그(upPwMsg 또는 newPwMsg)가 없다면 
+    // 에러를 내지 않고 함수를 안전하게 끝냅니다.
+    if (!msg) return; 
+
+    if (pw === "") { msg.innerText = ""; return; }
+    if (pw.length < 8 || !spec.test(pw)) {
+        msg.innerText = "❌ 8자 이상 + 특수문자 필수"; msg.className = "status-msg invalid";
+    } else {
+        msg.innerText = "✅ 안전한 비밀번호입니다."; msg.className = "status-msg valid";
     }
+}
 
     document.getElementById('signupForm').onsubmit = function(e) {
         e.preventDefault();
