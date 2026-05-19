@@ -646,31 +646,43 @@
     
     <script>
         // 1. 수정 모달 열기 및 기존 데이터 불러오기
+// index.html 내의 openUpdateModal 함수 부분을 확인하세요.
 async function openUpdateModal() {
-    const currentUser = localStorage.getItem('currentUser'); // 현재 세션에 저장된 사용자 이름/아이디
+    // 로컬 스토리지에서 저장된 아이디를 읽어옵니다.
+    const userId = localStorage.getItem('currentUserId');
     
+    // 만약 로그인이 제대로 안 되어 있어서 값이 없다면 경고창을 띄웁니다.
+    if (!userId) {
+        alert("로그인 정보가 없거나 세션이 만료되었습니다. 다시 로그인해 주세요.");
+        openModal('loginModal');
+        return;
+    }
+
     try {
-        // 서버에서 현재 사용자의 상세 정보를 가져오는 API 호출 (없다면 새로 만드셔야 합니다)
-        const response = await fetch(`/api/get-profile`); 
-        if (response.ok) {
-            const user = await response.json();
-            
-            // 가져온 데이터를 입력창에 채워넣기
-            document.getElementById('upName').value = user.name;
+        // 주소 끝에 ?userId=내아이디 형태로 정확하게 붙여서 백엔드로 보냅니다.
+        const res = await fetch(`/api/get-profile?userId=${encodeURIComponent(userId)}`);
+        if (res.ok) {
+            const user = await res.json();
             document.getElementById('upId').value = user.user_id;
-            document.getElementById('upEmail').value = user.email;
-            document.getElementById('upPhone').value = user.phone;
-            document.getElementById('upBirth').value = user.birth;
+            document.getElementById('upName').value = user.name;
+            document.getElementById('upEmail').value = user.email || '';
+            document.getElementById('upPhone').value = user.phone || '';
             
+            if (user.birth) {
+                document.getElementById('upBirth').value = user.birth.split('T')[0];
+            }
+            
+            document.getElementById('upPw').value = '';
+            document.getElementById('upPwMsg').innerText = '';
             openModal('updateModal');
         } else {
-            alert("사용자 정보를 불러올 수 없습니다.");
+            const err = await res.json();
+            alert(err.message || "회원 정보를 가져오지 못했습니다.");
         }
-    } catch (error) {
-        alert("서버 통신 오류가 발생했습니다.");
+    } catch (err) {
+        alert("서버와 통신하는 도중 오류가 발생했습니다.");
     }
 }
-
 // 2. 수정 내용 저장하기
 document.getElementById('updateForm').onsubmit = async function(e) {
     e.preventDefault();
@@ -832,6 +844,7 @@ document.getElementById('updateForm').onsubmit = async function(e) {
         // -----------------------------------------
         // [수정된 로그인 로직]
 // [수정] 3. 로그인 로직 (임시 비밀번호 여부 자체 판단 추가)
+// index.html 내의 로그인 처리 함수 부분을 찾아서 확인하세요.
 document.getElementById('loginForm').onsubmit = async function(event) {
     event.preventDefault();
     const userId = document.getElementById('loginId').value;
@@ -847,19 +860,19 @@ document.getElementById('loginForm').onsubmit = async function(event) {
         
         if (response.ok) {
             closeModal('loginModal');
-            applyLoggedInUI(data.name);
-            localStorage.setItem('currentUser', data.name); // 중요: 변경 시 식별자로 사용
-
-            // 자체 기록 확인: 임시 비번 발급 유저라면 변경 모달 띄움
-            const isTemp = localStorage.getItem('is_temp_user_' + userId);
-            if (data.needsPwChange || isTemp === 'true') {
-                setTimeout(() => {
-                    openModal('changePwModal');
-                    localStorage.removeItem('is_temp_user_' + userId);
-                }, 500);
-            }
-        } else { alert(data.message || "로그인 실패"); }
-    } catch (error) { alert("통신 오류"); }
+            localStorage.setItem('currentUser', data.name);
+            
+            // ⭐ [중요] 로그인 성공 시 사용자 ID를 'currentUserId'로 로컬 스토리지에 확실히 저장!
+            localStorage.setItem('currentUserId', userId); 
+            
+            applyLoggedInUI(data.name, userId);
+            location.reload(); // UI 갱신을 위해 새로고침
+        } else { 
+            alert(data.message || "로그인 실패"); 
+        }
+    } catch (error) { 
+        alert("통신 오류가 발생했습니다."); 
+    }
 };
         async function handleLogout() {
             if (confirm("정말 로그아웃 하시겠습니까?")) {
