@@ -774,22 +774,18 @@ document.getElementById('updateForm').onsubmit = async function(e) {
         document.getElementById('termsDetailModal').style.display = 'none';
     }
 
-    function validateNewPwRule(inputId = 'newPw', msgId = 'newPwMsg') {
-    const pw = document.getElementById(inputId).value;
-    const msg = document.getElementById(msgId);
-    const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
-
-    // 만약 화면에 메시지를 뿌려줄 태그(upPwMsg 또는 newPwMsg)가 없다면 
-    // 에러를 내지 않고 함수를 안전하게 끝냅니다.
-    if (!msg) return; 
-
-    if (pw === "") { msg.innerText = ""; return; }
-    if (pw.length < 8 || !spec.test(pw)) {
-        msg.innerText = "❌ 8자 이상 + 특수문자 필수"; msg.className = "status-msg invalid";
-    } else {
-        msg.innerText = "✅ 안전한 비밀번호입니다."; msg.className = "status-msg valid";
+    function validatePassword() {
+        const pw = document.getElementById('regPw').value;
+        const msg = document.getElementById('pwMessage');
+        const spec = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/;
+        if (pw.length < 8 || !spec.test(pw)) {
+            msg.innerText = "❌ 아직 부족해요 (8자 이상 + 기호 필수)";
+            msg.style.color = "red";
+        } else {
+            msg.innerText = "✅ 아주 튼튼한 비밀번호예요!";
+            msg.style.color = "green";
+        }
     }
-}
 
     document.getElementById('signupForm').onsubmit = function(e) {
         e.preventDefault();
