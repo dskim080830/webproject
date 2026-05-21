@@ -687,14 +687,12 @@ async function openUpdateModal() {
         document.getElementById('upId').value = user.user_id;
         document.getElementById('upName').value = user.name;
         document.getElementById('upEmail').value = user.email || '';
-        document.getElementById('upLevel').value == user.level || '';
+        document.getElementById('upLevel').value == user.user_level || '';
         
         if (user.birth) {
             document.getElementById('upBirth').value = user.birth.split('T')[0];
         }
         
-        // 💡 [추가] 데이터베이스에 저장된 학습 단계를 수정 창 select 박스에 기본 선택해 줍니다.
-        document.getElementById('upLevel').value = user.user_level || '1'; 
         
         // 4. 비밀번호 입력란 및 안내 메시지 초기화 (안전장치 포함)
         document.getElementById('upPw').value = '';
