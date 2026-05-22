@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-    <meta charset="UTF-8"/>
-    <title>행동 사전 - 쉬운 글 배움터</title>
+    <meta charset="UTF-8" />
+    <title>행동 사전</title>
 
     <style>
       :root {
@@ -44,7 +44,6 @@
         top: 0;
         z-index: 100;
       }
-
       .header-left {
         display: flex;
         align-items: center;
@@ -72,13 +71,11 @@
       .main-menu li a:hover {
         color: var(--primary-color);
       }
-
       .header-right {
         display: flex;
         align-items: center;
         gap: 15px;
       }
-
       #guest-menu {
         display: flex;
         align-items: center;
@@ -90,7 +87,6 @@
         gap: 15px;
         font-weight: 700;
       }
-
       .login-btn,
       .signup-btn,
       .logout-btn {
@@ -121,110 +117,255 @@
         font-size: 14px;
       }
 
+      /* 메인 래퍼 */
       .wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: calc(100vh - 80px);
+        min-height: calc(100vh - 90px);
+        padding: 30px 20px;
       }
 
       .card {
         width: 100%;
-        max-width: 800px;
-        height: 700px;
+        max-width: 700px;
         background: var(--white);
         border-radius: 30px;
-        padding: 30px;
+        padding: 34px 30px 30px;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-        position: relative;
         display: flex;
         flex-direction: column;
+        gap: 18px;
       }
 
-      .quiz-area {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding-bottom: 120px;
-      }
-
-      #question {
+      /* 제목 */
+      .card-title {
+        text-align: center;
         font-size: 22px;
+        font-weight: 800;
+        color: var(--primary-color);
+      }
+
+      /* ── 프로그레스 바 ── */
+      .progress-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 700;
+        color: #888;
+      }
+      .progress-label span:last-child {
+        color: var(--primary-color);
+      }
+      .progress-track {
+        width: 100%;
+        height: 10px;
+        background: #e6eef8;
+        border-radius: 50px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--primary-color);
+        border-radius: 50px;
+        transition: width 0.4s ease;
+      }
+
+      /* 문제 */
+      #question {
+        font-size: 20px;
         font-weight: 700;
         text-align: center;
-        margin-bottom: 25px;
+        line-height: 1.6;
+        min-height: 56px;
       }
 
+      /* 선택지 */
       #options {
-        flex-grow: 1;
-        overflow-y: auto;
-        max-height: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
-
-      .result-area {
-        position: absolute;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
-        text-align: center;
-      }
-
-      #result {
-        font-size: 20px;
-        font-weight: bold;
-        margin-bottom: 15px;
-      }
-
-      h2 {
-        text-align: center;
-        color: var(--primary-color);
-        margin-bottom: 20px;
-      }
-
       .option-btn {
         width: 100%;
-        padding: 20px;
-        margin: 10px 0;
-        font-size: 20px;
-        border: none;
-        border-radius: 20px;
+        padding: 18px 20px;
+        font-size: 18px;
+        font-family: "Nanum Gothic", sans-serif;
+        border: 2px solid transparent;
+        border-radius: 18px;
         cursor: pointer;
         background: #f0f7ff;
-        transition: 0.2s;
+        color: var(--text-color);
+        transition: background 0.2s, border-color 0.2s;
+        text-align: left;
       }
-
-      .option-btn:hover {
+      .option-btn:hover:not(:disabled) {
         background: #dbe9ff;
       }
-
+      .option-btn:disabled {
+        cursor: default;
+      }
       .correct {
-        background: var(--success-color) !important;
-        color: white;
+        background: #c8f7c5 !important;
+        border-color: #4caf50 !important;
       }
       .wrong {
-        background: var(--error-color) !important;
-        color: white;
+        background: #f7c5c5 !important;
+        border-color: #e53935 !important;
       }
 
-      .next-btn-bottom {
-        width: 100%;
-        padding: 10px;
-        font-size: 20px;
-        font-weight: 800;
-        border: none;
-        border-radius: 20px;
-        background: var(--primary-color);
-        color: white;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
+      /* 로딩 */
       #loading {
         text-align: center;
-        color: #888;
-        margin-bottom: 10px;
+        color: #aaa;
+        font-size: 15px;
+        min-height: 24px;
+      }
+
+      /* 결과 피드백 박스 */
+      #result-box {
+        display: none;
+        border-radius: 16px;
+        padding: 16px 18px;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+      #result-box.correct-box {
+        background: #edfdf0;
+        border: 1.5px solid #4caf50;
+        color: #2e7d32;
+      }
+      #result-box.suggest-box {
+        background: #fff8ec;
+        border: 1.5px solid #ffa726;
+        color: #7c4f00;
+      }
+
+      /* 버튼 행 */
+      .btn-row {
+        display: flex;
+        gap: 10px;
+        padding-top: 20px;
+      }
+      .nav-btn {
+        flex: 1;
+        padding: 14px;
+        font-size: 17px;
+        font-weight: 800;
+        font-family: "Nanum Gothic", sans-serif;
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-prev {
+        background: #eee;
+        color: #555;
+      }
+      .btn-prev:hover:not(:disabled) {
+        background: #ddd;
+      }
+      .btn-prev:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .btn-next {
+        background: var(--primary-color);
+        color: white;
+      }
+      .btn-next:hover {
+        background: #357abd;
+      }
+
+      /* ── 완료 화면 ── */
+      #finish-screen {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        text-align: center;
+        padding: 10px 0;
+      }
+      .finish-emoji {
+        font-size: 64px;
+        line-height: 1;
+      }
+      .finish-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--primary-color);
+      }
+      .finish-score {
+        font-size: 42px;
+        font-weight: 800;
+        color: var(--text-color);
+      }
+      .finish-score span {
+        color: var(--primary-color);
+      }
+      .finish-desc {
+        font-size: 16px;
+        color: #666;
+        line-height: 1.7;
+      }
+      .finish-btn-row {
+        display: flex;
+        gap: 12px;
+        width: 100%;
+        margin-top: 6px;
+      }
+      .finish-btn {
+        flex: 1;
+        padding: 16px;
+        font-size: 17px;
+        font-weight: 800;
+        font-family: "Nanum Gothic", sans-serif;
+        border: none;
+        border-radius: 18px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .finish-btn-no {
+        background: #eee;
+        color: #555;
+      }
+      .finish-btn-no:hover {
+        background: #ddd;
+      }
+      .finish-btn-yes {
+        background: var(--primary-color);
+        color: white;
+      }
+      .finish-btn-yes:hover {
+        background: #357abd;
+      }
+      .finish-btn-retry {
+        background: #fff3e0;
+        color: #e65100;
+        border: 2px solid #ffb74d;
+      }
+      .finish-btn-retry:hover {
+        background: #ffe0b2;
+      }
+      .finish-btn-retry:disabled {
+        opacity: 0.35;
+        cursor: default;
+      }
+      .wrong-count-badge {
+        display: inline-block;
+        background: #e53935;
+        color: white;
+        border-radius: 50px;
+        padding: 2px 10px;
+        font-size: 14px;
+        font-weight: 800;
+        margin-left: 6px;
       }
     </style>
   </head>
@@ -235,7 +376,7 @@
         <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
         <ul class="main-menu">
           <li><a href="./about.html">서비스 소개</a></li>
-          <li><a href="./text.html">쉬운 글 변환기</a></li>
+          <li><a href="./index.html#top">쉬운 글 변환기</a></li>
           <li><a href="./behavior.html">행동 사전</a></li>
           <li><a href="./read.html">글 읽어주기</a></li>
         </ul>
@@ -254,17 +395,78 @@
 
     <div class="wrapper">
       <div class="card">
-        <h2>🤝 행동 사전</h2>
-        <div id="loading"></div>
-        <div class="quiz-area">
-          <p id="question"></p>
-          <div id="options"></div>
+        <div class="card-title">🤝 행동 사전</div>
+
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span id="prog-text">1 / 20 문제</span>
+            <span id="prog-pct">5%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="prog-fill" style="width: 5%"></div>
+          </div>
         </div>
-        <div class="result-area">
-          <p id="result"></p>
-          <div class="next-area">
-            <button id="nextBtn" class="next-btn-bottom" onclick="generateProblem()">
-              다음 문제 ➡
+
+        <div id="loading">문제 생성 중...</div>
+
+        <p id="question"></p>
+
+        <div id="options"></div>
+
+        <div id="result-box"></div>
+
+        <div class="btn-row" id="nav-row">
+          <button
+            class="nav-btn btn-prev"
+            id="prevBtn"
+            onclick="goToPrev()"
+            disabled
+          >
+            ← 이전 문제
+          </button>
+          <button
+            class="nav-btn btn-next"
+            id="nextBtn"
+            onclick="goToNext()"
+            style="display: none"
+          >
+            다음 문제 →
+          </button>
+        </div>
+
+        <div id="finish-screen">
+          <div class="finish-emoji">🎉</div>
+          <div class="finish-title">20문제를 모두 풀었어요!</div>
+          <div class="finish-score">
+            <span id="score-correct">0</span> / 20 정답
+          </div>
+          <div class="finish-desc" id="finish-msg"></div>
+          <div
+            class="finish-desc"
+            style="font-weight: 800; color: #444"
+            id="finish-sub"
+          ></div>
+          <div class="finish-btn-row" style="flex-wrap: wrap">
+            <button
+              class="finish-btn finish-btn-retry"
+              id="retryBtn"
+              onclick="retryWrong()"
+            >
+              틀린 문제 다시 풀기<span
+                class="wrong-count-badge"
+                id="wrong-badge"
+                >0</span
+              >
+            </button>
+            <button class="finish-btn finish-btn-yes" onclick="restartSet()">
+              새로운 세트 더 풀기
+            </button>
+            <button
+              class="finish-btn finish-btn-no"
+              onclick="goHome()"
+              style="flex-basis: 100%"
+            >
+              메인으로 나가기
             </button>
           </div>
         </div>
@@ -272,9 +474,322 @@
     </div>
 
     <script>
-      let currentUserLevel = "1";
+      const TOTAL = 20;
 
-      window.onload = async function() {
+      let quizCache = []; // 현재 세트 문제
+      let retryCache = []; // 틀린 문제만 모은 배열
+      let currentIdx = 0;
+      let correctCount = 0;
+      let isRetryMode = false; // 틀린 문제 재풀기 모드 여부
+      let currentUserLevel = "1"; // 기본 학습 수준
+
+      // ── 사용자 수준 ──
+      function getPrompt(level) {
+        if (level === "4") return "난이도: 어려움.";
+        if (level === "3") return "난이도: 매우 쉬움. 주제: [인사하기, 손 씻기, 식사 예절, 쓰레기 버리기, 조용히 하기] 중 하나를 랜덤하게 선택. 아주 단순한 1단계 상황. 문장은 5단어 이내.";
+        if (level === "2") return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
+        return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
+      }
+      
+      function safeParse(text) {
+        try {
+          return JSON.parse(text);
+        } catch {
+          const m = text.match(/\{[\s\S]*\}/);
+          return m ? JSON.parse(m[0]) : null;
+        }
+      }
+
+      // ── 프로그레스바 ──
+      function updateProgress(idx, total) {
+        const n = idx + 1;
+        const pct = Math.round((n / total) * 100);
+        document.getElementById(
+          "prog-text"
+        ).textContent = `${n} / ${total} 문제`;
+        document.getElementById("prog-pct").textContent = pct + "%";
+        document.getElementById("prog-fill").style.width = pct + "%";
+      }
+
+      // ── API 호출 (Vercel 환경 변수를 활용하는 백엔드 라우트로 안전하게 전송) ──
+      async function fetchNewQuiz(usedTitles) {
+        const prompt = getPrompt(currentUserLevel);
+        const systemInstruction = "발달장애인을 위한 생활 교육 문제 생성기\n\n" +
+                      "다음 조건을 반드시 지켜서 문제를 생성하라.\n" +
+                      'JSON 형식으로만 출력:\n{"question":"","options":["",""],"answer":0,"explanation":"","suggestion":""}\n\n' +
+                      "[절대 규칙]\n" +
+                      "1. 정답은 대한민국 일반 성인이 100% 동일하게 선택하는 행동만 가능하다.\n" +
+                      "2. 정답은 법적으로 안전하거나 사회적으로 명확히 올바른 행동이어야 한다.\n" +
+                      "3. 오답은 명백히 위험하거나 잘못된 행동이어야 한다.\n" +
+                      "4. 논란이 생길 수 있는 문제는 절대 금지.\n" +
+                      "[다양성 규칙]\n" +
+                      "매번 완전히 다른 상황을 만들어라. 이미 나온 질문: " +
+                      JSON.stringify(usedTitles) +
+                      "\n" +
+                      "[문제 생성 규칙]\n- 선택지는 2개만\n" +
+                      "- explanation: 정답인 행동이 왜 좋은지 1~2문장\n" +
+                      '- suggestion: "그런 방법도 있지만, ~한 문제가 생길 수 있어요. 더 나은 방법은 ~입니다." 형태 (2~3문장)\n' +
+                      "[난이도] " +
+                      prompt +
+                      "\n[문장 규칙] 짧고 명확하게, 한 번에 이해 가능하게";
+
+        while (true) {
+          const res = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              level: currentUserLevel,
+              instruction: systemInstruction,
+              exclude: usedTitles
+            }),
+          });
+          
+          if (!res.ok) throw new Error("네트워크 응답 오류");
+          
+          const data = await res.json();
+          let quiz;
+          if (typeof data.result === 'string') {
+            quiz = safeParse(data.result);
+          } else {
+            quiz = data.result || data;
+          }
+          
+          if (!quiz || usedTitles.includes(quiz.question)) continue;
+          return quiz;
+        }
+      }
+
+      // ── UI 전환 ──
+      function showQuizUI() {
+        document.querySelector(".progress-wrap").style.display = "flex";
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("question").style.display = "block";
+        document.getElementById("options").style.display = "flex";
+        document.getElementById("result-box").style.display = "none";
+        document.getElementById("nav-row").style.display = "flex";
+        document.getElementById("finish-screen").style.display = "none";
+      }
+      function showFinishUI() {
+        document.querySelector(".progress-wrap").style.display = "none";
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("question").style.display = "none";
+        document.getElementById("options").style.display = "none";
+        document.getElementById("result-box").style.display = "none";
+        document.getElementById("nav-row").style.display = "none";
+        document.getElementById("finish-screen").style.display = "flex";
+
+        const cache = isRetryMode ? retryCache : quizCache;
+        const total = cache.length;
+
+        // 점수 계산 (현재 세트 기준)
+        const correct = cache.filter((q) => q.chosen === q.answer).length;
+        document.getElementById("score-correct").textContent = correct;
+        // 분모도 실제 문제 수로 업데이트
+        document.querySelector(".finish-score").innerHTML =
+          '<span id="score-correct">' +
+          correct +
+          "</span> / " +
+          total +
+          " 정답";
+
+        const pct = Math.round((correct / total) * 100);
+        let msg = "";
+        if (pct === 100)
+          msg = "완벽해요! 모든 문제를 맞혔어요. 정말 대단해요! 🌟";
+        else if (pct >= 80)
+          msg = "아주 잘했어요! 조금만 더 연습하면 완벽할 거예요! 😊";
+        else if (pct >= 60)
+          msg = "잘하고 있어요! 계속 연습하면 더 잘할 수 있을 거예요! 💪";
+        else msg = "괜찮아요! 다시 풀어보면서 조금씩 익혀가요! 🌱";
+        document.getElementById("finish-msg").textContent = msg;
+
+        // 틀린 문제 수 계산 (전체 quizCache 기준, 재풀기 포함)
+        const wrongList = quizCache.filter(
+          (q) => q.chosen !== undefined && q.chosen !== q.answer
+        );
+        const wrongCount = wrongList.length;
+        document.getElementById("wrong-badge").textContent = wrongCount;
+        const retryBtn = document.getElementById("retryBtn");
+        if (wrongCount === 0) {
+          retryBtn.disabled = true;
+          document.getElementById("finish-sub").textContent =
+            "틀린 문제가 없어요! 새로운 문제에 도전해보세요.";
+        } else {
+          retryBtn.disabled = false;
+          document.getElementById("finish-sub").textContent =
+            "틀린 문제를 다시 풀어보거나, 새로운 문제에 도전해보세요!";
+        }
+      }
+
+      // ── 문제 렌더링 ──
+      function getActiveCache() {
+        return isRetryMode ? retryCache : quizCache;
+      }
+
+      function renderQuiz(idx) {
+        showQuizUI();
+        const cache = getActiveCache();
+        const total = isRetryMode ? cache.length : TOTAL;
+        const q = cache[idx];
+
+        document.getElementById("loading").textContent = "";
+        document.getElementById("question").innerText = q.question;
+        document.getElementById("result-box").style.display = "none";
+        document.getElementById("nextBtn").style.display = "none";
+
+        const div = document.getElementById("options");
+        div.innerHTML = "";
+        q.options.forEach((opt, i) => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.innerText = opt;
+          if (q.chosen !== undefined) {
+            btn.disabled = true;
+            if (i === q.answer) btn.classList.add("correct");
+            if (i === q.chosen && i !== q.answer) btn.classList.add("wrong");
+          } else {
+            btn.onclick = () => checkAnswer(i, idx, btn);
+          }
+          div.appendChild(btn);
+        });
+
+        if (q.chosen !== undefined) {
+          showFeedback(q, q.chosen);
+          const nb = document.getElementById("nextBtn");
+          const limit = isRetryMode ? total : TOTAL;
+          if (idx === limit - 1) {
+            nb.textContent = "결과 보기 🎉";
+            nb.style.display = "block";
+            nb.onclick = showFinishUI;
+          } else {
+            nb.textContent = "다음 문제 →";
+            nb.style.display = "block";
+            nb.onclick = goToNext;
+          }
+        }
+        document.getElementById("prevBtn").disabled = idx === 0;
+        updateProgress(idx, total);
+      }
+
+      function checkAnswer(chosen, idx, clickedBtn) {
+        const cache = getActiveCache();
+        const q = cache[idx];
+        q.chosen = chosen;
+
+        document.querySelectorAll(".option-btn").forEach((b, i) => {
+          b.disabled = true;
+          if (i === q.answer) b.classList.add("correct");
+        });
+        if (chosen !== q.answer) clickedBtn.classList.add("wrong");
+        showFeedback(q, chosen);
+
+        const nb = document.getElementById("nextBtn");
+        const total = isRetryMode ? cache.length : TOTAL;
+        if (idx === total - 1) {
+          nb.textContent = "결과 보기 🎉";
+          nb.style.display = "block";
+          nb.onclick = showFinishUI;
+        } else {
+          nb.textContent = "다음 문제 →";
+          nb.style.display = "block";
+          nb.onclick = goToNext;
+        }
+      }
+
+      function showFeedback(q, chosen) {
+        const box = document.getElementById("result-box");
+        box.style.display = "block";
+        if (chosen === q.answer) {
+          box.className = "result-box correct-box";
+          box.innerHTML =
+            "✅ <strong>잘 선택했어요!</strong><br>" + q.explanation;
+        } else {
+          box.className = "result-box suggest-box";
+          box.innerHTML =
+            "💡 <strong>이런 방법은 어떨까요?</strong><br>" +
+            (q.suggestion || q.explanation);
+        }
+      }
+
+      function goToPrev() {
+        if (currentIdx > 0) {
+          currentIdx--;
+          renderQuiz(currentIdx);
+        }
+      }
+      async function goToNext() {
+        const cache = getActiveCache();
+        const maxIdx = isRetryMode ? cache.length - 1 : TOTAL - 1;
+        if (currentIdx >= maxIdx) return;
+        currentIdx++;
+        // 일반 모드에서만 새 문제 생성
+        if (!isRetryMode && !cache[currentIdx]) {
+          document.getElementById("loading").textContent = "문제 생성 중...";
+          document.getElementById("question").textContent = "";
+          document.getElementById("options").innerHTML = "";
+          document.getElementById("result-box").style.display = "none";
+          document.getElementById("nextBtn").style.display = "none";
+          document.getElementById("prevBtn").disabled = true;
+          try {
+            const usedTitles = quizCache.map((q) => q.question);
+            cache[currentIdx] = await fetchNewQuiz(usedTitles);
+          } catch {
+            document.getElementById("loading").textContent =
+              "오류가 발생했어요.";
+            currentIdx--;
+            return;
+          }
+          document.getElementById("loading").textContent = "";
+        }
+        renderQuiz(currentIdx);
+      }
+
+      // ── 틀린 문제 다시 풀기 ──
+      function retryWrong() {
+        // quizCache에서 틀린 문제만 뽑아 chosen 초기화
+        retryCache = quizCache
+          .filter((q) => q.chosen !== undefined && q.chosen !== q.answer)
+          .map((q) => ({ ...q, chosen: undefined })); // 선택 기록 초기화
+
+        if (retryCache.length === 0) return;
+
+        isRetryMode = true;
+        currentIdx = 0;
+        correctCount = 0;
+        renderQuiz(0);
+      }
+
+      // ── 새로운 세트 더 풀기 ──
+      function restartSet() {
+        quizCache = [];
+        retryCache = [];
+        currentIdx = 0;
+        correctCount = 0;
+        isRetryMode = false;
+        showQuizUI();
+        document.getElementById("loading").textContent = "문제 생성 중...";
+        document.getElementById("question").textContent = "";
+        document.getElementById("options").innerHTML = "";
+        fetchNewQuiz([])
+          .then((quiz) => {
+            quizCache[0] = quiz;
+            document.getElementById("loading").textContent = "";
+            renderQuiz(0);
+          })
+          .catch(() => {
+            document.getElementById("loading").textContent =
+              "오류가 발생했어요.";
+          });
+      }
+
+      function goHome() {
+        location.href = "./index.html";
+      }
+
+      // ── 추가 연동: 로그인 유지 UI 처리 스크립트 ──
+      async function checkAuth() {
         try {
           const response = await fetch('/api/check-auth');
           if (response.ok) {
@@ -284,129 +799,52 @@
               currentUserLevel = userData.level.toString();
             }
             applyLoggedInUI(userData.name);
+          } else {
+            applyLoggedOutUI();
           }
         } catch (error) {
-          console.error("인증 실패:", error);
-        }
-        generateProblem();
-      };
-
-      // 수준(1, 2, 3)에 따른 GPT 프롬프트 설정 (스크린샷 원본 그대로 유지)
-      function getLevelPrompt(level) {
-        switch(level) {
-          case "4":
-            return "난이도: 어려움.";
-          case "3": // 중증 지적 장애
-            return "난이도: 매우 쉬움. 주제: [인사하기, 손 씻기, 식사 예절, 쓰레기 버리기, 조용히 하기] 중 하나를 랜덤하게 선택. 아주 단순한 1단계 상황. 문장은 5단어 이내.";
-          case "2": // 경도 지적 장애
-            return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
-          case "1": // 경계선 지능
-          default:
-            return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
+          console.error("인증 처리 중 오류 발생:", error);
+          applyLoggedOutUI();
         }
       }
 
-      // 서버 API를 호출하여 한 문제씩 새 문제를 만드는 원본 함수 로직
-      async function generateProblem() {
-        const questionEl = document.getElementById("question");
-        const optionsEl = document.getElementById("options");
-        const resultEl = document.getElementById("result");
-        const loadingEl = document.getElementById("loading");
-        const nextBtn = document.getElementById("nextBtn");
-
-        questionEl.innerText = "";
-        optionsEl.innerHTML = "";
-        resultEl.innerText = "";
-        loadingEl.innerText = "✨ 맞춤 문제를 만들고 있어요. 잠시만 기다려 주세요...";
-        nextBtn.style.display = "none";
-
-        const instruction = getLevelPrompt(currentUserLevel);
-
-        try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              level: currentUserLevel,
-              instruction: instruction 
-            }),
-          });
-
-          if (!res.ok) throw new Error("네트워크 응답 없음");
-
-          const data = await res.json();
-          let quiz;
-          if (typeof data.result === 'string') {
-            quiz = safeParse(data.result);
-          } else {
-            quiz = data.result || data;
-          }
-
-          if (!quiz || !quiz.question) throw new Error("데이터 파싱 실패");
-
-          loadingEl.innerText = "";
-          showQuiz(quiz);
-          nextBtn.style.display = "block";
-          nextBtn.innerText = "다음 문제 ➡";
-        } catch (e) {
-          console.error(e);
-          loadingEl.innerText = "❌ 문제를 가져오지 못했습니다. 다시 시도해 주세요.";
-          nextBtn.style.display = "block";
-          nextBtn.innerText = "다시 시도하기";
-        }
-      }
-
-      // 원본 화면 렌더링 및 클릭 검증 함수
-      function showQuiz(q) {
-        document.getElementById("question").innerText = q.question;
-        const div = document.getElementById("options");
-        div.innerHTML = "";
-        q.options.forEach((opt, i) => {
-          const btn = document.createElement("button");
-          btn.className = "option-btn";
-          btn.innerText = opt;
-          btn.onclick = () => {
-            document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
-            const resDiv = document.getElementById("result");
-            if (i === q.answer) {
-              btn.classList.add("correct");
-              resDiv.innerHTML = "✅ <strong>정답이에요!</strong><br>" + q.explanation;
-            } else {
-              btn.classList.add("wrong");
-              resDiv.innerHTML = "❌ <strong>틀렸어요.</strong><br>" + q.explanation;
-            }
-          };
-          div.appendChild(btn);
-        });
-      }
-
-      // 로그인 성공 시 "ㅇㅇㅇ님, 환영합니다!" 이름 표출 함수
       function applyLoggedInUI(userName) {
         const guestMenu = document.getElementById('guest-menu');
         const userMenu = document.getElementById('user-menu');
         const userInfo = document.getElementById('user-info');
-        
         if (guestMenu) guestMenu.style.display = 'none';
         if (userMenu) userMenu.style.display = 'flex';
         if (userInfo) userInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+      }
+
+      function applyLoggedOutUI() {
+        const guestMenu = document.getElementById('guest-menu');
+        const userMenu = document.getElementById('user-menu');
+        if (guestMenu) guestMenu.style.display = 'flex';
+        if (userMenu) userMenu.style.display = 'none';
       }
 
       async function handleLogout() {
         if (confirm("로그아웃 하시겠습니까?")) {
           await fetch('/api/logout', { method: 'POST' });
           localStorage.removeItem('currentUser');
-          location.href = "index.html";
+          location.reload();
         }
       }
 
-      function safeParse(text) {
+      window.onload = async () => {
+        // 세션 상태를 먼저 체크합니다.
+        await checkAuth();
+
         try {
-          return JSON.parse(text);
-        } catch (e) {
-          const match = text.match(/\{[\s\S]*\}/);
-          return match ? JSON.parse(match[0]) : null;
+          const quiz = await fetchNewQuiz([]);
+          quizCache[0] = quiz;
+          document.getElementById("loading").textContent = "";
+          renderQuiz(0);
+        } catch {
+          document.getElementById("loading").textContent = "오류가 발생했어요.";
         }
-      }
+      };
     </script>
   </body>
 </html>
