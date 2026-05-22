@@ -20,7 +20,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Nanum Gothic", sans-serif;
+        font-family: \"Nanum Gothic\", sans-serif;
       }
       html {
         scroll-behavior: smooth;
@@ -226,6 +226,23 @@
         color: #888;
         margin-bottom: 10px;
       }
+
+      /* 결과 화면 전용 추가 버튼 스타일 */
+      .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+
+      .btn-orange {
+        background-color: var(--accent-color) !important;
+        color: white;
+      }
+      .btn-green {
+        background-color: var(--success-color) !important;
+        color: white;
+      }
     </style>
   </head>
 
@@ -255,15 +272,17 @@
     <div class="wrapper">
       <div class="card">
         <h2>🤝 행동 사전</h2>
-        <div id="loading"></div>
-        <div class="quiz-area">
+        <div id="loading">문제 생성 중...</div>
+        
+        <div id="quiz-ui-container" class="quiz-area">
           <p id="question"></p>
           <div id="options"></div>
         </div>
+
         <div class="result-area">
           <p id="result"></p>
-          <div class="next-area">
-            <button id="nextBtn" class="next-btn-bottom" onclick="generateProblem()">
+          <div id="control-area" class="next-area">
+            <button id="nextBtn" class="next-btn-bottom" onclick="nextQuiz()">
               다음 문제 ➡
             </button>
           </div>
@@ -273,6 +292,13 @@
 
     <script>
       let currentUserLevel = "1";
+      
+      // 퀴즈 상태 관리 데이터 구조체 (새로운 코드 핵심 로직)
+      let quizCache = [];
+      let retryCache = [];
+      let currentIdx = 0;
+      let correctCount = 0;
+      let isRetryMode = false;
 
       window.onload = async function() {
         try {
@@ -288,96 +314,246 @@
         } catch (error) {
           console.error("인증 실패:", error);
         }
-        generateProblem();
+
+        // 초기 첫 문제 데이터 수신 및 로드
+        try {
+          const quiz = await fetchNewQuiz([]);
+          quizCache[0] = quiz;
+          document.getElementById("loading").textContent = "";
+          renderQuiz(0);
+        } catch (e) {
+          document.getElementById("loading").textContent = "문제를 가져오지 못했습니다.";
+        }
       };
 
-      // 수준(1, 2, 3)에 따른 GPT 프롬프트 설정 (3단계 다양성 강화)
       function getLevelPrompt(level) {
         switch(level) {
           case "4":
             return "난이도: 어려움.";
-          case "3": // 중증 지적 장애
+          case "3":
             return "난이도: 매우 쉬움. 주제: [인사하기, 손 씻기, 식사 예절, 쓰레기 버리기, 조용히 하기] 중 하나를 랜덤하게 선택. 아주 단순한 1단계 상황. 문장은 5단어 이내.";
-          case "2": // 경도 지적 장애
+          case "2":
             return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
-          case "1": // 경계선 지능
+          case "1":
+          default:
             return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
         }
       }
 
-      async function generateProblem() {
-        const questionEl = document.getElementById("question");
-        const optionsEl = document.getElementById("options");
-        const resultEl = document.getElementById("result");
-        const loadingEl = document.getElementById("loading");
-        const nextBtn = document.getElementById("nextBtn");
-
-        questionEl.innerText = "";
-        optionsEl.innerHTML = "";
-        resultEl.innerText = "";
-        loadingEl.innerText = "✨ 맞춤 문제를 만들고 있어요. 잠시만 기다려 주세요...";
-        nextBtn.style.display = "none";
-
+      // 서버 API 결합형 맞춤형 신규 퀴즈 데이터 생성 함수
+      async function fetchNewQuiz(excludeTitles = []) {
         const instruction = getLevelPrompt(currentUserLevel);
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            level: currentUserLevel,
+            instruction: instruction,
+            exclude: excludeTitles 
+          }),
+        });
 
-        try {
-          const res = await fetch("/api/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              level: currentUserLevel,
-              instruction: instruction 
-            }),
-          });
-
-          if (!res.ok) throw new Error("네트워크 응답 없음");
-
-          const data = await res.json();
-          let quiz;
-          if (typeof data.result === 'string') {
-            quiz = safeParse(data.result);
-          } else {
-            quiz = data.result || data;
-          }
-
-          if (!quiz || !quiz.question) throw new Error("데이터 파싱 실패");
-
-          loadingEl.innerText = "";
-          showQuiz(quiz);
-          nextBtn.style.display = "block";
-          nextBtn.innerText = "다음 문제 ➡";
-        } catch (e) {
-          console.error(e);
-          loadingEl.innerText = "❌ 문제를 가져오지 못했습니다. 다시 시도해 주세요.";
-          nextBtn.style.display = "block";
-          nextBtn.innerText = "다시 시도하기";
+        if (!res.ok) throw new Error("네트워크 오류");
+        const data = await res.json();
+        
+        let quiz;
+        if (typeof data.result === 'string') {
+          quiz = safeParse(data.result);
+        } else {
+          quiz = data.result || data;
         }
+        return quiz;
       }
 
-      function showQuiz(q) {
-        document.getElementById("question").innerText = q.question;
-        const div = document.getElementById("options");
-        div.innerHTML = "";
+      // 화면에 특정 인덱스의 퀴즈 요소를 렌더링
+      function renderQuiz(idx) {
+        const list = isRetryMode ? retryCache : quizCache;
+        const q = list[idx];
+
+        document.getElementById("question").textContent = `[Q${idx + 1}] ${q.question}`;
+        document.getElementById("result").innerHTML = "";
+
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+
+        // 기존 제어 버튼 설정 초기화
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.style.display = "none";
+        nextBtn.className = "next-btn-bottom";
+        nextBtn.textContent = "다음 문제 ➡";
+
         q.options.forEach((opt, i) => {
           const btn = document.createElement("button");
           btn.className = "option-btn";
-          btn.innerText = opt;
-          btn.onclick = () => {
-            document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
-            const resDiv = document.getElementById("result");
-            if (i === q.answer) {
-              btn.classList.add("correct");
-              resDiv.innerHTML = "✅ <strong>정답이에요!</strong><br>" + q.explanation;
-            } else {
-              btn.classList.add("wrong");
-              resDiv.innerHTML = "❌ <strong>틀렸어요.</strong><br>" + q.explanation;
-            }
-          };
-          div.appendChild(btn);
+          btn.textContent = opt;
+
+          if (q.chosen !== undefined) {
+            btn.disabled = true;
+            if (i === q.answer) btn.classList.add("correct");
+            if (i === q.chosen && i !== q.answer) btn.classList.add("wrong");
+          } else {
+            btn.onclick = () => selectOption(i);
+          }
+          optionsDiv.appendChild(btn);
         });
+
+        if (q.chosen !== undefined) {
+          showExplanation(q.chosen === q.answer, q.explanation);
+          nextBtn.style.display = "block";
+        }
       }
 
-      // 환영 문구 수정된 UI 반영 함수
+      // 사용자가 보기를 골랐을 때 동작 로직
+      function selectOption(chosenIdx) {
+        const list = isRetryMode ? retryCache : quizCache;
+        const q = list[currentIdx];
+        q.chosen = chosenIdx;
+
+        document.querySelectorAll(".option-btn").forEach((btn) => (btn.disabled = true));
+
+        const isCorrect = chosenIdx === q.answer;
+        if (isCorrect) {
+          correctCount++;
+        }
+
+        const buttons = document.getElementById("options").children;
+        buttons[chosenIdx].classList.add(isCorrect ? "correct" : "wrong");
+        if (!isCorrect) {
+          buttons[q.answer].classList.add("correct");
+        }
+
+        showExplanation(isCorrect, q.explanation);
+
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.style.display = "block";
+      }
+
+      function showExplanation(isCorrect, text) {
+        const resEl = document.getElementById("result");
+        if (isCorrect) {
+          resEl.innerHTML = `✅ <strong>정답이에요!</strong><br>${text}`;
+        } else {
+          resEl.innerHTML = `❌ <strong>틀렸어요.</strong><br>${text}`;
+        }
+      }
+
+      // 다음 문제로 넘어가는 탐색 제어 흐름 처리 함수
+      async function nextQuiz() {
+        currentIdx++;
+        const currentList = isRetryMode ? retryCache : quizCache;
+
+        if (currentIdx < currentList.length) {
+          renderQuiz(currentIdx);
+          return;
+        }
+
+        if (!isRetryMode && quizCache.length < 5) {
+          document.getElementById("loading").textContent = "✨ 다음 문제를 빌드하고 있어요...";
+          try {
+            const usedTitles = quizCache.map((q) => q.question);
+            const newQ = await fetchNewQuiz(usedTitles);
+            quizCache.push(newQ);
+            document.getElementById("loading").textContent = "";
+            renderQuiz(currentIdx);
+          } catch (e) {
+            document.getElementById("loading").textContent = "문제를 가져오지 못했습니다.";
+            currentIdx--;
+          }
+        } else {
+          showScoreReport();
+        }
+      }
+
+      // 5개 세트 풀이 종료 후 맞춤형 결과 리포트 출력
+      function showScoreReport() {
+        document.getElementById("quiz-ui-container").style.display = "none";
+        document.getElementById("result").innerHTML = "";
+
+        const total = isRetryMode ? retryCache.length : quizCache.length;
+        document.getElementById("question").innerHTML = `🎉 학습을 완료했습니다!<br>점수: ${correctCount} / ${total}`;
+
+        const wrongItems = quizCache.filter((q) => q.chosen !== q.answer);
+        const controlArea = document.getElementById("control-area");
+        controlArea.innerHTML = "";
+
+        const actionDiv = document.createElement("div");
+        actionDiv.className = "action-buttons";
+
+        // 1. 오답이 존재하는 경우 오답 다시 풀기 버튼 동적 생성
+        if (!isRetryMode && wrongItems.length > 0) {
+          const retryBtn = document.createElement("button");
+          retryBtn.className = "next-btn-bottom btn-orange";
+          retryBtn.textContent = `틀린 ${wrongItems.length}문제 다시 풀기 🔄`;
+          retryBtn.onclick = startRetryMode;
+          actionDiv.appendChild(retryBtn);
+        }
+
+        // 2. 새 세트 이어서 진행 버튼 생성
+        const restartBtn = document.createElement("button");
+        restartBtn.className = "next-btn-bottom btn-green";
+        restartBtn.textContent = "새로운 문제 더 풀기 ➡";
+        restartBtn.onclick = restartSet;
+        actionDiv.appendChild(restartBtn);
+
+        // 3. 홈으로 이동 버튼 생성
+        const homeBtn = document.createElement("button");
+        homeBtn.className = "next-btn-bottom";
+        homeBtn.textContent = "메인 화면으로";
+        homeBtn.onclick = goHome;
+        actionDiv.appendChild(homeBtn);
+
+        controlArea.appendChild(actionDiv);
+      }
+
+      // 오답 다시 풀기 전환 처리
+      function startRetryMode() {
+        retryCache = quizCache
+          .filter((q) => q.chosen !== undefined && q.chosen !== q.answer)
+          .map((q) => ({ ...q, chosen: undefined })); 
+
+        if (retryCache.length === 0) return;
+
+        isRetryMode = true;
+        currentIdx = 0;
+        correctCount = 0;
+        restoreQuizUI();
+        renderQuiz(0);
+      }
+
+      // 신규 세트 리프레시 및 초기화 처리
+      function restartSet() {
+        quizCache = [];
+        retryCache = [];
+        currentIdx = 0;
+        correctCount = 0;
+        isRetryMode = false;
+        
+        restoreQuizUI();
+        document.getElementById("loading").textContent = "문제 생성 중...";
+        document.getElementById("question").textContent = "";
+        document.getElementById("options").innerHTML = "";
+        
+        fetchNewQuiz([])
+          .then((quiz) => {
+            quizCache[0] = quiz;
+            document.getElementById("loading").textContent = "";
+            renderQuiz(0);
+          })
+          .catch(() => {
+            document.getElementById("loading").textContent = "오류가 발생했어요.";
+          });
+      }
+
+      function restoreQuizUI() {
+        document.getElementById("quiz-ui-container").style.display = "flex";
+        const controlArea = document.getElementById("control-area");
+        controlArea.innerHTML = `<button id="nextBtn" class="next-btn-bottom" onclick="nextQuiz()">다음 문제 ➡</button>`;
+      }
+
+      function goHome() {
+        location.href = "./index.html";
+      }
+
       function applyLoggedInUI(userName) {
         const guestMenu = document.getElementById('guest-menu');
         const userMenu = document.getElementById('user-menu');
@@ -406,5 +582,4 @@
       }
     </script>
   </body>
-</html>
 </html>
