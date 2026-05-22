@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8"/>
-    <title>행동 사전 - 쉬운 글 배움터</title>
+    <title>행동 사전 - 쉬운 글 변환기</title>
 
     <style>
       :root {
@@ -291,19 +291,22 @@
         generateProblem();
       };
 
+      // 수준(1, 2, 3)에 따른 GPT 프롬프트 설정 (스크린샷 원본 그대로 유지)
       function getLevelPrompt(level) {
         switch(level) {
           case "4":
             return "난이도: 어려움.";
-          case "3":
+          case "3": // 중증 지적 장애
             return "난이도: 매우 쉬움. 주제: [인사하기, 손 씻기, 식사 예절, 쓰레기 버리기, 조용히 하기] 중 하나를 랜덤하게 선택. 아주 단순한 1단계 상황. 문장은 5단어 이내.";
-          case "2":
+          case "2": // 경도 지적 장애
             return "난이도: 쉬움. 초등 저학년 수준. 편의점에서 물건 사기, 친구에게 빌린 물건 돌려주기 등 일상 상황.";
-          case "1":
+          case "1": // 경계선 지능
+          default:
             return "난이도: 보통. 경계선 지능 수준. 온라인 예절, 친구와의 오해 풀기 등 약간의 판단이 필요한 상황.";
         }
       }
 
+      // 서버 API를 호출하여 한 문제씩 새 문제를 만드는 원본 함수 로직
       async function generateProblem() {
         const questionEl = document.getElementById("question");
         const optionsEl = document.getElementById("options");
@@ -353,6 +356,7 @@
         }
       }
 
+      // 원본 화면 렌더링 및 클릭 검증 함수
       function showQuiz(q) {
         document.getElementById("question").innerText = q.question;
         const div = document.getElementById("options");
@@ -376,6 +380,7 @@
         });
       }
 
+      // 로그인 성공 시 "ㅇㅇㅇ님, 환영합니다!" 이름 표출 함수
       function applyLoggedInUI(userName) {
         const guestMenu = document.getElementById('guest-menu');
         const userMenu = document.getElementById('user-menu');
