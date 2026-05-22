@@ -203,13 +203,13 @@
         border-radius: 8px;
         font-size: 24px;
         font-weight: 800;
-        transition: all 0.15s ease;
+        transition: all 0.1s ease;
         color: #444;
       }
       .highlight {
         background-color: var(--secondary) !important;
-        transform: scale(1.12);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        transform: scale(1.1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
         color: #000 !important;
         z-index: 10;
       }
@@ -480,7 +480,7 @@
         document.getElementById(id).style.display = "none";
       }
 
-      // 2. [핵심] 로그인 유지: 페이지 로드 시 서버에 인증 정보 확인
+      // 2. 로그인 유지: 페이지 로드 시 서버에 인증 정보 확인
       window.onload = async function () {
         try {
           const res = await fetch("/api/check-auth");
@@ -496,7 +496,7 @@
         }
       };
 
-      // 3. UI 변경 함수 (우측 상단에 "ㅇㅇㅇ님, 환영합니다!" 출력)
+      // 3. UI 변경 함수
       function applyLoginUI(userName) {
         const guestMenu = document.getElementById("guest-menu");
         if(guestMenu) guestMenu.style.display = "none";
@@ -519,7 +519,6 @@
       // 4. 로그인 로직 (폼 제출)
       document.getElementById("loginF").onsubmit = async (e) => {
         e.preventDefault();
-
         const userId = document.getElementById("lId").value;
         const pw = document.getElementById("lPw").value;
 
@@ -529,9 +528,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId, pw }),
           });
-
           const data = await res.json();
-
           if (res.ok) {
             closeM("loginModal");
             applyLoginUI(data.name);
@@ -544,7 +541,7 @@
         }
       };
 
-      // 5. 로그아웃 로직 (서버 쿠키 삭제 요청)
+      // 5. 로그아웃 로직
       async function handleLogout() {
         if (confirm("로그아웃 하시겠습니까?")) {
           await fetch("/api/logout", { method: "POST" });
@@ -560,7 +557,7 @@
           .replace(/(\-{1,2})$/g, "");
       }
 
-      // 7. 비밀번호 실시간 검증 (8자 이상, 특수문자 필수, 생년월일 배제)
+      // 7. 비밀번호 실시간 검증
       function checkPw() {
         const pw = document.getElementById("rPw").value;
         const birth = document.getElementById("rBirth").value.replace(/-/g, "");
@@ -571,7 +568,6 @@
           msg.innerText = "";
           return;
         }
-
         if (pw.length < 8) {
           msg.innerText = "❌ 8자 이상 입력해야 합니다.";
           msg.className = "status-msg invalid";
@@ -593,19 +589,15 @@
 
       async function sendAuthEmail() {
         const email = document.getElementById("rEmail").value;
-
         if (!email.includes("@")) {
           return alert("이메일을 정확히 입력하세요.");
         }
-
         document.getElementById("emailBtn").innerText = "발송 중...";
-
         const res = await fetch("/api/send-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
         });
-
         if (res.ok) {
           const data = await res.json();
           serverCode = data.code;
@@ -630,7 +622,6 @@
       // 10. 회원가입 제출 로직
       document.getElementById("signupF").onsubmit = async (e) => {
         e.preventDefault();
-
         if (!document.getElementById("pwMsg").innerText.includes("✅")) {
           return alert("비밀번호 규칙을 지켜주세요.");
         }
@@ -667,8 +658,8 @@
         document.getElementById("rateVal").innerText = this.value + "배속";
       };
 
-      // 12. TTS 읽기 및 하이라이팅 시작
-      let wordRanges = [];
+      // 12. [완벽 수정] TTS 읽기 및 글자 직접 매칭 하이라이팅 방식
+      let activeIndex = -1; // 현재 형광펜이 칠해진 단어의 인덱스 추적
 
       function handleSpeak() {
         const txt = document.getElementById("tIn").value;
@@ -676,36 +667,26 @@
 
         if (!txt.trim()) return alert("내용을 입력해주세요.");
 
+        // 기존 말하기 완전 취소 및 초기화
         window.speechSynthesis.cancel();
-
         output.innerHTML = "";
-        wordRanges = [];
-        
-        const regex = /(\S+)|(\s+)/g;
-        let match;
+        activeIndex = -1;
+
+        // 화면 렌더링용 구조 생성 (공백이나 줄바꿈을 제외한 순수 단어들에 순서대로 index 부여)
+        const wordsArray = txt.split(/(\s+)/);
         let htmlContent = "";
-        let spanIdCounter = 0;
+        let wordCounter = 0;
 
-        while ((match = regex.exec(txt)) !== null) {
-          const word = match[1];
-          const space = match[2];
-
-          if (word) {
-            const startIdx = match.index;
-            const endIdx = regex.lastIndex;
-            
-            htmlContent += `<span id="word-${spanIdCounter}" class="word">${word}</span>`;
-            
-            wordRanges.push({
-              id: `word-${spanIdCounter}`,
-              start: startIdx,
-              end: endIdx
-            });
-            spanIdCounter++;
-          } else if (space) {
-            htmlContent += space.replace(/\n/g, "<br>");
+        wordsArray.forEach((part) => {
+          if (part.trim().length > 0) {
+            // 순수 단어 텍스트일 때 span 생성
+            htmlContent += `<span id="word-${wordCounter}" class="word">${part}</span>`;
+            wordCounter++;
+          } else {
+            // 공백 및 엔터 처리
+            htmlContent += part.replace(/\n/g, "<br>");
           }
-        }
+        });
         output.innerHTML = htmlContent;
 
         const utter = new SpeechSynthesisUtterance(txt);
@@ -713,28 +694,41 @@
         utter.rate = document.getElementById("tRate").value;
         utter.pitch = document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
 
+        // 브라우저가 단어를 넘길 때 실행되는 절대 불변 매칭 규칙
         utter.onboundary = (e) => {
           if (e.name === "word") {
             const charIdx = e.charIndex;
+            
+            // 현재 음성 엔진이 발음하는 시점의 '단어 텍스트'를 전체 원문에서 직접 잘라옵니다.
+            const remainingText = txt.substring(charIdx);
+            const currentSpeakingWord = remainingText.split(/\s+/)[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); // 문장부호 제거
 
-            wordRanges.forEach((range) => {
-              const el = document.getElementById(range.id);
+            if (!currentSpeakingWord) return;
+
+            // 화면에 렌더링된 span 단어들과 직접 순차 순회하며 매칭
+            for (let i = activeIndex + 1; i < wordCounter; i++) {
+              const el = document.getElementById(`word-${i}`);
               if (el) {
-                if (charIdx >= range.start && charIdx < range.end) {
+                const elText = el.innerText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "");
+                
+                // 음성이 읽는 텍스트와 화면의 단어 텍스트가 일치하면 형광펜 이동
+                if (currentSpeakingWord.includes(elText) || elText.includes(currentSpeakingWord)) {
+                  // 기존 하이라이트 지우기
+                  document.querySelectorAll(".word").forEach(span => span.classList.remove("highlight"));
+                  
+                  // 새 하이라이트 켜기
                   el.classList.add("highlight");
                   el.scrollIntoView({ behavior: "smooth", block: "center" });
-                } else {
-                  el.classList.remove("highlight");
+                  activeIndex = i; // 현재 인덱스 업데이트 업데이트
+                  break;
                 }
               }
-            });
+            }
           }
         };
 
         utter.onend = () => {
-          document
-            .querySelectorAll(".word")
-            .forEach((el) => el.classList.remove("highlight"));
+          document.querySelectorAll(".word").forEach((el) => el.classList.remove("highlight"));
         };
 
         window.speechSynthesis.speak(utter);
@@ -743,9 +737,8 @@
       // 13. TTS 정지
       function stopSpeak() {
         window.speechSynthesis.cancel();
-        document
-          .querySelectorAll(".word")
-          .forEach((el) => el.classList.remove("highlight"));
+        document.querySelectorAll(".word").forEach((el) => el.classList.remove("highlight"));
+        activeIndex = -1;
       }
     </script>
   </body>
