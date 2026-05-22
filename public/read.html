@@ -81,11 +81,6 @@
         gap: 15px;
         align-items: center;
       }
-      #guest-menu {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
       #user-menu {
         display: none;
         gap: 15px;
@@ -199,18 +194,18 @@
       }
       .word {
         display: inline-block;
-        padding: 0 4px;
+        padding: 0 6px;
         border-radius: 8px;
         font-size: 24px;
         font-weight: 800;
-        transition: all 0.1s ease;
+        transition: all 0.15s ease;
         color: #444;
       }
       .highlight {
-        background-color: var(--secondary);
-        transform: scale(1.15);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        color: #000;
+        background-color: var(--secondary) !important;
+        transform: scale(1.12);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        color: #000 !important;
         z-index: 10;
       }
       textarea {
@@ -243,10 +238,6 @@
         </ul>
       </div>
       <div class="header-right">
-        <div id="guest-menu">
-          <button class="btn btn-outline" onclick="openM('loginModal')">로그인</button>
-          <button class="btn btn-primary" onclick="openM('signupModal')">회원가입</button>
-        </div>
         <div id="user-menu">
           <span id="u-info"></span>
           <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
@@ -495,11 +486,14 @@
 
       // 3. UI 변경 함수 (우측 상단에 "ㅇㅇㅇ님, 환영합니다!" 출력)
       function applyLoginUI(userName) {
-        document.getElementById("guest-menu").style.display = "none";
-        document.getElementById("user-menu").style.display = "flex";
-        document.getElementById(
-          "u-info"
-        ).innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        const guestMenu = document.getElementById("guest-menu");
+        if(guestMenu) guestMenu.style.display = "none";
+        
+        const userMenu = document.getElementById("user-menu");
+        if(userMenu) userMenu.style.display = "flex";
+        
+        const uInfo = document.getElementById("u-info");
+        if(uInfo) uInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
       }
 
       // 4. 로그인 로직 (폼 제출)
@@ -519,11 +513,8 @@
           const data = await res.json();
 
           if (res.ok) {
-            // 로그인 창 닫기
             closeM("loginModal");
-            // UI 변경 적용
             applyLoginUI(data.name);
-            // 폼 초기화
             document.getElementById("loginF").reset();
           } else {
             alert(data.message || "아이디 혹은 비밀번호가 틀렸습니다.");
@@ -656,54 +647,76 @@
         document.getElementById("rateVal").innerText = this.value + "배속";
       };
 
-      // 12. TTS 읽기 및 하이라이팅 시작
+      // 12. TTS 읽기 및 하이라이팅 시작 (정밀 글자 범위 인덱스 매칭 방식으로 전면 수정)
+      let wordRanges = []; // 각 단어span의 시작과 끝 인덱스를 저장할 배열
+
       function handleSpeak() {
-        const txt = document.getElementById("tIn").value.trim();
+        const txt = document.getElementById("tIn").value;
         const output = document.getElementById("tOut");
 
-        if (!txt) return alert("내용을 입력해주세요.");
+        if (!txt.trim()) return alert("내용을 입력해주세요.");
 
-        // 이전 음성 재생 취소
         window.speechSynthesis.cancel();
 
-        // 입력된 텍스트를 공백 기준으로 나누어 화면에 span 태그로 감싸서 뿌림
-        const words = txt.split(/(\s+)/);
-        output.innerHTML = words
-          .map((w, i) =>
-            w.trim() ? `<span id="word-${i}" class="word">${w}</span>` : w
-          )
-          .join("");
+        // 텍스트를 정밀 분해하여 단어들의 인덱스 범위를 매핑합니다.
+        output.innerHTML = "";
+        wordRanges = [];
+        
+        // 정규식을 사용해 단어(글자들)와 공백을 순차적으로 안전하게 추출합니다.
+        const regex = /(\S+)|(\s+)/g;
+        let match;
+        let htmlContent = "";
+        let spanIdCounter = 0;
+
+        while ((match = regex.exec(txt)) !== null) {
+          const word = match[1];
+          const space = match[2];
+
+          if (word) {
+            const startIdx = match.index;
+            const endIdx = regex.lastIndex;
+            
+            htmlContent += `<span id="word-${spanIdCounter}" class="word">${word}</span>`;
+            
+            // 전역 변수 배열에 단어 엘리먼트 ID와 시작/끝 글자 인덱스 저장
+            wordRanges.push({
+              id: `word-${spanIdCounter}`,
+              start: startIdx,
+              end: endIdx
+            });
+            spanIdCounter++;
+          } else if (space) {
+            // 공백이나 줄바꿈은 브라우저 렌더링을 위해 그대로 유지하되, 엔터(\n)는 <br>로 변경 처리
+            htmlContent += space.replace(/\n/g, "<br>");
+          }
+        }
+        output.innerHTML = htmlContent;
 
         const utter = new SpeechSynthesisUtterance(txt);
         utter.lang = "ko-KR";
         utter.rate = document.getElementById("tRate").value;
-        // 아동 목소리 선택 시 피치(음높이)를 높게 설정
-        utter.pitch =
-          document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
+        utter.pitch = document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
 
-        // 읽고 있는 단어의 위치를 추적하여 하이라이팅 클래스 적용
+        // 브라우저 음성 엔진이 단어 경계(boundary)에 도달할 때 호출되는 함수
         utter.onboundary = (e) => {
           if (e.name === "word") {
             const charIdx = e.charIndex;
-            let count = 0;
 
-            words.forEach((w, i) => {
-              const el = document.getElementById(`word-${i}`);
+            // 음성 엔진의 현재 읽는 글자 인덱스가 어느 단어 범위에 포함되는지 완벽 매칭
+            wordRanges.forEach((range) => {
+              const el = document.getElementById(range.id);
               if (el) {
-                if (count <= charIdx && charIdx < count + w.length) {
+                if (charIdx >= range.start && charIdx < range.end) {
                   el.classList.add("highlight");
-                  // 스크롤이 자동으로 따라가도록 설정
                   el.scrollIntoView({ behavior: "smooth", block: "center" });
                 } else {
                   el.classList.remove("highlight");
                 }
               }
-              count += w.length;
             });
           }
         };
 
-        // 음성 재생이 끝나면 모든 하이라이팅 제거
         utter.onend = () => {
           document
             .querySelectorAll(".word")
