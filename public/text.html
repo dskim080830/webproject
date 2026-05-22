@@ -182,7 +182,7 @@
                     let levelText = "경계선 지능";
                     if(userData.level == "2") levelText = "경도 지적 장애";
                     if(userData.level == "3") levelText = "중증 지적 장애";
-                    if(userData.level == "4") levelText = "일반인";
+                    if(userData.level == "4") levelText = "비장애인";
                     
                     displayLevel.innerText = levelText;
                     userLevelValue.value = userData.level;
@@ -201,6 +201,34 @@
                 console.error("인증 로드 실패:", error);
             }
         };
+         function openM(id) {
+        document.getElementById(id).style.display = "flex";
+      }
+      function closeM(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      // 2. [핵심] 로그인 유지: 페이지 로드 시 서버에 인증 정보 확인
+      window.onload = async function () {
+        try {
+          const res = await fetch("/api/check-auth");
+          if (res.ok) {
+            const user = await res.json();
+            applyLoginUI(user.name);
+          }
+        } catch (e) {
+          console.error("인증 확인 실패 (비로그인 상태)");
+        }
+      };
+
+      // 3. UI 변경 함수 (우측 상단에 "ㅇㅇㅇ님, 환영합니다!" 출력)
+      function applyLoginUI(userName) {
+        document.getElementById("guest-menu").style.display = "none";
+        document.getElementById("user-menu").style.display = "flex";
+        document.getElementById(
+          "u-info"
+        ).innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+      }
 
         function applyLoggedInUI(userName) {
             document.getElementById('guest-menu').style.display = 'none';
