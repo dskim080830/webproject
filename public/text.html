@@ -125,6 +125,10 @@
             </ul>
         </div>
         <div class="header-right">
+            <div id="guest-menu" style="display: flex; align-items: center; gap: 10px;">
+                <button class="login-btn" onclick="openLoginModal()" style="background:none; border:none;">로그인</button>
+                <button class="signup-btn" onclick="openSignupModal()">회원가입</button>
+            </div>
             <div id="user-menu">
                 <span id="user-info">사용자님, 환영합니다!</span>
                 <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
@@ -162,7 +166,7 @@
     </div>
 
     <script>
-        // 1. 페이지 로드 시 인증 확인
+        // 💡 [중요 수정] 중복 선언되어 충돌을 일으키던 window.onload 코드를 하나로 완벽히 통합했습니다.
         window.onload = async function() {
             try {
                 const response = await fetch('/api/check-auth');
@@ -173,67 +177,69 @@
                 if (response.ok) {
                     const userData = await response.json();
                     localStorage.setItem('currentUser', userData.name);
+                    
+                    // 로그인 메뉴 UI 노출 및 활성화
                     applyLoggedInUI(userData.name);
                     
-                    // 로그인한 경우: 선택창 숨기고 뱃지 표시
-                    guestLevelSelector.style.display = 'none';
-                    displayLevel.style.display = 'inline-block';
-                    
-                    let levelText = "경계선 지능";
-                    if(userData.level == "2") levelText = "경도 지적 장애";
-                    if(userData.level == "3") levelText = "중증 지적 장애";
-                    if(userData.level == "4") levelText = "비장애인";
-                    
-                    displayLevel.innerText = levelText;
-                    userLevelValue.value = userData.level;
+                    // 로그인한 경우: 게스트용 선택창 숨기고 개인 맞춤 뱃지 표시
+                    if (guestLevelSelector) guestLevelSelector.style.display = 'none';
+                    if (displayLevel) {
+                        displayLevel.style.display = 'inline-block';
+                        
+                        let levelText = "경계선 지능";
+                        if(userData.user_level == "2" || userData.level == "2") levelText = "경도 지적 장애";
+                        if(userData.user_level == "3" || userData.level == "3") levelText = "중증 지적 장애";
+                        if(userData.user_level == "4" || userData.level == "4") levelText = "비장애인";
+                        
+                        displayLevel.innerText = levelText;
+                    }
+                    if (userLevelValue) {
+                        userLevelValue.value = userData.user_level || userData.level || "1";
+                    }
                 } else {
-                    // 로그인하지 않은 경우 (게스트): 선택창 유지
+                    // 로그인하지 않은 경우 (게스트): 선택창 유지 및 게스트 UI 적용
                     localStorage.removeItem('currentUser');
-                    guestLevelSelector.style.display = 'inline-block';
-                    displayLevel.style.display = 'none';
+                    applyLoggedOutUI();
                     
-                    // 선택창 변경 시 히든 필드에 자동 업데이트
-                    guestLevelSelector.onchange = function() {
-                        userLevelValue.value = this.value;
-                    };
+                    if (guestLevelSelector) {
+                        guestLevelSelector.style.display = 'inline-block';
+                        guestLevelSelector.onchange = function() {
+                            if (userLevelValue) userLevelValue.value = this.value;
+                        };
+                    }
+                    if (displayLevel) displayLevel.style.display = 'none';
                 }
             } catch (error) {
-                console.error("인증 로드 실패:", error);
+                console.error("인증 로드 중 오류 발생:", error);
+                applyLoggedOutUI();
             }
         };
-         function openM(id) {
-        document.getElementById(id).style.display = "flex";
-      }
-      function closeM(id) {
-        document.getElementById(id).style.display = "none";
-      }
 
-      // 2. [핵심] 로그인 유지: 페이지 로드 시 서버에 인증 정보 확인
-      window.onload = async function () {
-        try {
-          const res = await fetch("/api/check-auth");
-          if (res.ok) {
-            const user = await res.json();
-            applyLoginUI(user.name);
-          }
-        } catch (e) {
-          console.error("인증 확인 실패 (비로그인 상태)");
+        function openM(id) {
+            document.getElementById(id).style.display = "flex";
         }
-      };
+        function closeM(id) {
+            document.getElementById(id).style.display = "none";
+        }
 
-      // 3. UI 변경 함수 (우측 상단에 "ㅇㅇㅇ님, 환영합니다!" 출력)
-      function applyLoginUI(userName) {
-        document.getElementById("guest-menu").style.display = "none";
-        document.getElementById("user-menu").style.display = "flex";
-        document.getElementById(
-          "u-info"
-        ).innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
-      }
-
+        // 로그인 상태 반영 UI 제어 함수
         function applyLoggedInUI(userName) {
-            document.getElementById('guest-menu').style.display = 'none';
-            document.getElementById('user-menu').style.display = 'flex';
-            document.getElementById('user-info').innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+            const guestMenu = document.getElementById('guest-menu');
+            const userMenu = document.getElementById('user-menu');
+            const userInfo = document.getElementById('user-info');
+
+            if (guestMenu) guestMenu.style.display = 'none';
+            if (userMenu) userMenu.style.display = 'flex';
+            if (userInfo) userInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+        }
+
+        // 로그아웃 상태(게스트 상태) 반영 UI 제어 함수
+        function applyLoggedOutUI() {
+            const guestMenu = document.getElementById('guest-menu');
+            const userMenu = document.getElementById('user-menu');
+
+            if (guestMenu) guestMenu.style.display = 'flex';
+            if (userMenu) userMenu.style.display = 'none';
         }
 
         async function handleLogout() {
