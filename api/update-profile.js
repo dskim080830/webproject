@@ -8,7 +8,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    // index.html의 payload 데이터 받기
+    // index.html에서 보낸 변수명 그대로 매핑
     const { userId, pw, name, email, phone, birth, level } = req.body;
 
     if (!userId) {
@@ -23,12 +23,16 @@ export default async function handler(req, res) {
             ssl: { rejectUnauthorized: false }
         });
 
-        // 2. 비밀번호를 변경하는지 여부에 따라 쿼리 분기
+        // '일반인(4)' 같은 문자열 데이터를 안전하게 숫자 4로 변환 (기본값 1)
+        const numericLevel = parseInt(level, 10) || 1;
+
+        // 2. 비밀번호를 새로 입력했는지 여부에 따라 쿼리 작동
         if (pw && pw.trim() !== '') {
-            // 새 비밀번호가 입력된 경우 -> 암호화 후 업데이트
+            // 비밀번호도 같이 변경할 때
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(pw, saltRounds);
 
+            // ⭐ TiDB의 실제 컬럼명인 user_level에 numericLevel을 정확히 대입합니다.
             const query = `
                 UPDATE users 
                 SET name = ?, password = ?, email = ?, phone = ?, birth = ?, user_level = ?
@@ -40,11 +44,11 @@ export default async function handler(req, res) {
                 email || null, 
                 phone || null, 
                 birth || null, 
-                parseInt(level) || 1, 
+                numericLevel, 
                 userId
             ]);
         } else {
-            // 비밀번호를 비워둔 경우 -> 비밀번호 제외하고 업데이트
+            // 비밀번호는 바꾸지 않고 다른 정보만 변경할 때
             const query = `
                 UPDATE users 
                 SET name = ?, email = ?, phone = ?, birth = ?, user_level = ?
@@ -55,7 +59,7 @@ export default async function handler(req, res) {
                 email || null, 
                 phone || null, 
                 birth || null, 
-                parseInt(level) || 1, 
+                numericLevel, 
                 userId
             ]);
         }
@@ -63,8 +67,8 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: '개인정보가 성공적으로 수정되었습니다.' });
 
     } catch (error) {
-        console.error("🔥 [UPDATE-PROFILE CRASH]:", error);
-        return res.status(500).json({ message: '서버 오류가 발생했습니다.', error: error.message });
+        console.error("🔥 [UPDATE-PROFILE LEVEL CRASH]:", error);
+        return res.status(500).json({ message: '서버 내부 오류로 수정을 반영하지 못했습니다.', error: error.message });
     } finally {
         if (db) await db.end();
     }
