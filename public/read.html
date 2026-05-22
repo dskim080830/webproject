@@ -81,6 +81,11 @@
         gap: 15px;
         align-items: center;
       }
+      #guest-menu {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
       #user-menu {
         display: none;
         gap: 15px;
@@ -238,6 +243,10 @@
         </ul>
       </div>
       <div class="header-right">
+        <div id="guest-menu">
+          <button class="btn btn-outline" onclick="openM('loginModal')">로그인</button>
+          <button class="btn btn-primary" onclick="openM('signupModal')">회원가입</button>
+        </div>
         <div id="user-menu">
           <span id="u-info"></span>
           <button class="btn btn-sub" onclick="handleLogout()">로그아웃</button>
@@ -478,9 +487,12 @@
           if (res.ok) {
             const user = await res.json();
             applyLoginUI(user.name);
+          } else {
+            applyLogoutUI();
           }
         } catch (e) {
           console.error("인증 확인 실패 (비로그인 상태)");
+          applyLogoutUI();
         }
       };
 
@@ -494,6 +506,14 @@
         
         const uInfo = document.getElementById("u-info");
         if(uInfo) uInfo.innerHTML = `✨ <strong>${userName}</strong>님, 환영합니다!`;
+      }
+
+      function applyLogoutUI() {
+        const guestMenu = document.getElementById("guest-menu");
+        if(guestMenu) guestMenu.style.display = "flex";
+        
+        const userMenu = document.getElementById("user-menu");
+        if(userMenu) userMenu.style.display = "none";
       }
 
       // 4. 로그인 로직 (폼 제출)
@@ -647,8 +667,8 @@
         document.getElementById("rateVal").innerText = this.value + "배속";
       };
 
-      // 12. TTS 읽기 및 하이라이팅 시작 (정밀 글자 범위 인덱스 매칭 방식으로 전면 수정)
-      let wordRanges = []; // 각 단어span의 시작과 끝 인덱스를 저장할 배열
+      // 12. TTS 읽기 및 하이라이팅 시작
+      let wordRanges = [];
 
       function handleSpeak() {
         const txt = document.getElementById("tIn").value;
@@ -658,11 +678,9 @@
 
         window.speechSynthesis.cancel();
 
-        // 텍스트를 정밀 분해하여 단어들의 인덱스 범위를 매핑합니다.
         output.innerHTML = "";
         wordRanges = [];
         
-        // 정규식을 사용해 단어(글자들)와 공백을 순차적으로 안전하게 추출합니다.
         const regex = /(\S+)|(\s+)/g;
         let match;
         let htmlContent = "";
@@ -678,7 +696,6 @@
             
             htmlContent += `<span id="word-${spanIdCounter}" class="word">${word}</span>`;
             
-            // 전역 변수 배열에 단어 엘리먼트 ID와 시작/끝 글자 인덱스 저장
             wordRanges.push({
               id: `word-${spanIdCounter}`,
               start: startIdx,
@@ -686,7 +703,6 @@
             });
             spanIdCounter++;
           } else if (space) {
-            // 공백이나 줄바꿈은 브라우저 렌더링을 위해 그대로 유지하되, 엔터(\n)는 <br>로 변경 처리
             htmlContent += space.replace(/\n/g, "<br>");
           }
         }
@@ -697,12 +713,10 @@
         utter.rate = document.getElementById("tRate").value;
         utter.pitch = document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
 
-        // 브라우저 음성 엔진이 단어 경계(boundary)에 도달할 때 호출되는 함수
         utter.onboundary = (e) => {
           if (e.name === "word") {
             const charIdx = e.charIndex;
 
-            // 음성 엔진의 현재 읽는 글자 인덱스가 어느 단어 범위에 포함되는지 완벽 매칭
             wordRanges.forEach((range) => {
               const el = document.getElementById(range.id);
               if (el) {
