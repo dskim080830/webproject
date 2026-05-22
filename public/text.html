@@ -39,7 +39,6 @@
         #guest-menu { display: flex; align-items: center; gap: 10px; }
         #user-menu { display: none; align-items: center; gap: 15px; font-weight: 700; }
         
-        /* 타 파일(read.html 등)과 완벽한 일치를 위한 버튼 공통 스타일 지정 */
         .btn {
             cursor: pointer;
             border: none;
@@ -79,7 +78,6 @@
         }
         textarea:focus { border-color: var(--primary); }
         
-        /* 수준 선택 바 스타일 수정 */
         .info-bar { 
             background: #f0f7ff; padding: 18px 30px; border-radius: 50px; 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
@@ -87,7 +85,6 @@
         }
         .user-level-badge { color: var(--primary); font-weight: 800; background: white; padding: 5px 15px; border-radius: 20px; }
         
-        /* 게스트용 수준 선택 드롭다운 */
         #guestLevelSelector {
             padding: 8px 15px;
             border-radius: 15px;
@@ -256,8 +253,9 @@
             }
         }
 
+        // 💡 변환 및 사전 치환 로직 처리 함수
         async function convertText() {
-            const text = document.getElementById("inputText").value.trim();
+            let text = document.getElementById("inputText").value.trim();
             const level = document.getElementById("userLevelValue").value;
             const resultBox = document.getElementById("result");
 
@@ -267,6 +265,25 @@
             }
 
             resultBox.innerHTML = "✨ 맞춤 수준에 맞춰 글을 다듬고 있습니다. 잠시만 기다려주세요...";
+
+            // 🔥 1. 사전 치환 (무조건 적용)
+            const replaceMap = {
+                금일: "오늘",
+                명일: "내일",
+                익일: "다음 날",
+                금주: "이번 주",
+                차주: "다음 주",
+                나흘: "4일",
+                닷새: "5일",
+            };
+
+            // 정규식을 사용해 텍스트 내부의 단어들을 일괄 치환
+            for (const key in replaceMap) {
+                if (replaceMap.hasOwnProperty(key)) {
+                    const regex = new RegExp(key, "g");
+                    text = text.replace(regex, replaceMap[key]);
+                }
+            }
 
             try {
                 const res = await fetch("/api/easy-text", {
