@@ -603,8 +603,8 @@
                     <input type="text" id="findIdName" required>
                 </div>
                 <div class="form-group">
-                    <label>휴대폰 번호</label>
-                    <input type="phone" id="findIdPhone" required>
+                    <label>이메</label>
+                    <input type="email" id="findIdEmail" required>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width:100%; padding: 15px;">아이디 찾기</button>
             </form>
@@ -1067,7 +1067,7 @@ document.getElementById('loginForm').onsubmit = async function(event) {
             const emailValue = document.getElementById('findIdEmail').value;
             
             try {
-                const response = await fetch('/api/find-id.js', { 
+                const response = await fetch('/api/find-id', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify({ name: nameValue, email: emailValue }) 
