@@ -35,52 +35,56 @@
         word-break: keep-all;
       }
 
-      /* === 헤더 및 메뉴 === */
       header {
-        background: var(--white);
-        padding: 0 5%;
-        height: 90px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 30px;
-      }
-      .logo { font-size: 28px; font-weight: 800; color: var(--primary); text-decoration: none; }
-      .nav-menu {
-        display: flex;
-        list-style: none;
-        gap: 20px;
-      }
-      .nav-menu a {
-        text-decoration: none;
-        color: #555;
-        font-weight: 700;
-        font-size: 16px;
-        transition: 0.2s;
-      }
+  background: var(--white);
+  padding: 0 40px; /* 좌우 여백 고정 */
+  height: 70px;    /* 기존 90px에서 이미지처럼 슬림하게 변경 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 그림자 부드럽게 */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 40px; /* 로고와 메뉴 사이의 간격을 이미지처럼 넓힘 */
+}
+.logo { 
+  font-size: 24px; /* 살짝 크기 조절 */
+  font-weight: 800; 
+  color: var(--primary); 
+  text-decoration: none; 
+}
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 30px; /* 메뉴 글자들 사이의 간격 */
+}
+.nav-menu a {
+  text-decoration: none;
+  color: #333; /* 텍스트 색상을 조금 더 선명하게 */
+  font-weight: 700;
+  font-size: 16px;
+  transition: 0.2s;
+}
       .nav-menu a:hover {
         color: var(--primary);
       }
 
       /* 로그인 전/후 메뉴 영역 */
       .header-right {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-      }
-      #guest-menu {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+  display: flex;
+  gap: 25px; /* 로그인과 회원가입 버튼 사이의 간격 */
+  align-items: center;
+}
+#guest-menu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
       #user-menu {
         display: none;
         gap: 15px;
