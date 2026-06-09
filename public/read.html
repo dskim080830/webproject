@@ -36,48 +36,52 @@
       }
 
       /* === [디자인 일치 수정] 헤더 및 메뉴 === */
-      header {
-        background: var(--white);
-        padding: 0 40px; /* 좌우 여백 고정 */
-        height: 90px;    /* 90px에서 슬림한 70px 높이로 축소 */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 은은한 그림자 효과 */
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 40px; /* 로고와 첫 메뉴 글자 사이의 간격 */
-      }
-      .logo { 
-        font-size: 28px; /* 글자 크기 최적화 */
-        font-weight: 800; 
-        color: var(--primary); 
-        text-decoration: none; 
-        display: flex;
-        align-items: center;
-        gap: 8px; /* 이모지와 텍스트 사이 간격 */
-      }
+     header {
+  background-color: var(--white);
+  padding: 0 40px;            /* 좌우 여백 고정 */
+  height: 90px;               /* behavior.html과 완벽히 동일한 높이 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); 
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 50px;                  /* 로고와 메뉴 사이의 간격을 대폭 넓힘 */
+}
+.logo { 
+  font-size: 28px;            /* 두 번째 이미지의 깔끔한 크기로 조정 */
+  font-weight: 800;           /* 가장 두꺼운 폰트 적용 */
+  color: var(--primary); 
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;                   /* ✨ 이모지와 텍스트 정렬 간격 */
+}
       .nav-menu {
-        display: flex;
-        list-style: none;
-        gap: 30px; /* 메뉴 항목 간의 간격 */
-      }
-      .nav-menu a {
-        text-decoration: none;
-        color: #333; /* 선명하고 깔끔한 다크 그레이 */
-        font-weight: 700;
-        font-size: 16px;
-        transition: 0.2s;
-      }
-      .nav-menu a:hover {
-        color: var(--primary);
-      }
-
+  display: flex;
+  list-style: none;
+  gap: 35px;                  /* 메뉴 글자들 사이의 간격을 넓혀 시원하게 배치 */
+  align-items: center;        /* 메뉴 내부 수평 정렬 */
+}
+      .nav-menu li {
+  display: flex;
+  align-items: center;
+}
+.nav-menu li a {
+  text-decoration: none;
+  color: #333333;             /* 선명한 다크 그레이로 변경 */
+  font-size: 16px;            /* 글자 크기를 부드럽게 최적화 */
+  font-weight: 800;           /* 두 번째 이미지처럼 메뉴 글씨 두께를 두껍게(Bold) 변경 */
+  transition: color 0.2s;
+}
+.nav-menu li a:hover {
+  color: var(--primary);
+}
       /* 로그인 전/후 메뉴 영역 */
       .header-right {
         display: flex;
