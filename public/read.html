@@ -35,53 +35,60 @@
         word-break: keep-all;
       }
 
-     header {
-  background: var(--white);
-  padding: 0 40px; /* 좌우 여백을 고정하여 안정감 부여 */
-  height: 70px;    /* 기존 90px에서 이미지처럼 슬림한 높이로 변경 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 그림자를 연하고 부드럽게 변경 */
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 40px; /* 로고와 메뉴 글자 사이의 간격을 이미지 비율로 넓힘 */
-}
-.logo { 
-  font-size: 24px; /* 글자 크기 살짝 조정 */
-  font-weight: 800; 
-  color: var(--primary); 
-  text-decoration: none; 
-}
-.nav-menu {
-  display: flex;
-  list-style: none;
-  gap: 30px; /* 메뉴 글자들 사이의 간격 지정 */
-}
-.nav-menu a {
-  text-decoration: none;
-  color: #333; /* 글자 색상을 이미지처럼 선명한 다크 그레이로 변경 */
-  font-weight: 700;
-  font-size: 16px;
-  transition: 0.2s;
-}
+      /* === [디자인 일치 수정] 헤더 및 메뉴 === */
+      header {
+        background: var(--white);
+        padding: 0 40px; /* 좌우 여백 고정 */
+        height: 70px;    /* 90px에서 슬림한 70px 높이로 축소 */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 은은한 그림자 효과 */
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 40px; /* 로고와 첫 메뉴 글자 사이의 간격 */
+      }
+      .logo { 
+        font-size: 24px; /* 글자 크기 최적화 */
+        font-weight: 800; 
+        color: var(--primary); 
+        text-decoration: none; 
+        display: flex;
+        align-items: center;
+        gap: 8px; /* 이모지와 텍스트 사이 간격 */
+      }
+      .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 30px; /* 메뉴 항목 간의 간격 */
+      }
+      .nav-menu a {
+        text-decoration: none;
+        color: #333; /* 선명하고 깔끔한 다크 그레이 */
+        font-weight: 700;
+        font-size: 16px;
+        transition: 0.2s;
+      }
+      .nav-menu a:hover {
+        color: var(--primary);
+      }
 
-  .header-right {
-  display: flex;
-  gap: 25px; /* 로그인과 회원가입 버튼 사이의 간격 */
-  align-items: center;
-}
-#guest-menu {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-};
-}
+      /* 로그인 전/후 메뉴 영역 */
+      .header-right {
+        display: flex;
+        gap: 25px; /* 버튼 사이 간격 */
+        align-items: center;
+      }
+      #guest-menu {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
       #user-menu {
         display: none;
         gap: 15px;
@@ -93,38 +100,41 @@
         font-size: 16px;
       }
 
-      /* === 버튼 스타일 === */
+      /* === 버튼 스타일 정밀 조정 === */
       .btn {
-  cursor: pointer;
-  border: none;
-  font-weight: 700;
-  transition: 0.2s;
-  display: inline-block;
-  font-size: 15px;
-}
-/* 이미지 우측의 [로그인] 버튼 : 배경 없이 글자만 노출 */
-.btn-outline {
-  background: none;
-  padding: 0;
-  color: #333;
-}
-.btn-outline:hover {
-  color: var(--primary);
-}
-/* 이미지 우측의 파란색 둥근 캡슐형 [회원가입] 버튼 */
-.btn-primary {
-  background: #4a90e2; /* 테마 파란색 */
-  color: #fff;
-  padding: 10px 24px; /* 위아래는 슬림하고 좌우는 넓게 패딩 설정 */
-  border-radius: 20px; /* 양 끝이 동그란 타원 모양 구현 */
-}
-.btn-primary:hover {
-  background: #357abd;
-}
+        cursor: pointer;
+        border: none;
+        font-weight: 700;
+        transition: 0.2s;
+        display: inline-block;
+        font-size: 15px;
+        font-family: "Nanum Gothic", sans-serif;
+      }
+      /* [로그인] 버튼: 배경 없이 텍스트만 깔끔하게 노출 */
+      .btn-outline {
+        background: none;
+        padding: 0;
+        color: #333;
+      }
+      .btn-outline:hover {
+        color: var(--primary);
+      }
+      /* [회원가입] 버튼: 완벽한 타원형 캡슐 디자인 */
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 24px;  /* 상하 슬림, 좌우 여유롭게 세팅 */
+        border-radius: 50px; /* 완벽한 타원형 라운드 구현 */
+        box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
+      }
+      .btn-primary:hover {
+        background: #357abd;
+      }
       .btn-sub {
         background: #eee;
         color: #666;
         padding: 8px 15px;
+        border-radius: 50px;
         font-size: 14px;
       }
 
@@ -234,7 +244,9 @@
   <body>
     <header>
       <div class="header-left">
-        <a href="./index.html" class="logo">✨ 쉬운 글 배움터</a>
+        <a href="./index.html" class="logo">
+          <span style="color: #ffb74d;">✨</span> 쉬운 글 배움터
+        </a>
         <ul class="nav-menu">
           <li><a href="./about.html">서비스 소개</a></li>
           <li><a href="./text.html">쉬운 글 변환기</a></li>
@@ -658,8 +670,8 @@
         document.getElementById("rateVal").innerText = this.value + "배속";
       };
 
-      // 12. [완벽 수정] TTS 읽기 및 글자 직접 매칭 하이라이팅 방식
-      let activeIndex = -1; // 현재 형광펜이 칠해진 단어의 인덱스 추적
+      // 12. TTS 읽기 및 글자 직접 매칭 하이라이팅 방식
+      let activeIndex = -1; 
 
       function handleSpeak() {
         const txt = document.getElementById("tIn").value;
@@ -667,23 +679,19 @@
 
         if (!txt.trim()) return alert("내용을 입력해주세요.");
 
-        // 기존 말하기 완전 취소 및 초기화
         window.speechSynthesis.cancel();
         output.innerHTML = "";
         activeIndex = -1;
 
-        // 화면 렌더링용 구조 생성 (공백이나 줄바꿈을 제외한 순수 단어들에 순서대로 index 부여)
         const wordsArray = txt.split(/(\s+)/);
         let htmlContent = "";
         let wordCounter = 0;
 
         wordsArray.forEach((part) => {
           if (part.trim().length > 0) {
-            // 순수 단어 텍스트일 때 span 생성
             htmlContent += `<span id="word-${wordCounter}" class="word">${part}</span>`;
             wordCounter++;
           } else {
-            // 공백 및 엔터 처리
             htmlContent += part.replace(/\n/g, "<br>");
           }
         });
@@ -694,32 +702,24 @@
         utter.rate = document.getElementById("tRate").value;
         utter.pitch = document.getElementById("voiceType").value === "child" ? 1.5 : 1.0;
 
-        // 브라우저가 단어를 넘길 때 실행되는 절대 불변 매칭 규칙
         utter.onboundary = (e) => {
           if (e.name === "word") {
             const charIdx = e.charIndex;
-            
-            // 현재 음성 엔진이 발음하는 시점의 '단어 텍스트'를 전체 원문에서 직접 잘라옵니다.
             const remainingText = txt.substring(charIdx);
-            const currentSpeakingWord = remainingText.split(/\s+/)[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); // 문장부호 제거
+            const currentSpeakingWord = remainingText.split(/\s+/)[0].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, ""); 
 
             if (!currentSpeakingWord) return;
 
-            // 화면에 렌더링된 span 단어들과 직접 순차 순회하며 매칭
             for (let i = activeIndex + 1; i < wordCounter; i++) {
               const el = document.getElementById(`word-${i}`);
               if (el) {
                 const elText = el.innerText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "");
                 
-                // 음성이 읽는 텍스트와 화면의 단어 텍스트가 일치하면 형광펜 이동
                 if (currentSpeakingWord.includes(elText) || elText.includes(currentSpeakingWord)) {
-                  // 기존 하이라이트 지우기
                   document.querySelectorAll(".word").forEach(span => span.classList.remove("highlight"));
-                  
-                  // 새 하이라이트 켜기
                   el.classList.add("highlight");
                   el.scrollIntoView({ behavior: "smooth", block: "center" });
-                  activeIndex = i; // 현재 인덱스 업데이트 업데이트
+                  activeIndex = i; 
                   break;
                 }
               }
@@ -734,7 +734,6 @@
         window.speechSynthesis.speak(utter);
       }
 
-      // 13. TTS 정지
       function stopSpeak() {
         window.speechSynthesis.cancel();
         document.querySelectorAll(".word").forEach((el) => el.classList.remove("highlight"));
