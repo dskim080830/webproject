@@ -36,14 +36,14 @@
       }
 
       /* === [디자인 일치 수정] 헤더 및 메뉴 === */
-     header {
-        background-color: var(--white);
-        padding: 0 5%;
-        height: 90px;
+      header {
+        background: var(--white);
+        padding: 0 40px; /* 좌우 여백 고정 */
+        height: 90px;    /* 90px에서 슬림한 70px 높이로 축소 */
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 은은한 그림자 효과 */
         position: sticky;
         top: 0;
         z-index: 100;
@@ -51,68 +51,48 @@
       .header-left {
         display: flex;
         align-items: center;
-        gap: 40px;
+        gap: 40px; /* 로고와 첫 메뉴 글자 사이의 간격 */
       }
-      .logo { font-size: 28px; font-weight: 800; color: var(--primary-color); text-decoration: none;}
-      .main-menu {
-        display: flex;
-        list-style: none;
-        gap: 30px;
-      }
-      .main-menu li a {
-        text-decoration: none;
-        color: #444;
-        font-size: 18px;
-        font-weight: 700;
-        transition: color 0.2s;
-      }
-      .main-menu li a:hover {
-        color: var(--primary-color);
-      }
-      .header-right {
+      .logo { 
+        font-size: 28px; /* 글자 크기 최적화 */
+        font-weight: 800; 
+        color: var(--primary); 
+        text-decoration: none; 
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 8px; /* 이모지와 텍스트 사이 간격 */
+      }
+      .nav-menu {
+        display: flex;
+        list-style: none;
+        gap: 30px; /* 메뉴 항목 간의 간격 */
+      }
+      .nav-menu a {
+        text-decoration: none;
+        color: #333; /* 선명하고 깔끔한 다크 그레이 */
+        font-weight: 700;
+        font-size: 16px;
+        transition: 0.2s;
+      }
+      .nav-menu a:hover {
+        color: var(--primary);
+      }
+
+      /* 로그인 전/후 메뉴 영역 */
+      .header-right {
+        display: flex;
+        gap: 25px; /* 버튼 사이 간격 */
+        align-items: center;
       }
       #guest-menu {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 20px;
       }
       #user-menu {
         display: none;
-        align-items: center;
         gap: 15px;
-        font-weight: 700;
-      }
-      .login-btn,
-      .signup-btn,
-      .logout-btn {
-        cursor: pointer;
-        text-decoration: none;
-        font-weight: 700;
-        border: none;
-        font-size: 16px;
-      }
-      .login-btn {
-        background: none;
-        color: var(--text-color);
-        padding: 10px 15px;
-      }
-      .signup-btn {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 10px 22px;
-        border-radius: 50px;
-        box-shadow: 0 4px 10px rgba(74, 144, 226, 0.2);
-        transition: all 0.2s;
-      }
-      .logout-btn {
-        background-color: #eee;
-        color: #666;
-        padding: 8px 15px;
-        border-radius: 50px;
-        font-size: 14px;
+        align-items: center;
       }
       #u-info {
         font-weight: 700;
