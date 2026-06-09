@@ -35,14 +35,14 @@
         word-break: keep-all;
       }
 
-      header {
+     header {
   background: var(--white);
-  padding: 0 40px; /* 좌우 여백 고정 */
-  height: 70px;    /* 기존 90px에서 이미지처럼 슬림하게 변경 */
+  padding: 0 40px; /* 좌우 여백을 고정하여 안정감 부여 */
+  height: 70px;    /* 기존 90px에서 이미지처럼 슬림한 높이로 변경 */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 그림자 부드럽게 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 그림자를 연하고 부드럽게 변경 */
   position: sticky;
   top: 0;
   z-index: 100;
@@ -50,10 +50,10 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 40px; /* 로고와 메뉴 사이의 간격을 이미지처럼 넓힘 */
+  gap: 40px; /* 로고와 메뉴 글자 사이의 간격을 이미지 비율로 넓힘 */
 }
 .logo { 
-  font-size: 24px; /* 살짝 크기 조절 */
+  font-size: 24px; /* 글자 크기 살짝 조정 */
   font-weight: 800; 
   color: var(--primary); 
   text-decoration: none; 
@@ -61,21 +61,17 @@
 .nav-menu {
   display: flex;
   list-style: none;
-  gap: 30px; /* 메뉴 글자들 사이의 간격 */
+  gap: 30px; /* 메뉴 글자들 사이의 간격 지정 */
 }
 .nav-menu a {
   text-decoration: none;
-  color: #333; /* 텍스트 색상을 조금 더 선명하게 */
+  color: #333; /* 글자 색상을 이미지처럼 선명한 다크 그레이로 변경 */
   font-weight: 700;
   font-size: 16px;
   transition: 0.2s;
 }
-      .nav-menu a:hover {
-        color: var(--primary);
-      }
 
-      /* 로그인 전/후 메뉴 영역 */
-      .header-right {
+  .header-right {
   display: flex;
   gap: 25px; /* 로그인과 회원가입 버튼 사이의 간격 */
   align-items: center;
@@ -84,6 +80,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
+};
 }
       #user-menu {
         display: none;
@@ -98,33 +95,37 @@
 
       /* === 버튼 스타일 === */
       .btn {
-        cursor: pointer;
-        border: none;
-        border-radius: 50px;
-        font-weight: 700;
-        transition: 0.2s;
-        display: inline-block;
-        font-size: 16px;
-        text-align: center;
-      }
-      .btn-primary {
-        background: var(--primary);
-        color: #fff;
-        padding: 12px 25px;
-      }
-      .btn-primary:hover {
-        background: #357abd;
-      }
+  cursor: pointer;
+  border: none;
+  font-weight: 700;
+  transition: 0.2s;
+  display: inline-block;
+  font-size: 15px;
+}
+/* 이미지 우측의 [로그인] 버튼 : 배경 없이 글자만 노출 */
+.btn-outline {
+  background: none;
+  padding: 0;
+  color: #333;
+}
+.btn-outline:hover {
+  color: var(--primary);
+}
+/* 이미지 우측의 파란색 둥근 캡슐형 [회원가입] 버튼 */
+.btn-primary {
+  background: #4a90e2; /* 테마 파란색 */
+  color: #fff;
+  padding: 10px 24px; /* 위아래는 슬림하고 좌우는 넓게 패딩 설정 */
+  border-radius: 20px; /* 양 끝이 동그란 타원 모양 구현 */
+}
+.btn-primary:hover {
+  background: #357abd;
+}
       .btn-sub {
         background: #eee;
         color: #666;
         padding: 8px 15px;
         font-size: 14px;
-      }
-      .btn-outline {
-        background: none;
-        padding: 10px 15px;
-        color: var(--text);
       }
 
       /* === 모달 및 폼 === */
